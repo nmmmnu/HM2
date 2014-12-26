@@ -1,0 +1,6 @@
+Benchmark using test_hm_file.c with import of 100K key/value hm_pairs_t:
+
+test_hm_file_ve	hm_vector_t + bin search	dynamic array	0:01.363
+test_hm_file_ve	hm_vector_t			dynamic array	3:28.293
+test_hm_file_ll	hm_linklist_t			link list	4:07.387
+
