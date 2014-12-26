@@ -5,10 +5,10 @@
 
 
 
-typedef uint64_t vectorsize_t;
+typedef uint64_t hm_vectorsize_t;
 
 typedef struct _hm_vector_t{
-	vectorsize_t size;
+	hm_vectorsize_t size;
 	uint64_t buffer_alloc_size;
 	void **buffer;
 }hm_vector_t;
@@ -25,7 +25,7 @@ const hm_pair_t *hm_vector_get(hm_vector_t *v, const char *key);
 
 int hm_vector_remove(hm_vector_t *v, const char *key);
 
-vectorsize_t hm_vector_count(const hm_vector_t *v);
+hm_vectorsize_t hm_vector_count(const hm_vector_t *v);
 
 void hm_vector_dump(const hm_vector_t *v);
 

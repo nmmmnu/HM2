@@ -1,5 +1,5 @@
 #include "hm_pair.h"
-#include "hm_vector.h"
+#include "hm_list.h"
 
 #include "malloc_info.h"
 
@@ -46,66 +46,67 @@ void hm_pair_test(const int delay){
 
 
 
-static hm_vector_t *_hm_vector_populate(hm_vector_t *v){
+static hm_list_t *_hm_list_populate(hm_list_t *v){
 	// go to empty list
-	hm_vector_put(v, hm_pair_create("3 city", "Sofia")		);
+	hm_list_put(v, hm_pair_create("3 city", "Sofia")	);
 	// go first
-	hm_vector_put(v, hm_pair_create("1 name", "Niki")		);
+	hm_list_put(v, hm_pair_create("1 name", "Niki")		);
 	// go middle
-	hm_vector_put(v, hm_pair_create("2 age", "22")			);
+	hm_list_put(v, hm_pair_create("2 age", "22")		);
 	// go last
-	hm_vector_put(v, hm_pair_create("4 os", "Linux")		);
+	hm_list_put(v, hm_pair_create("4 os", "Linux")		);
 
 	return v;
 }
 
-static void _hm_vector_test_overwrite(hm_vector_t *v){
-	_hm_vector_populate(v);
+static void _hm_list_test_overwrite(hm_list_t *v){
+	_hm_list_populate(v);
 
-	hm_vector_put(v, hm_pair_create("2 val", "original")	);
-	hm_vector_put(v, hm_pair_create("2 val", "overwritten")	);
+	const char *overwr = "overwritten";
 
-	const hm_pair_t *p = hm_vector_get(v,"2 val");
-	PRINTF_TEST("hm_vector_t", "overwrite",	! strcmp(hm_pair_getval(p), "overwritten")	);
+	hm_list_put(v, hm_pair_create("2 val", "original")	);
+	hm_list_put(v, hm_pair_create("2 val", overwr)	);
 
-	hm_vector_free(v);
+	const hm_pair_t *p = hm_list_get(v,"2 val");
+	PRINTF_TEST("hm_list_t", "overwrite",	! strcmp(hm_pair_getval(p), overwr)	);
+
+	hm_list_free(v);
 }
 
-static void _hm_vector_test_remove(hm_vector_t *v){
-	_hm_vector_populate(v);
+static void _hm_list_test_remove(hm_list_t *v){
+	_hm_list_populate(v);
 
 	// remove middle
-	hm_vector_remove(v, "2 age");
+	hm_list_remove(v, "2 age");
 	// remove first
-	hm_vector_remove(v, "1 name");
+	hm_list_remove(v, "1 name");
 	// remove middle
-	hm_vector_remove(v, "4 os");
+	hm_list_remove(v, "4 os");
 
-	const hm_pair_t *p = hm_vector_get(v,"3 city");
-	PRINTF_TEST("hm_vector_t", "remove",	! strcmp(hm_pair_getval(p), "Sofia")	);
-	PRINTF_TEST("hm_vector_t", "remove",	hm_vector_count(v) == 1			);
+	const hm_pair_t *p = hm_list_get(v,"3 city");
+	PRINTF_TEST("hm_list_t", "remove",	! strcmp(hm_pair_getval(p), "Sofia")	);
+	PRINTF_TEST("hm_list_t", "remove",	hm_list_count(v) == 1			);
 
 	// remove last
-	hm_vector_remove(v, "3 city");
+	hm_list_remove(v, "3 city");
 
-	PRINTF_TEST("hm_vector_t", "remove",	hm_vector_count(v) == 0			);
+	PRINTF_TEST("hm_list_t", "remove",	hm_list_count(v) == 0			);
 
-	hm_vector_free(v);
+	hm_list_free(v);
 }
 
-void hm_vector_test(){
-	hm_vector_t v_real;
-	hm_vector_t *v = hm_vector_create(& v_real);
+void hm_list_test(){
+	void *v = hm_list_create();
 
-	_hm_vector_populate(v);
-	hm_vector_dump(v);
-	hm_vector_free(v);
+	_hm_list_populate(v);
+	hm_list_dump(v);
+	hm_list_free(v);
 
-	PRINTF_TEST("hm_vector_t", "put",	1		);
-	PRINTF_TEST("hm_vector_t", "free",	1		);
+	PRINTF_TEST("hm_list_t", "put",		1	);
+	PRINTF_TEST("hm_list_t", "free",	1	);
 
-	_hm_vector_test_overwrite(v);
-	_hm_vector_test_remove(v);
+	_hm_list_test_overwrite(v);
+	_hm_list_test_remove(v);
 }
 
 
@@ -114,7 +115,7 @@ void hm_vector_test(){
 int main(int argc, char **argv){
 	hm_pair_test(argc > 1);
 
-	hm_vector_test();
+	hm_list_test();
 
 
 
