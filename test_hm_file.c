@@ -1,81 +1,99 @@
 #include "hm_pair.h"
-#include "hm_vector.h"
+#include "hm_list.h"
 
 #include "malloc_info.h"
 
 #include <stdio.h>
-#include <string.h>
+#include <string.h>	// strlen
+#include <stdlib.h>	// free
 #include <ctype.h>	// isspace
 
+#define PROCESS_STEP 1000 * 10
 
+#define display_malloc_info() display_mallinfo(0)
 
-#define MAX 1024
-
-
-
-void processfile(hm_vector_t *v, const char *filename, int op);
+void processfile(hm_list_t *v, const char *filename, int op);
 char *trim(char *s);
 
 
 
 int main(int argc, char **argv){
 	const char *filename = argv[1];
-	const char *findkey = argv[2];
+	const char *findkey  = argv[2];
 
-	display_mallinfo(0);
 
-	hm_vector_t v_real;
-	hm_vector_t *v = hm_vector_create(& v_real);
+
+	display_malloc_info();
+
+
+	// Create and load
+
+	hm_list_t *v = hm_list_create();
 
 	printf("Load file\n");
 	processfile(v, filename, 0);
 	printf("Done...\n");
 
-	const hm_pair_t *pair = hm_vector_get(v, findkey);
+
+
+	// Find the key
+
+	const hm_pair_t *pair = hm_list_get(v, findkey);
 
 	if (pair == NULL)
 		printf("Key %s not found\n", findkey);
 	else
 		printf("Key %s found - %s\n", findkey, hm_pair_getval(pair));
 
-	display_mallinfo(0);
+
+
+	display_malloc_info();
 
 	getchar();
+
+
+
+	// Free list
 
 	printf("Free file\n");
-
-	hm_vector_free(v);
-
+	hm_list_free(v);
 	printf("Done...\n");
 
-	display_mallinfo(0);
+	free(v);
+
+	display_malloc_info();
 
 	getchar();
+
+
 
 	return 0;
 }
 
-void processfile(hm_vector_t *v, const char *filename, int op){
-	char buffer[MAX];
+#define BUFFER_SIZE 1024
+
+void processfile(hm_list_t *v, const char *filename, int op){
+	char buffer[BUFFER_SIZE];
 
 	FILE *f = fopen(filename, "r");
 
 	unsigned int i = 0;
 	char *key;
-	while( (key = fgets(buffer, MAX, f)) ){
+	while( (key = fgets(buffer, BUFFER_SIZE, f)) ){
 		trim(key);
 
 		switch(op){
 		case 0:
-			hm_vector_put(v, hm_pair_create(key, key));
+			hm_list_put(v, hm_pair_create(key, key));
 			break;
 		case 1:
-			hm_vector_remove(v, key);
+			hm_list_remove(v, key);
 			break;
 		}
 
 		i++;
-		if (i % ( 1 * 1000 * 10 ) == 0){
+
+		if (i % ( PROCESS_STEP ) == 0){
 			printf("Processed %10u...\n", i);
 		}
 	}

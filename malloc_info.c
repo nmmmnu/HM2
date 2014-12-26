@@ -19,7 +19,7 @@ void display_mallinfo(int fullinfo){
 		myprintf("# of free chunks" 		,	"ordblks"	,	m.ordblks	);
 		myprintf("# of free fastbin blocks"	,	"smblks"	,	m.smblks	);
 		myprintf("# of mapped regions"		,	"hblks"		,	m.hblks		);
-		myprintf("Bytes in mapped regions"	,	"hblkhd"	,	m.hblkhd	);
+		myprintf("Bytes in mmapped regions"	,	"hblkhd"	,	m.hblkhd	);
 		myprintf("Max. total allocated space"	,	"usmblks"	,	m.usmblks	);
 		myprintf("Free bytes held in fastbins"	,	"fsmblks"	,	m.fsmblks	);
 		myprintf("Total allocated space"	,	"uordblks"	,	m.uordblks	);
@@ -27,7 +27,9 @@ void display_mallinfo(int fullinfo){
 		myprintf("Topmost releasable block"	,	"keepcost"	,	m.keepcost	);
 	}else{
 		myprintf("Total non-mmapped bytes"	,	"arena"		,	m.arena		);
-		myprintf("Bytes in mapped regions"	,	"hblkhd"	,	m.hblkhd	);
+		myprintf("Bytes in mmapped regions"	,	"hblkhd"	,	m.hblkhd	);
+		myprintf("Total allocated space"	,	"uordblks"	,	m.uordblks	);
 	}
+
 }
 

@@ -3,8 +3,7 @@ LINK = gcc -o
 
 
 
-all: test_hm_ve test_hm_ll
-#test_hm_file
+all: test_hm_ve test_hm_ll test_hm_file_ve test_hm_file_ll
 
 
 
@@ -18,21 +17,24 @@ malloc_info.o: malloc_info.c malloc_info.h
 
 
 
-test_hm_ve: test_hm.o hm_pair.o malloc_info.o			hm_vector.o hm_list_vector.o
-	$(LINK) test_hm_ve test_hm.o hm_pair.o malloc_info.o	hm_vector.o hm_list_vector.o
+test_hm_ve:			test_hm.o hm_pair.o malloc_info.o	hm_vector.o hm_list_vector.o
+	$(LINK) test_hm_ve	test_hm.o hm_pair.o malloc_info.o	hm_vector.o hm_list_vector.o
 
-test_hm_ll: test_hm.o hm_pair.o malloc_info.o			hm_linklist.o hm_list_linklist.o
-	$(LINK) test_hm_ll test_hm.o hm_pair.o malloc_info.o	hm_linklist.o hm_list_linklist.o
+test_hm_ll:			test_hm.o hm_pair.o malloc_info.o	hm_linklist.o hm_list_linklist.o
+	$(LINK) test_hm_ll	test_hm.o hm_pair.o malloc_info.o	hm_linklist.o hm_list_linklist.o
 
-test_hm.o: test_hm.c hm_pair.h hm_list.h malloc_info.h   hm_vector.h hm_linklist.h
+test_hm.o: test_hm.c		hm_pair.h hm_list.h malloc_info.h	hm_vector.h hm_linklist.h
 	$(CC) test_hm.c
 
 
 
-test_hm_file: test_hm_file.o hm_pair.o     hm_vector.o hm_linklist.o     malloc_info.o
-	$(LINK) test_hm_file test_hm_file.o hm_pair.o     hm_vector.o hm_linklist.o     malloc_info.o
+test_hm_file_ve:		test_hm_file.o hm_pair.o malloc_info.o	hm_vector.o hm_list_vector.o
+	$(LINK) test_hm_file_ve	test_hm_file.o hm_pair.o malloc_info.o	hm_vector.o hm_list_vector.o
 
-test_hm_file.o: test_hm_file.c hm_pair.h     hm_list_vector.h hm_vector.h hm_list_linklist.h hm_linklist.h     malloc_info.h
+test_hm_file_ll:		test_hm_file.o hm_pair.o malloc_info.o	hm_linklist.o hm_list_linklist.o
+	$(LINK) test_hm_file_ll	test_hm_file.o hm_pair.o malloc_info.o	hm_linklist.o hm_list_linklist.o
+
+test_hm_file.o: test_hm_file.c	hm_pair.h hm_list.h malloc_info.h	hm_vector.h hm_linklist.h
 	$(CC) test_hm_file.c
 
 
@@ -47,6 +49,8 @@ hm_vector.o: hm_vector.c hm_vector.h hm_pair.h
 
 hm_list_vector.o: hm_list_vector.c hm_list.h hm_vector.h hm_pair.h
 	$(CC) hm_list_vector.c
+
+
 
 hm_linklist.o: hm_linklist.c hm_linklist.h hm_pair.h
 	$(CC) hm_linklist.c

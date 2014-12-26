@@ -8,6 +8,8 @@
 
 
 
+#define USE_BINSEARCH	1
+
 #define REALLOC_CHUNK_SIZE 1024
 
 #define DUMP_FORMAT "%5" PRIu64 " : %-10s : %-20s\n"
@@ -158,7 +160,8 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	return 1;
 }
 
-/*
+#ifndef USE_BINSEARCH
+
 static int _hm_vector_locate_position_dumb(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
 	// dumb - visit every node
 	hm_vectorsize_t i;
@@ -180,7 +183,8 @@ static int _hm_vector_locate_position_dumb(hm_vector_t *v, const char *key, hm_v
 	*index = i;
 	return -1;
 }
-*/
+
+#else
 
 static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
 
@@ -225,16 +229,20 @@ static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, h
 	return cmp;
 }
 
+#endif
+
 static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
 	if (v->size == 0){
 		*index = 0;
 		return 1;
 	}
 
-	return
-	//	_hm_vector_locate_position_dumb
-		_hm_vector_locate_position_bsearch
-			(v, key, index);
+#ifndef USE_BINSEARCH
+	return _hm_vector_locate_position_dumb(v, key, index);
+#else
+	return _hm_vector_locate_position_bsearch(v, key, index);
+#endif
+
 }
 
 static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index){
