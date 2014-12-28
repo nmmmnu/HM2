@@ -12,9 +12,9 @@
 #define MAX_VALSIZE	0xffffffff
 
 
-
+#ifdef HM_PAIR_EXPIRATION
 static inline timestamp_t _hm_pair_now();
-
+#endif
 
 
 hm_pair_t *hm_pair_create(const char*key, const char*val){
@@ -49,7 +49,10 @@ hm_pair_t *hm_pair_create(const char*key, const char*val){
 		return NULL;
 
 	pair->next	= NULL;
+#ifdef HM_PAIR_EXPIRATION
 	pair->created	= _hm_pair_now();
+	pair->expires	= 0;
+#endif
 	pair->keylen	= keylen;
 	pair->vallen	= vallen;
 
@@ -60,6 +63,7 @@ hm_pair_t *hm_pair_create(const char*key, const char*val){
 	return pair;
 };
 
+#ifdef HM_PAIR_EXPIRATION
 hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
 	hm_pair_t *pair = hm_pair_create(key, val);
 
@@ -70,6 +74,7 @@ hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
 
 	return pair;
 }
+#endif
 
 const char *hm_pair_getkey(const hm_pair_t *pair){
 	return & pair->buffer[0];
@@ -108,14 +113,19 @@ int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
 
 
 int hm_pair_valid(const hm_pair_t *pair){
+#ifdef HM_PAIR_EXPIRATION
 	if (! pair->expires)
 		return 1;
 
 	return pair->created + pair->expires * TIMESTAMP_MICROTIME_MULTIPLE > _hm_pair_now();
+#else
+	return 1;
+#endif
 }
 
 // ===============================================================
 
+#ifdef HM_PAIR_EXPIRATION
 inline static timestamp_t _hm_pair_now(){
 	struct timeval tv;
 
@@ -123,3 +133,4 @@ inline static timestamp_t _hm_pair_now(){
 
 	return tv.tv_sec * TIMESTAMP_MICROTIME_MULTIPLE + tv.tv_usec;
 }
+#endif

@@ -10,11 +10,16 @@ hm_list_t *hm_list_create(){
 	if (v == NULL)
 		return NULL;
 
-	return hm_vector_create(v);
+	return hm_vector_create(v, 0);
 }
 
-void hm_list_free(hm_list_t *v){
-	hm_vector_free(v);
+void hm_list_destroy(hm_list_t *v){
+	hm_vector_destroy(v);
+	free(v);
+}
+
+void hm_list_removeall(hm_list_t *v){
+	hm_vector_removeall(v);
 }
 
 int hm_list_put(hm_list_t *v, hm_pair_t *newpair){

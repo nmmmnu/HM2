@@ -1,0 +1,19 @@
+JEMALLOC
+Memory consumption: 5287M
+real time: 1m17.738s
+user time: 1m14.153s
+sys  time: 0m3.593s
+
+GLIB MALLOC
+Memory consumption: 5776M
+real time: 0m56.538s
+user time: 0m54.570s
+sys  time: 0m1.990s
+
+TCMALLOC
+Memory consumption: 5192M
+real time: 0m50.727s
+user time: 0m49.000s
+sys  time: 0m1.747s
+
+

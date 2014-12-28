@@ -14,7 +14,7 @@ void display_mallinfo(int fullinfo){
 
 	printf("Malloc information:\n");
 
-	if (fullinfo){
+	if (fullinfo || 1){
 		myprintf("Total non-mmapped bytes"	,	"arena"		,	m.arena		);
 		myprintf("# of free chunks" 		,	"ordblks"	,	m.ordblks	);
 		myprintf("# of free fastbin blocks"	,	"smblks"	,	m.smblks	);
@@ -25,11 +25,13 @@ void display_mallinfo(int fullinfo){
 		myprintf("Total allocated space"	,	"uordblks"	,	m.uordblks	);
 		myprintf("Total free space"		,	"fordblks"	,	m.fordblks	);
 		myprintf("Topmost releasable block"	,	"keepcost"	,	m.keepcost	);
-	}else{
-		myprintf("Total non-mmapped bytes"	,	"arena"		,	m.arena		);
-		myprintf("Bytes in mmapped regions"	,	"hblkhd"	,	m.hblkhd	);
-		myprintf("Total allocated space"	,	"uordblks"	,	m.uordblks	);
-	}
 
+	//	myprintf("Diff"				,	"-"		,	m.uordblks - m.fordblks	);
+	}else{
+		myprintf("Total allocated space"	,	"uordblks"	,	m.uordblks	);
+		myprintf("Total free space"		,	"fordblks"	,	m.fordblks	);
+
+	//	myprintf("Diff"				,	"-"		,	m.uordblks - m.fordblks	);
+	}
 }
 

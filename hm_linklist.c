@@ -18,7 +18,7 @@ hm_linklist_t *hm_linklist_create(hm_linklist_t *l){
 	return _hm_linklist_clear(l);
 }
 
-void hm_linklist_free(hm_linklist_t *l){
+void hm_linklist_removeall(hm_linklist_t *l){
 	hm_pair_t *copy;
 	hm_pair_t *pair;
 	for(pair = l->head; pair; ){
@@ -30,6 +30,10 @@ void hm_linklist_free(hm_linklist_t *l){
 	}
 
 	_hm_linklist_clear(l);
+}
+
+void hm_linklist_destroy(hm_linklist_t *l){
+	hm_linklist_removeall(l);
 }
 
 int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
@@ -46,12 +50,14 @@ int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
 		if (cmp == 0){
 			// handle delete
 
+#ifdef HM_PAIR_EXPIRATION
 			// check if the data in database is newer than "newpair"
 			if (pair->created > newpair->created){
 				// prevent memory leak
 				free(newpair);
 				return 0;
 			}
+#endif
 
 			if (prev){
 				// insert after prev
@@ -133,8 +139,8 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	return 1;
 }
 
-linklistsize_t hm_linklist_count(const hm_linklist_t *l){
-	linklistsize_t count = 0;
+hm_linklistsize_t hm_linklist_count(const hm_linklist_t *l){
+	hm_linklistsize_t count = 0;
 
 	const hm_pair_t *pair;
 	for(pair = l->head; pair; pair = pair->next){

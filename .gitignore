@@ -4,12 +4,11 @@ _ot/
 
 test_hm_ve
 test_hm_ll
+test_hm_ha
 
 test_hm_file_ve
 test_hm_file_ll
-
-test_hm.exe
-test_hm_file.exe
+test_hm_file_ha
 
 data
 data/

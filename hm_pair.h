@@ -3,18 +3,22 @@
 
 #include <stdint.h>
 
+#define HM_PAIR_EXPIRATION
 
-
+#ifdef HM_PAIR_EXPIRATION
 typedef uint64_t timestamp_t;
-typedef uint32_t expires_t;
+typedef uint32_t expires_t;		// 136 years, not that bad.
+#endif
 typedef uint16_t keysize_t;
 typedef uint32_t valsize_t;
 
 typedef struct _hm_pair_t{
 	void *		next;		// system dependent
 
+#ifdef HM_PAIR_EXPIRATION
 	timestamp_t	created;	// 8
-	expires_t	expires;	// 4, 136 years, not that bad.
+	expires_t	expires;	// 4
+#endif
 
 	keysize_t	keylen;		// 2
 	valsize_t	vallen;		// 4

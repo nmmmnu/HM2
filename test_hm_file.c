@@ -1,16 +1,12 @@
 #include "hm_pair.h"
 #include "hm_list.h"
 
-#include "malloc_info.h"
-
 #include <stdio.h>
 #include <string.h>	// strlen
 #include <stdlib.h>	// free
 #include <ctype.h>	// isspace
 
 #define PROCESS_STEP 1000 * 10
-
-#define display_malloc_info() display_mallinfo(0)
 
 void processfile(hm_list_t *v, const char *filename, int op);
 char *trim(char *s);
@@ -21,9 +17,6 @@ int main(int argc, char **argv){
 	const char *filename = argv[1];
 	const char *findkey  = argv[2];
 
-
-
-	display_malloc_info();
 
 
 	// Create and load
@@ -47,23 +40,21 @@ int main(int argc, char **argv){
 
 
 
-	display_malloc_info();
-
-	getchar();
+	//getchar();
 
 
 
 	// Free list
 
 	printf("Free file\n");
-	hm_list_free(v);
+	hm_list_removeall(v);
 	printf("Done...\n");
 
-	free(v);
+	hm_list_destroy(v);
 
-	display_malloc_info();
 
-	getchar();
+
+	//getchar();
 
 
 

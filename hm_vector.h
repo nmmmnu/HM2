@@ -8,16 +8,19 @@
 typedef uint64_t hm_vectorsize_t;
 
 typedef struct _hm_vector_t{
-	hm_vectorsize_t size;
-	uint64_t buffer_alloc_size;
-	void **buffer;
+	char use_linear_search;		// 1
+	hm_vectorsize_t size;		// 8
+	uint16_t realloc_chunk_size;	// 8
+	uint64_t buffer_alloc_size;	// 8
+	void **buffer;			// system dependent
 }hm_vector_t;
 
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v);
+hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size);
+void hm_vector_destroy(hm_vector_t *v);
 
-void hm_vector_free(hm_vector_t *v);
+void hm_vector_removeall(hm_vector_t *v);
 
 int hm_vector_put(hm_vector_t *v, hm_pair_t *newpair);
 

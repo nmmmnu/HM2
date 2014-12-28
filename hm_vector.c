@@ -1,37 +1,48 @@
+#include "hm_vector.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>	// memmove
 #include <stdio.h>
 #include <inttypes.h>	// PRIu64
 
-#include "hm_vector.h"
 
 
-
-#define USE_BINSEARCH	1
-
-#define REALLOC_CHUNK_SIZE 1024
+#define DEFAULT_REALLOC_CHUNK_SIZE 1024
 
 #define DUMP_FORMAT "%5" PRIu64 " : %-10s : %-20s\n"
 
 
 
-static hm_vector_t *_hm_vector_clear(hm_vector_t *v);
+static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free);
 static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vectorsize_t *index);
 static int _hm_vector_shiftL(hm_vector_t *v, hm_vectorsize_t index);
 static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index);
 
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v){
-	return _hm_vector_clear(v);
+hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size){
+	// realloc_chunk_size = 0 is wrong here,
+	// but it will be replaced with DEFAULT_REALLOC_CHUNK_SIZE later.
+	v->realloc_chunk_size = realloc_chunk_size;
+	v->use_linear_search = 0;
+
+	return _hm_vector_clear(v, 0);
 }
 
-void hm_vector_free(hm_vector_t *v){
-	if (v->buffer)
-		free(v->buffer);
+void hm_vector_removeall(hm_vector_t *v){
+	hm_vectorsize_t i;
+	for(i = 0; i < v->size; i++){
+		hm_pair_t *pair = v->buffer[i];
+		if (pair)
+			free(pair);
+	}
 
-	_hm_vector_clear(v);
+	_hm_vector_clear(v, 1);
+}
+
+void hm_vector_destroy(hm_vector_t *v){
+	hm_vector_removeall(v);
 }
 
 int hm_vector_put(hm_vector_t *v, hm_pair_t *newpair){
@@ -45,12 +56,14 @@ int hm_vector_put(hm_vector_t *v, hm_pair_t *newpair){
 
 		hm_pair_t *pair = v->buffer[index];
 
+#ifdef HM_PAIR_EXPIRATION
 		// check if the data in database is newer than "newpair"
-		if (pair->created > newpair->created){
+		if (hm_pair_valid(pair) && pair->created > newpair->created){
 			// prevent memory leak
 			free(newpair);
 			return 0;
 		}
+#endif
 
 		free(pair);
 		v->buffer[index] = newpair;
@@ -111,7 +124,10 @@ void hm_vector_dump(const hm_vector_t *v){
 
 // ===============================================================
 
-static hm_vector_t *_hm_vector_clear(hm_vector_t *v){
+static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free){
+	if (also_free && v->buffer)
+		free(v->buffer);
+
 	v->size = 0;
 	v->buffer_alloc_size = 0;
 	v->buffer = NULL;
@@ -119,12 +135,12 @@ static hm_vector_t *_hm_vector_clear(hm_vector_t *v){
 	return v;
 }
 
-static uint64_t _hm_vector_calcnewsize(uint64_t size){
-	uint32_t newsize = size / REALLOC_CHUNK_SIZE;
-	if (size % REALLOC_CHUNK_SIZE)
+static uint64_t _hm_vector_calcnewsize(uint64_t size, uint16_t realloc_chunk_size){
+	uint32_t newsize = size / realloc_chunk_size;
+	if (size % realloc_chunk_size)
 		newsize++;
 
-	return newsize * REALLOC_CHUNK_SIZE;
+	return newsize * realloc_chunk_size;
 }
 
 static int _hm_vector_resize(hm_vector_t *v, int delta){
@@ -139,14 +155,17 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	if (delta < -1)
 		delta = -1;
 
+	if (v->realloc_chunk_size == 0)
+		v->realloc_chunk_size = DEFAULT_REALLOC_CHUNK_SIZE;
+
 	hm_vectorsize_t new_size = v->size + delta;
 
 	if (new_size == 0){
-		hm_vector_free(v);
+		_hm_vector_clear(v, 1);
 		return 1;
 	}
 
-	uint64_t new_buffer_alloc_size = _hm_vector_calcnewsize(new_size * sizeof(void *));
+	uint64_t new_buffer_alloc_size = _hm_vector_calcnewsize(new_size * sizeof(void *), v->realloc_chunk_size);
 
 	void *new_buffer = realloc(v->buffer, new_buffer_alloc_size);
 
@@ -160,10 +179,8 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	return 1;
 }
 
-#ifndef USE_BINSEARCH
-
-static int _hm_vector_locate_position_dumb(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
-	// dumb - visit every node
+static int _hm_vector_locate_position_linear(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
+	// linear - visit every node
 	hm_vectorsize_t i;
 	for(i = 0; i < v->size; i++){
 		const hm_pair_t *pair = v->buffer[i];
@@ -184,8 +201,6 @@ static int _hm_vector_locate_position_dumb(hm_vector_t *v, const char *key, hm_v
 	return -1;
 }
 
-#else
-
 static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
 
 	/*
@@ -198,7 +213,8 @@ static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, h
 	int cmp;
 
 	while (start < end){
-		hm_vectorsize_t mid = start + (end - start) / 2;
+	//	hm_vectorsize_t mid = start + ((end - start) /  2);
+		hm_vectorsize_t mid = start + ((end - start) >> 1);
 
 		const hm_pair_t *pair = v->buffer[mid];
 
@@ -218,18 +234,9 @@ static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, h
 		}
 	}
 
-	#ifdef _test
-		printf("---begin-----------\n");
-		hm_vector_dump(v);
-		printf("%u %lu %lu %lu (%d) %s\n", 0, start, end, v->size, cmp, key);
-		printf("---end-------------\n");
-	#endif
-
 	*index = start;
 	return cmp;
 }
-
-#endif
 
 static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
 	if (v->size == 0){
@@ -237,12 +244,11 @@ static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vector
 		return 1;
 	}
 
-#ifndef USE_BINSEARCH
-	return _hm_vector_locate_position_dumb(v, key, index);
-#else
-	return _hm_vector_locate_position_bsearch(v, key, index);
-#endif
-
+	if (v->use_linear_search){
+		return _hm_vector_locate_position_linear(v, key, index);
+	}else{
+		return _hm_vector_locate_position_bsearch(v, key, index);
+	}
 }
 
 static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index){
