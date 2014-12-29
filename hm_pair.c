@@ -48,7 +48,6 @@ hm_pair_t *hm_pair_create(const char*key, const char*val){
 	if (pair == NULL)
 		return NULL;
 
-	pair->next	= NULL;
 #ifdef HM_PAIR_EXPIRATION
 	pair->created	= _hm_pair_now();
 	pair->expires	= 0;

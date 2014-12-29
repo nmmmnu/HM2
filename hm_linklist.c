@@ -10,6 +10,13 @@
 
 
 
+typedef struct _hm_linklist_node_t{
+	void *next;		// system dependent
+	void *data;		// system dependent
+}hm_linklist_node_t;
+
+
+
 static hm_linklist_t *_hm_linklist_clear(hm_linklist_t *l);
 
 
@@ -19,13 +26,14 @@ hm_linklist_t *hm_linklist_create(hm_linklist_t *l){
 }
 
 void hm_linklist_removeall(hm_linklist_t *l){
-	hm_pair_t *copy;
-	hm_pair_t *pair;
-	for(pair = l->head; pair; ){
-		copy = pair;
+	hm_linklist_node_t *copy;
+	hm_linklist_node_t *node;
+	for(node = l->head; node; ){
+		copy = node;
 
-		pair = pair->next;
+		node = node->next;
 
+		free(copy->data);
 		free(copy);
 	}
 
@@ -42,9 +50,20 @@ int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
 
 	const char *key = hm_pair_getkey(newpair);
 
-	hm_pair_t *prev = NULL;
-	hm_pair_t *pair;
-	for(pair = l->head; pair; pair = pair->next){
+	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
+	if (newnode == NULL){
+		// prevent memory leak
+		free(newpair);
+		return 0;
+	}
+
+	newnode->data = newpair;
+
+	hm_linklist_node_t *prev = NULL;
+	hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		hm_pair_t *pair = node->data;
+
 		int cmp = hm_pair_cmpkey(pair, key);
 
 		if (cmp == 0){
@@ -53,39 +72,41 @@ int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
 #ifdef HM_PAIR_EXPIRATION
 			// check if the data in database is newer than "newpair"
 			if (pair->created > newpair->created){
+				// nothing to insert
 				// prevent memory leak
 				free(newpair);
 				return 0;
 			}
 #endif
-
 			if (prev){
 				// insert after prev
-				prev->next = newpair;
+				prev->next = newnode;
 			}else{
 				// insert first
-				l->head = newpair;
+				l->head = newnode;
 			}
 
-			newpair->next = pair->next;
-			free(pair);
+			newnode->next = node->next;
+
+			free(node->data);
+			free(node);
 			return 1;
 		}
 
 		if (cmp > 0)
 			break;
 
-		prev = pair;
+		prev = node;
 	}
 
 	// put new pair here...
 	if (prev){
 		// we are at the middle
-		newpair-> next = prev->next;
-		prev->next = newpair;
+		newnode-> next = prev->next;
+		prev->next = newnode;
 	}else{
-		newpair->next = l->head;
-		l->head = newpair;
+		newnode->next = l->head;
+		l->head = newnode;
 	}
 
 	return 1;
@@ -95,8 +116,10 @@ const hm_pair_t *hm_linklist_get(hm_linklist_t *l, const char *key){
 	if (key == NULL)
 		return NULL;
 
-	const hm_pair_t *pair;
-	for(pair = l->head; pair; pair = pair->next){
+	const hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		const hm_pair_t *pair = node->data;
+
 		int cmp = hm_pair_cmpkey(pair, key);
 
 		if (cmp == 0)
@@ -113,27 +136,29 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	if (key == NULL)
 		return 0;
 
-	hm_pair_t *prev = NULL;
-	hm_pair_t *pair;
-	for(pair = l->head; pair; pair = pair->next){
-		int cmp = hm_pair_cmpkey(pair, key);
+
+	hm_linklist_node_t *prev = NULL;
+	hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		int cmp = hm_pair_cmpkey(node->data, key);
 
 		if (cmp == 0){
 			if (prev){
-				prev->next = pair->next;
+				prev->next = node->next;
 			}else{
 				// First node...
-				l->head = pair->next;
+				l->head = node->next;
 			}
 
-			free(pair);
+			free(node->data);
+			free(node);
 			return 1;
 		}
 
 		if (cmp > 0)
 			break;
 
-		prev = pair;
+		prev = node;
 	}
 
 	return 1;
@@ -142,8 +167,8 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 hm_linklistsize_t hm_linklist_count(const hm_linklist_t *l){
 	hm_linklistsize_t count = 0;
 
-	const hm_pair_t *pair;
-	for(pair = l->head; pair; pair = pair->next){
+	const hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
 	//	if (hm_pair_valid(pair))
 			count++;
 	}
@@ -158,14 +183,16 @@ void hm_linklist_dump(const hm_linklist_t *l){
 	//printf("LinkList->size = %" PRIu64 "\n", v->size);
 
 	uint64_t i = 0;
-	const hm_pair_t *pair;
-	for(pair = l->head; pair; pair = pair->next){
+	const hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		const hm_pair_t *pair = node->data;
+
 		printf(DUMP_FORMAT,
 			i,
 			hm_pair_getkey(pair),
 			hm_pair_getval(pair),
-			pair,
-			pair->next
+			node,
+			node->next
 		);
 
 		i++;

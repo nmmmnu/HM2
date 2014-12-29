@@ -13,8 +13,6 @@ typedef uint16_t keysize_t;
 typedef uint32_t valsize_t;
 
 typedef struct _hm_pair_t{
-	void *		next;		// system dependent
-
 #ifdef HM_PAIR_EXPIRATION
 	timestamp_t	created;	// 8
 	expires_t	expires;	// 4
