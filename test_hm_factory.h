@@ -12,7 +12,7 @@
 
 static hm_list_t *_list_factory(){
 	static hm_vector_t v_real;
-	hm_vector_t *vp = hm_vector_create(& v_real, 1024, (hm_data_getkey_func_t) hm_pair_getkey, NULL);
+	hm_vector_t *vp = hm_vector_create(& v_real, /* sizeof(void *) * 30000 */ 1024 , (hm_data_getkey_func_t) hm_pair_getkey, NULL);
 
 	return hm_vector_getlist(vp);
 }

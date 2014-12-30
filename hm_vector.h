@@ -2,6 +2,9 @@
 #define _HM_VECTOR_H
 
 
+#include <stdlib.h>
+
+
 #include "hm_list.h"
 
 
@@ -12,13 +15,15 @@ typedef struct _hm_vector_t{
 	hm_data_valid_func_t valid;	// system dependent
 
 	hm_listsize_t size;		// 8
-	uint16_t realloc_chunk_size;	// 8
-	uint64_t buffer_alloc_size;	// 8
+
+	size_t realloc_chunk_size;	// system dependent
+	size_t buffer_alloc_size;	// system dependent
+
 	void **buffer;			// system dependent
 }hm_vector_t;
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid);
+hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid);
 
 void hm_vector_destroy(hm_vector_t *v);
 

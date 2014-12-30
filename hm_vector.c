@@ -17,7 +17,7 @@ static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index);
 
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
+hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
 	v->realloc_chunk_size = realloc_chunk_size ? realloc_chunk_size : DEFAULT_REALLOC_CHUNK_SIZE;
 	v->use_linear_search = 0;
 
@@ -87,9 +87,11 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 		return 1;
 	}
 
-	if ( ! _hm_vector_shiftR(v, index) )
+	if ( ! _hm_vector_shiftR(v, index) ){
+		// prevent memory leak
+		free(newdata);
 		return 0;
-
+	}
 
 	v->buffer[index] = newdata;
 	return 1;
@@ -142,13 +144,19 @@ static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free){
 	return v;
 }
 
-static uint64_t _hm_vector_calcnewsize(uint64_t size, uint16_t realloc_chunk_size){
-	uint32_t newsize = size / realloc_chunk_size;
+static size_t _hm_vector_calcnewsize(size_t size, size_t realloc_chunk_size){
+	size_t newsize = size / realloc_chunk_size;
 
 	if (size % realloc_chunk_size)
 		newsize++;
 
 	return newsize * realloc_chunk_size;
+}
+
+static inline void *_realloc(void *buffer, size_t size){
+	//printf("realloc(): %8u\n", size);
+
+	return realloc(buffer, size);
 }
 
 static int _hm_vector_resize(hm_vector_t *v, int delta){
@@ -170,9 +178,7 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 		return 1;
 	}
 
-	uint64_t new_buffer_alloc_size = _hm_vector_calcnewsize(new_size * sizeof(void *), v->realloc_chunk_size);
-
-	//printf("new size: %8u %8u %8u %8u\n", v->buffer_alloc_size, new_buffer_alloc_size, new_size, new_size * sizeof(void *));
+	size_t new_buffer_alloc_size = _hm_vector_calcnewsize(new_size * sizeof(void *), v->realloc_chunk_size);
 
 	if (v->buffer_alloc_size == new_buffer_alloc_size){
 		// already resized, done :)
@@ -181,8 +187,7 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 		return 1;
 	}
 
-
-	void *new_buffer = realloc(v->buffer, new_buffer_alloc_size);
+	void *new_buffer = _realloc(v->buffer, new_buffer_alloc_size);
 
 	if (new_buffer == NULL)
 		return 0;
