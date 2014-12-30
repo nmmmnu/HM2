@@ -5,9 +5,9 @@ LIBS =
 
 
 
-all: test_hm_ve				test_hm_file_ve
+all: test_hm_ve test_hm_ll	test_hm_file_ve test_hm_file_ll
 
-# test_hm_ll test_hm_ha		test_hm_file_ll test_hm_file_ha
+#  test_hm_ha 		 test_hm_file_ll test_hm_file_ha
 
 
 clean:
@@ -15,31 +15,45 @@ clean:
 
 
 
-test_hm_ve:			test_hm.o hm_pair.o	hm_vector.o
-	$(LINK) test_hm_ve	test_hm.o hm_pair.o	hm_vector.o					$(LIBS)
+test_hm_ve:			test_hm_ve.o hm_pair.o		hm_vector.o
+	$(LINK) test_hm_ve	test_hm_ve.o hm_pair.o		hm_vector.o				$(LIBS)
 
-test_hm_ll:			test_hm.o hm_pair.o	hm_linklist.o hm_list_linklist.o
-	$(LINK) test_hm_ll	test_hm.o hm_pair.o	hm_linklist.o hm_list_linklist.o		$(LIBS)
+test_hm_ve.o: test_hm.c		hm_pair.h hm_list.h test_hm_factory.h		hm_vector.h
+	$(CC) test_hm.c -D USE_VECTOR
+	mv test_hm.o test_hm_ve.o
+
+
+test_hm_ll:			test_hm_ll.o hm_pair.o	hm_linklist.o
+	$(LINK) test_hm_ll	test_hm_ll.o hm_pair.o	hm_linklist.o					$(LIBS)
+
+test_hm_ll.o: test_hm.c		hm_pair.h hm_list.h test_hm_factory.h		hm_linklist.h
+	$(CC) test_hm.c -D USE_LINKLIST
+	mv test_hm.o test_hm_ll.o
+
 
 test_hm_ha:			test_hm.o hm_pair.o	hm_hash.o hm_list_hash.o hm_vector.o
 	$(LINK) test_hm_ha	test_hm.o hm_pair.o	hm_hash.o hm_list_hash.o hm_vector.o		$(LIBS)
 
-test_hm.o: test_hm.c		hm_pair.h hm_list.h	hm_vector.h hm_linklist.h hm_hash.h
-	$(CC) test_hm.c
 
 
+test_hm_file_ve:		test_hm_file_ve.o hm_pair.o	hm_vector.o
+	$(LINK) test_hm_file_ve	test_hm_file_ve.o hm_pair.o	hm_vector.o				$(LIBS)
 
-test_hm_file_ve:		test_hm_file.o hm_pair.o	hm_vector.o
-	$(LINK) test_hm_file_ve	test_hm_file.o hm_pair.o	hm_vector.o				$(LIBS)
+test_hm_file_ve.o: test_hm_file.c	hm_pair.h hm_list.h test_hm_factory.h	hm_vector.h
+	$(CC) test_hm_file.c -D USE_VECTOR
+	mv test_hm_file.o test_hm_file_ve.o
 
-test_hm_file_ll:		test_hm_file.o hm_pair.o	hm_linklist.o hm_list_linklist.o
-	$(LINK) test_hm_file_ll	test_hm_file.o hm_pair.o	hm_linklist.o hm_list_linklist.o		$(LIBS)
+
+test_hm_file_ll:		test_hm_file_ll.o hm_pair.o	hm_linklist.o
+	$(LINK) test_hm_file_ll	test_hm_file_ll.o hm_pair.o	hm_linklist.o				$(LIBS)
+
+test_hm_file_ll.o: test_hm_file.c	hm_pair.h hm_list.h test_hm_factory.h	hm_linklist.h
+	$(CC) test_hm_file.c -D USE_LINKLIST
+	mv test_hm_file.o test_hm_file_ll.o
 
 test_hm_file_ha:		test_hm_file.o hm_pair.o	hm_hash.o hm_list_hash.o	hm_vector.o
 	$(LINK) test_hm_file_ha	test_hm_file.o hm_pair.o	hm_hash.o hm_list_hash.o	hm_vector.o	$(LIBS)
 
-test_hm_file.o: test_hm_file.c	hm_pair.h hm_list.h		hm_vector.h hm_linklist.h hm_hash.h
-	$(CC) test_hm_file.c
 
 
 

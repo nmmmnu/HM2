@@ -1,12 +1,7 @@
 #include "hm_linklist.h"
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>	// PRIu64
-
-
-
-#define DUMP_FORMAT "%5" PRIu64 " : %-10s : %-20s : %12p : %12p\n"
+#include <string.h>	// strcmp
 
 
 
@@ -20,9 +15,35 @@ typedef struct _hm_linklist_node_t{
 static hm_linklist_t *_hm_linklist_clear(hm_linklist_t *l);
 
 
+hm_linklist_t *hm_linklist_create(hm_linklist_t *l, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
+	l->getkey = getkey;
+	l->valid = valid;
 
-hm_linklist_t *hm_linklist_create(hm_linklist_t *l){
 	return _hm_linklist_clear(l);
+}
+
+hm_list_t *hm_linklist_getlist(hm_linklist_t *ll){
+	hm_list_t *l = malloc(sizeof(hm_list_t));
+
+	if (l == NULL)
+		return l;
+
+	l->list		= ll;
+
+	l->destroy	= (void (*)(void *))				hm_linklist_destroy;
+	l->removeall	= (void (*)(void *))				hm_linklist_removeall;
+	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_linklist_map;
+
+	l->put		= (int (*)(void *, void *))			hm_linklist_put;
+	l->get		= (const void *(*)(const void *, const char *))	hm_linklist_get;
+	l->remove	= (int (*)(void *, const char *))		hm_linklist_remove;
+	l->count	= (hm_listsize_t (*)(const void *))		hm_linklist_count;
+
+	return l;
+}
+
+void hm_linklist_destroy(hm_linklist_t *l){
+	hm_linklist_removeall(l);
 }
 
 void hm_linklist_removeall(hm_linklist_t *l){
@@ -40,44 +61,40 @@ void hm_linklist_removeall(hm_linklist_t *l){
 	_hm_linklist_clear(l);
 }
 
-void hm_linklist_destroy(hm_linklist_t *l){
-	hm_linklist_removeall(l);
-}
-
-int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
-	if (newpair == NULL)
+int hm_linklist_put(hm_linklist_t *l, void *newdata){
+	if (newdata == NULL)
 		return 0;
 
-	const char *key = hm_pair_getkey(newpair);
+	const char *key = l->getkey(newdata);
 
 	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
 	if (newnode == NULL){
 		// prevent memory leak
-		free(newpair);
+		free(newdata);
 		return 0;
 	}
 
-	newnode->data = newpair;
+	newnode->data = newdata;
 
 	hm_linklist_node_t *prev = NULL;
 	hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
-		hm_pair_t *pair = node->data;
+		const void *olddata = node->data;
 
-		int cmp = hm_pair_cmpkey(pair, key);
+		const int cmp = strcmp(l->getkey(olddata), key);
 
 		if (cmp == 0){
 			// handle delete
 
-#ifdef HM_PAIR_EXPIRATION
-			// check if the data in database is newer than "newpair"
-			if (pair->created > newpair->created){
-				// nothing to insert
-				// prevent memory leak
-				free(newpair);
-				return 0;
+			if (l->valid){
+				// check if the data in database is valid
+				if (l->valid(newdata, olddata)){
+					// prevent memory leak
+					free(newdata);
+					return 0;
+				}
 			}
-#endif
+
 			if (prev){
 				// insert after prev
 				prev->next = newnode;
@@ -112,18 +129,18 @@ int hm_linklist_put(hm_linklist_t *l, hm_pair_t *newpair){
 	return 1;
 }
 
-const hm_pair_t *hm_linklist_get(hm_linklist_t *l, const char *key){
+const void *hm_linklist_get(const hm_linklist_t *l, const char *key){
 	if (key == NULL)
 		return NULL;
 
 	const hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
-		const hm_pair_t *pair = node->data;
+		const void *data = node->data;
 
-		int cmp = hm_pair_cmpkey(pair, key);
+		const int cmp = strcmp(l->getkey(data), key);
 
 		if (cmp == 0)
-			return hm_pair_valid(pair) ? pair : NULL;
+			return data;
 
 		if (cmp > 0)
 			break;
@@ -140,7 +157,8 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	hm_linklist_node_t *prev = NULL;
 	hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
-		int cmp = hm_pair_cmpkey(node->data, key);
+		const void *data = node->data;
+		const int cmp = strcmp(l->getkey(data), key);
 
 		if (cmp == 0){
 			if (prev){
@@ -164,45 +182,22 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	return 1;
 }
 
-hm_linklistsize_t hm_linklist_count(const hm_linklist_t *l){
-	hm_linklistsize_t count = 0;
+hm_listsize_t hm_linklist_count(const hm_linklist_t *l){
+	hm_listsize_t count = 0;
 
 	const hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
-	//	if (hm_pair_valid(pair))
-			count++;
+		count++;
 	}
 
 	return count;
 }
 
 
-void hm_linklist_dump(const hm_linklist_t *l){
-	printf("LinkList  @ %p\n", l);
-
-	//printf("LinkList->size = %" PRIu64 "\n", v->size);
-
-	uint64_t i = 0;
+void hm_linklist_map(const hm_linklist_t *l, hm_data_map_func_t map_func){
 	const hm_linklist_node_t *node;
-	for(node = l->head; node; node = node->next){
-		const hm_pair_t *pair = node->data;
-
-		printf(DUMP_FORMAT,
-			i,
-			hm_pair_getkey(pair),
-			hm_pair_getval(pair),
-			node,
-			node->next
-		);
-
-		i++;
-	}
-
-	if (i == 0){
-		printf("No pairs found...\n");
-	}
-
-	printf("\n");
+	for(node = l->head; node; node = node->next)
+		map_func(node->data);
 }
 
 // ===============================================================

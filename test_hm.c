@@ -1,6 +1,6 @@
 #include "hm_pair.h"
 #include "hm_list.h"
-#include "hm_vector.h"
+#include "test_hm_factory.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -106,16 +106,14 @@ static void _hm_list_test_dump(hm_list_t *v){
 }
 
 void hm_list_test(){
-	static hm_vector_t v_real;
-	hm_vector_t *vp = hm_vector_create(& v_real, 0, (hm_data_getkey_func_t) hm_pair_getkey, NULL);
-
-	hm_list_t *v = hm_vector_getlist(vp);
+	hm_list_t *v = _list_factory();
 
 	_hm_list_test_dump(v);
 	_hm_list_test_overwrite(v);
 	_hm_list_test_remove(v);
 
 	hm_list_destroy(v);
+	free(v);
 }
 
 

@@ -26,7 +26,7 @@ void hm_vector_removeall(hm_vector_t *v);
 
 int hm_vector_put(hm_vector_t *v, void *data);
 
-const void *hm_vector_get(hm_vector_t *v, const char *key);
+const void *hm_vector_get(const hm_vector_t *v, const char *key);
 
 int hm_vector_remove(hm_vector_t *v, const char *key);
 
@@ -34,7 +34,7 @@ hm_listsize_t hm_vector_count(const hm_vector_t *v);
 
 hm_list_t *hm_vector_getlist(hm_vector_t *v);
 
-void hm_vector_map(hm_vector_t *v, hm_data_map_func_t map_func);
+void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func);
 
 #endif
 
