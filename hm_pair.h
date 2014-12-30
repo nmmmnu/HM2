@@ -37,4 +37,6 @@ int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2);
 
 int hm_pair_valid(const hm_pair_t *pair);
 
+void hm_pair_dump(const hm_pair_t *pair);
+
 #endif

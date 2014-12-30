@@ -1,41 +1,60 @@
 #include "hm_vector.h"
 
-#include <stdint.h>
 #include <stdlib.h>
-#include <string.h>	// memmove
-#include <stdio.h>
-#include <inttypes.h>	// PRIu64
+#include <string.h>	// memmove, strcmp
+//#include <stdio.h>
+//#include <inttypes.h>	// PRIu64
 
 
 
 #define DEFAULT_REALLOC_CHUNK_SIZE 1024
 
-#define DUMP_FORMAT "%5" PRIu64 " : %-10s : %-20s\n"
-
-
 
 static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free);
-static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vectorsize_t *index);
-static int _hm_vector_shiftL(hm_vector_t *v, hm_vectorsize_t index);
-static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index);
+static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_listsize_t *index);
+static int _hm_vector_shiftL(hm_vector_t *v, hm_listsize_t index);
+static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index);
 
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size){
+hm_vector_t *hm_vector_create(hm_vector_t *v, uint16_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
 	// realloc_chunk_size = 0 is wrong here,
 	// but it will be replaced with DEFAULT_REALLOC_CHUNK_SIZE later.
 	v->realloc_chunk_size = realloc_chunk_size;
 	v->use_linear_search = 0;
 
+	v->getkey = getkey;
+	v->valid = valid;
+
 	return _hm_vector_clear(v, 0);
 }
 
+hm_list_t *hm_vector_getlist(hm_vector_t *v){
+	hm_list_t *l = malloc(sizeof(hm_list_t));
+
+	if (l == NULL)
+		return l;
+
+	l->list		= v;
+
+	l->destroy	= (void (*)(void *))				hm_vector_destroy;
+	l->removeall	= (void (*)(void *))				hm_vector_removeall;
+	l->map		= (void (*)(void *, hm_data_map_func_t))	hm_vector_map;
+
+	l->put		= (int (*)(void *, void *))			hm_vector_put;
+	l->get		= (const void *(*)(void *, const char *))	hm_vector_get;
+	l->remove	= (int (*)(void *, const char *))		hm_vector_remove;
+	l->count	= (hm_listsize_t (*)(const void *))		hm_vector_count;
+
+	return l;
+}
+
 void hm_vector_removeall(hm_vector_t *v){
-	hm_vectorsize_t i;
+	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
-		hm_pair_t *pair = v->buffer[i];
-		if (pair)
-			free(pair);
+		void *data = v->buffer[i];
+		if (data)
+			free(data);
 	}
 
 	_hm_vector_clear(v, 1);
@@ -45,28 +64,28 @@ void hm_vector_destroy(hm_vector_t *v){
 	hm_vector_removeall(v);
 }
 
-int hm_vector_put(hm_vector_t *v, hm_pair_t *newpair){
-	const char *key = hm_pair_getkey(newpair);
+int hm_vector_put(hm_vector_t *v, void *newdata){
+	const char *key = v->getkey(newdata);
 
-	hm_vectorsize_t index;
+	hm_listsize_t index;
 	int cmp = _hm_vector_locate_position(v, key, & index);
 
 	if (cmp == 0){
 		// key exists, overwrite, do not shift
 
-		hm_pair_t *pair = v->buffer[index];
+		void *olddata = v->buffer[index];
 
-#ifdef HM_PAIR_EXPIRATION
-		// check if the data in database is newer than "newpair"
-		if (hm_pair_valid(pair) && pair->created > newpair->created){
-			// prevent memory leak
-			free(newpair);
-			return 0;
+		if (v->valid){
+			// check if the data in database is valid
+			if (v->valid(newdata, olddata) ){
+				// prevent memory leak
+				free(newdata);
+				return 0;
+			}
 		}
-#endif
 
-		free(pair);
-		v->buffer[index] = newpair;
+		free(olddata);
+		v->buffer[index] = newdata;
 		return 1;
 	}
 
@@ -74,23 +93,20 @@ int hm_vector_put(hm_vector_t *v, hm_pair_t *newpair){
 		return 0;
 
 
-	v->buffer[index] = newpair;
+	v->buffer[index] = newdata;
 	return 1;
 }
 
-const hm_pair_t *hm_vector_get(hm_vector_t *v, const char *key){
-	hm_vectorsize_t index;
-	if (_hm_vector_locate_position(v, key, & index) == 0){
-		hm_pair_t *pair = v->buffer[index];
-
-		return hm_pair_valid(pair) ? pair : NULL;
-	}
+const void *hm_vector_get(hm_vector_t *v, const char *key){
+	hm_listsize_t index;
+	if (_hm_vector_locate_position(v, key, & index) == 0)
+		return v->buffer[index];
 
 	return NULL;
 }
 
 int hm_vector_remove(hm_vector_t *v, const char *key){
-	hm_vectorsize_t index;
+	hm_listsize_t index;
 	int cmp = _hm_vector_locate_position(v, key, & index);
 
 	if (cmp){
@@ -106,22 +122,15 @@ int hm_vector_remove(hm_vector_t *v, const char *key){
 	return 1;
 }
 
-hm_vectorsize_t hm_vector_count(const hm_vector_t *v){
+hm_listsize_t hm_vector_count(const hm_vector_t *v){
 	return v->size;
 }
 
-void hm_vector_dump(const hm_vector_t *v){
-	printf("Vector @ %p\n", v);
-
-	printf("Vector->size = %" PRIu64 "\n", v->size);
-
-	hm_vectorsize_t i;
-	for(i = 0; i < v->size; i++){
-		const hm_pair_t *pair = v->buffer[i];
-		printf(DUMP_FORMAT, i, hm_pair_getkey(pair), hm_pair_getval(pair));
-	}
+void hm_vector_map(hm_vector_t *v, hm_data_map_func_t map_func){
+	hm_listsize_t i;
+	for(i = 0; i < v->size; i++)
+		map_func(v->buffer[i]);
 }
-
 // ===============================================================
 
 static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free){
@@ -158,7 +167,7 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	if (v->realloc_chunk_size == 0)
 		v->realloc_chunk_size = DEFAULT_REALLOC_CHUNK_SIZE;
 
-	hm_vectorsize_t new_size = v->size + delta;
+	hm_listsize_t new_size = v->size + delta;
 
 	if (new_size == 0){
 		_hm_vector_clear(v, 1);
@@ -179,12 +188,12 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	return 1;
 }
 
-static int _hm_vector_locate_position_linear(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
+static int _hm_vector_locate_position_linear(hm_vector_t *v, const char *key, hm_listsize_t *index){
 	// linear - visit every node
-	hm_vectorsize_t i;
+	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
-		const hm_pair_t *pair = v->buffer[i];
-		const int cmp = hm_pair_cmpkey(pair, key);
+		const void *data = v->buffer[i];
+		const int cmp = strcmp(v->getkey(data), key);
 
 		if (cmp == 0){
 			*index = i;
@@ -201,24 +210,24 @@ static int _hm_vector_locate_position_linear(hm_vector_t *v, const char *key, hm
 	return -1;
 }
 
-static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
+static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, hm_listsize_t *index){
 
 	/*
 	 * Lazy based from Linux kernel...
 	 * http://lxr.free-electrons.com/source/lib/bsearch.c
 	 */
 
-	hm_vectorsize_t start = 0;
-	hm_vectorsize_t end = v->size;
+	hm_listsize_t start = 0;
+	hm_listsize_t end = v->size;
 	int cmp;
 
 	while (start < end){
-	//	hm_vectorsize_t mid = start + ((end - start) /  2);
-		hm_vectorsize_t mid = start + ((end - start) >> 1);
+	//	hm_listsize_t mid = start + ((end - start) /  2);
+		hm_listsize_t mid = start + ((end - start) >> 1);
 
-		const hm_pair_t *pair = v->buffer[mid];
+		const void *data = v->buffer[mid];
 
-		cmp = hm_pair_cmpkey(pair, key);
+		cmp = strcmp(v->getkey(data), key);
 
 		if (cmp == 0){
 			*index = mid;
@@ -238,7 +247,7 @@ static int _hm_vector_locate_position_bsearch(hm_vector_t *v, const char *key, h
 	return cmp;
 }
 
-static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vectorsize_t *index){
+static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_listsize_t *index){
 	if (v->size == 0){
 		*index = 0;
 		return 1;
@@ -251,7 +260,7 @@ static int _hm_vector_locate_position(hm_vector_t *v, const char *key, hm_vector
 	}
 }
 
-static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index){
+static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index){
 	if (! _hm_vector_resize(v, 1))
 		return 0;
 
@@ -261,7 +270,7 @@ static int _hm_vector_shiftR(hm_vector_t *v, hm_vectorsize_t index){
 	return 1;
 }
 
-static int _hm_vector_shiftL(hm_vector_t *v, hm_vectorsize_t index){
+static int _hm_vector_shiftL(hm_vector_t *v, hm_listsize_t index){
 	// this is the most slow operation of them all
 	memmove(& v->buffer[index], & v->buffer[index + 1], (v->size - index) * sizeof(void *));
 

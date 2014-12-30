@@ -1,5 +1,6 @@
 #include "hm_pair.h"
 #include "hm_list.h"
+#include "hm_vector.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -98,14 +99,17 @@ static void _hm_list_test_remove(hm_list_t *v){
 
 static void _hm_list_test_dump(hm_list_t *v){
 	_hm_list_populate(v);
-	hm_list_dump(v);
+	hm_list_map(v, (hm_data_map_func_t) hm_pair_dump);
 
 	PRINTF_TEST("hm_list_t", "put",		1	);
 	PRINTF_TEST("hm_list_t", "free",	1	);
 }
 
 void hm_list_test(){
-	void *v = hm_list_create();
+	static hm_vector_t v_real;
+	hm_vector_t *vp = hm_vector_create(& v_real, 0, (hm_data_getkey_func_t) hm_pair_getkey, NULL);
+
+	hm_list_t *v = hm_vector_getlist(vp);
 
 	_hm_list_test_dump(v);
 	_hm_list_test_overwrite(v);

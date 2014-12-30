@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 
@@ -120,6 +121,13 @@ int hm_pair_valid(const hm_pair_t *pair){
 #else
 	return 1;
 #endif
+}
+
+void hm_pair_dump(const hm_pair_t *pair){
+	printf("hm_pair_t @ %p{\n", pair);
+	printf("\t%-10s : %s\n", "key",		hm_pair_getkey(pair));
+	printf("\t%-10s : %s\n", "value",	hm_pair_getval(pair));
+	printf("}\n");
 }
 
 // ===============================================================
