@@ -19,16 +19,20 @@ static inline timestamp_t _hm_pair_now();
 
 
 hm_pair_t *hm_pair_create(const char*key, const char*val){
+	return hm_pair_createx(key, val, 0);
+};
+
+hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
 	/*
+	For the moment, we assume key and value are strings.
+
 	In first version, we kept the character data inside the buffer,
 	and skipped the last \0 terminating character.
 
 	By this way we "save" 2 bytes.
 
 	However examinig memory allocation shows, that memory used is
-	much more than memory allocated, no matter what allocator is used.
-
-	Tests were made using standard malloc(), jemalloc and tcmalloc.
+	much more than memory allocated.
 
 	By this reason we will put the terminating character,
 	so we can pass key and value back to the client using refference
@@ -51,8 +55,9 @@ hm_pair_t *hm_pair_create(const char*key, const char*val){
 
 #ifdef HM_PAIR_EXPIRATION
 	pair->created	= _hm_pair_now();
-	pair->expires	= 0;
+	pair->expires	= expires;
 #endif
+
 	pair->keylen	= keylen;
 	pair->vallen	= vallen;
 
@@ -61,20 +66,7 @@ hm_pair_t *hm_pair_create(const char*key, const char*val){
 	memcpy(& pair->buffer[keylen], val, vallen);
 
 	return pair;
-};
-
-#ifdef HM_PAIR_EXPIRATION
-hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
-	hm_pair_t *pair = hm_pair_create(key, val);
-
-	if (pair == NULL)
-		return NULL;
-
-	pair->expires = expires;
-
-	return pair;
 }
-#endif
 
 const char *hm_pair_getkey(const hm_pair_t *pair){
 	return & pair->buffer[0];
@@ -124,7 +116,7 @@ int hm_pair_valid(const hm_pair_t *pair){
 }
 
 void hm_pair_dump(const hm_pair_t *pair){
-	printf("hm_pair_t @ %p{\n", pair);
+	printf("%s @ %p{\n", "hm_pair_t", pair);
 	printf("\t%-10s : %s\n", "key",		hm_pair_getkey(pair));
 	printf("\t%-10s : %s\n", "value",	hm_pair_getval(pair));
 	printf("}\n");

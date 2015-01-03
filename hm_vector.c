@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 #include <string.h>	// memmove, strcmp
-//#include <stdio.h>
-//#include <inttypes.h>	// PRIu64
+#include <stdio.h>
+#include <inttypes.h>	// PRIu64
 
 
 
@@ -38,6 +38,7 @@ hm_list_t *hm_vector_getlist(hm_vector_t *v){
 	l->destroy	= (void (*)(void *))				hm_vector_destroy;
 	l->removeall	= (void (*)(void *))				hm_vector_removeall;
 	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_vector_map;
+	l->dump		= (void (*)(const void *))			hm_vector_dump;
 
 	l->put		= (int (*)(void *, void *))			hm_vector_put;
 	l->get		= (const void *(*)(const void *, const char *))	hm_vector_get;
@@ -131,6 +132,29 @@ void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func){
 	for(i = 0; i < v->size; i++)
 		map_func(v->buffer[i]);
 }
+
+void hm_vector_dump(const hm_vector_t *v){
+	printf("%s @ %p {\n", "hm_vector_t", v);
+
+	printf("\t%-10s : %10" PRIu64 "\n", "size", v->size);
+	printf("\t%-10s : %10" PRIu64 "\n", "realloc...", v->realloc_chunk_size);
+	printf("\t%-10s : %10" PRIu64 "\n", "buffer...", v->buffer_alloc_size);
+	printf("\t%-10s : %10" PRIu64 "\n", "waste mem", v->buffer_alloc_size -  v->size * sizeof(void *));
+
+	printf("\t%-10s : [\n", "buffer");
+	hm_listsize_t i;
+	for(i = 0; i < v->size; i++){
+		printf("\t\t%p\n", v->buffer[i]);
+		if (i > 16){
+			printf("\t\t...\n");
+			break;
+		}
+	}
+	printf("\t]\n");
+
+	printf("}\n");
+}
+
 // ===============================================================
 
 static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free){

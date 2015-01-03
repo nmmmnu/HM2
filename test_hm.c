@@ -100,6 +100,7 @@ static void _hm_list_test_remove(hm_list_t *v){
 static void _hm_list_test_dump(hm_list_t *v){
 	_hm_list_populate(v);
 	hm_list_map(v, (hm_data_map_func_t) hm_pair_dump);
+	hm_list_dump(v);
 
 	PRINTF_TEST("hm_list_t", "put",		1	);
 	PRINTF_TEST("hm_list_t", "free",	1	);

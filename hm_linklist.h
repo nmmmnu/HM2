@@ -30,6 +30,7 @@ hm_listsize_t hm_linklist_count(const hm_linklist_t *l);
 hm_list_t *hm_linklist_getlist(hm_linklist_t *l);
 
 void hm_linklist_map(const hm_linklist_t *l, hm_data_map_func_t map_func);
+void hm_linklist_dump(const hm_linklist_t *l);
 
 #endif
 

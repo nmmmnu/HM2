@@ -25,6 +25,7 @@ typedef struct _hm_list_t{
 	void (*removeall)(void *list);
 
 	void (*map)(const void *list, hm_data_map_func_t func);
+	void (*dump)(const void *list);
 
 	int (*put)(void *list, void *data);
 	const void *(*get)(const void *list, const char *key);
@@ -47,6 +48,10 @@ static inline void hm_list_removeall(hm_list_t *list){
 
 static inline void hm_list_map(const hm_list_t *list, hm_data_map_func_t func){
 	list->map(list->list, func);
+}
+
+static inline void hm_list_dump(const hm_list_t *list){
+	list->dump(list->list);
 }
 
 static inline int hm_list_put(hm_list_t *list, void *data){

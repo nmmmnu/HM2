@@ -1,5 +1,5 @@
 desc: --time-unit=B
-cmd: ./test_hm_file_ve data/ru_domains.shuffle.30K.txt BEAUTY-OF-BODY.RU
+cmd: ./test_hm_file_ve data/ru_domains.shuffle.30K.txt TOKDIZEL.RU
 time_unit: B
 #-----------
 snapshot=0
@@ -12,509 +12,632 @@ heap_tree=empty
 #-----------
 snapshot=1
 #-----------
-time=69520
-mem_heap_B=55834
-mem_heap_extra_B=13686
+time=90856
+mem_heap_B=72884
+mem_heap_extra_B=17972
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=2
 #-----------
-time=139056
-mem_heap_B=111508
-mem_heap_extra_B=27548
+time=149024
+mem_heap_B=119428
+mem_heap_extra_B=29596
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=3
 #-----------
-time=197160
-mem_heap_B=157912
-mem_heap_extra_B=39248
+time=220528
+mem_heap_B=176680
+mem_heap_extra_B=43848
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 176680 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 151472 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 151472 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 151472 0x400A99: main (test_hm_file.c:28)
+ n1: 24576 0x401502: _realloc (hm_vector.c:159)
+  n1: 24576 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 24576 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 24576 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 24576 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 24576 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 24576 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=4
 #-----------
-time=287104
-mem_heap_B=229902
-mem_heap_extra_B=57202
+time=299408
+mem_heap_B=239674
+mem_heap_extra_B=59734
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=5
 #-----------
-time=382840
-mem_heap_B=306352
-mem_heap_extra_B=76488
+time=365760
+mem_heap_B=292626
+mem_heap_extra_B=73134
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=6
 #-----------
-time=453680
-mem_heap_B=363006
-mem_heap_extra_B=90674
+time=455048
+mem_heap_B=364068
+mem_heap_extra_B=90980
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=7
 #-----------
-time=544224
-mem_heap_B=435516
-mem_heap_extra_B=108708
+time=539744
+mem_heap_B=431822
+mem_heap_extra_B=107922
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=8
 #-----------
-time=648368
-mem_heap_B=518976
-mem_heap_extra_B=129392
+time=607576
+mem_heap_B=486152
+mem_heap_extra_B=121424
 mem_stacks_B=0
-heap_tree=detailed
-n3: 518976 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 447712 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 447712 0x400A56: processfile (test_hm_file.c:78)
-   n0: 447712 0x40094B: main (test_hm_file.c:27)
- n1: 70656 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 70656 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 70656 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 70656 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 70656 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 70656 0x40094B: main (test_hm_file.c:27)
- n0: 608 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=9
 #-----------
-time=760960
-mem_heap_B=609000
-mem_heap_extra_B=151960
+time=656080
+mem_heap_B=525222
+mem_heap_extra_B=130858
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=10
 #-----------
-time=842696
-mem_heap_B=674186
-mem_heap_extra_B=168510
+time=719896
+mem_heap_B=576056
+mem_heap_extra_B=143840
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=11
 #-----------
-time=949000
-mem_heap_B=758906
-mem_heap_extra_B=190094
+time=799376
+mem_heap_B=639704
+mem_heap_extra_B=159672
 mem_stacks_B=0
-heap_tree=detailed
-n3: 758906 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 655898 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 655898 0x400A56: processfile (test_hm_file.c:78)
-   n0: 655898 0x40094B: main (test_hm_file.c:27)
- n1: 102400 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 102400 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 102400 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 102400 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 102400 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 102400 0x40094B: main (test_hm_file.c:27)
- n0: 608 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=12
 #-----------
-time=1029600
-mem_heap_B=823458
-mem_heap_extra_B=206142
+time=863016
+mem_heap_B=690450
+mem_heap_extra_B=172566
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=13
 #-----------
-time=1119664
-mem_heap_B=895222
-mem_heap_extra_B=224442
+time=919504
+mem_heap_B=735442
+mem_heap_extra_B=184062
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=14
 #-----------
-time=1240648
-mem_heap_B=992040
-mem_heap_extra_B=248608
+time=991080
+mem_heap_B=792696
+mem_heap_extra_B=198384
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 792696 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 684544 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 684544 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 684544 0x400A99: main (test_hm_file.c:28)
+ n1: 107520 0x401502: _realloc (hm_vector.c:159)
+  n1: 107520 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 107520 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 107520 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 107520 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 107520 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 107520 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=15
 #-----------
-time=1321408
-mem_heap_B=1056820
-mem_heap_extra_B=264588
+time=1047568
+mem_heap_B=837756
+mem_heap_extra_B=209812
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=16
 #-----------
-time=1371488
-mem_heap_B=1096796
-mem_heap_extra_B=274692
+time=1125400
+mem_heap_B=899892
+mem_heap_extra_B=225508
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=17
 #-----------
-time=1471648
-mem_heap_B=1176742
-mem_heap_extra_B=294906
+time=1215048
+mem_heap_B=971558
+mem_heap_extra_B=243490
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 971558 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 839854 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 839854 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 839854 0x400A99: main (test_hm_file.c:28)
+ n1: 131072 0x401502: _realloc (hm_vector.c:159)
+  n1: 131072 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 131072 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 131072 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 131072 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 131072 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 131072 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=18
 #-----------
-time=1551768
-mem_heap_B=1240932
-mem_heap_extra_B=310836
+time=1270720
+mem_heap_B=1016166
+mem_heap_extra_B=254554
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=19
 #-----------
-time=1611648
-mem_heap_B=1288766
-mem_heap_extra_B=322882
+time=1338064
+mem_heap_B=1070004
+mem_heap_extra_B=268060
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=20
 #-----------
-time=1691648
-mem_heap_B=1352966
-mem_heap_extra_B=338682
+time=1426984
+mem_heap_B=1141216
+mem_heap_extra_B=285768
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=21
 #-----------
-time=1771528
-mem_heap_B=1417082
-mem_heap_extra_B=354446
+time=1482600
+mem_heap_B=1185698
+mem_heap_extra_B=296902
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=22
 #-----------
-time=1891304
-mem_heap_B=1513062
-mem_heap_extra_B=378242
+time=1549304
+mem_heap_B=1239032
+mem_heap_extra_B=310272
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 1239032 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1070464 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 1070464 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 1070464 0x400A99: main (test_hm_file.c:28)
+ n1: 167936 0x401502: _realloc (hm_vector.c:159)
+  n1: 167936 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 167936 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 167936 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 167936 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 167936 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 167936 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=23
 #-----------
-time=1991120
-mem_heap_B=1592286
-mem_heap_extra_B=398834
+time=1660696
+mem_heap_B=1327986
+mem_heap_extra_B=332710
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=24
 #-----------
-time=2051264
-mem_heap_B=1640532
-mem_heap_extra_B=410732
+time=1756296
+mem_heap_B=1404728
+mem_heap_extra_B=351568
 mem_stacks_B=0
-heap_tree=detailed
-n3: 1640532 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 1417716 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 1417716 0x400A56: processfile (test_hm_file.c:78)
-   n0: 1417716 0x40094B: main (test_hm_file.c:27)
- n1: 222208 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 222208 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 222208 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 222208 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 222208 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 222208 0x40094B: main (test_hm_file.c:27)
- n0: 608 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=25
 #-----------
-time=2151008
-mem_heap_B=1720292
-mem_heap_extra_B=430716
+time=1804880
+mem_heap_B=1443926
+mem_heap_extra_B=360954
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=26
 #-----------
-time=2225064
-mem_heap_B=1779526
-mem_heap_extra_B=445538
+time=1868648
+mem_heap_B=1494776
+mem_heap_extra_B=373872
 mem_stacks_B=0
-heap_tree=peak
-n3: 1779526 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 1538278 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 1538278 0x400A56: processfile (test_hm_file.c:78)
-   n0: 1538278 0x40094B: main (test_hm_file.c:27)
- n1: 240640 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 240640 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 240640 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 240640 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 240640 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 240640 0x40094B: main (test_hm_file.c:27)
- n0: 608 in 2 places, all below massif's threshold (01.00%)
+heap_tree=detailed
+n3: 1494776 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1292416 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 1292416 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 1292416 0x400A99: main (test_hm_file.c:28)
+ n1: 201728 0x401502: _realloc (hm_vector.c:159)
+  n1: 201728 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 201728 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 201728 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 201728 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 201728 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 201728 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=27
 #-----------
-time=2324856
-mem_heap_B=1702704
-mem_heap_extra_B=422568
+time=1964296
+mem_heap_B=1570990
+mem_heap_extra_B=393306
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=28
 #-----------
-time=2444480
-mem_heap_B=1609790
-mem_heap_extra_B=395858
+time=2012072
+mem_heap_B=1608938
+mem_heap_extra_B=403134
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=29
 #-----------
-time=2505792
-mem_heap_B=1562240
-mem_heap_extra_B=382096
+time=2076752
+mem_heap_B=1660734
+mem_heap_extra_B=416018
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=30
 #-----------
-time=2597728
-mem_heap_B=1490882
-mem_heap_extra_B=361518
+time=2172368
+mem_heap_B=1737312
+mem_heap_extra_B=435056
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=31
 #-----------
-time=2659016
-mem_heap_B=1443272
-mem_heap_extra_B=347840
+time=2225096
+mem_heap_B=1779550
+mem_heap_extra_B=445546
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=peak
+n3: 1779550 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1538278 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 1538278 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 1538278 0x400A99: main (test_hm_file.c:28)
+ n1: 240640 0x401502: _realloc (hm_vector.c:159)
+  n1: 240640 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 240640 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 240640 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 240640 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 240640 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 240640 0x400A99: main (test_hm_file.c:28)
+ n0: 632 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=32
 #-----------
-time=2750976
-mem_heap_B=1371964
-mem_heap_extra_B=327188
+time=2336592
+mem_heap_B=1693530
+mem_heap_extra_B=420070
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=33
 #-----------
-time=2812288
-mem_heap_B=1324254
-mem_heap_extra_B=313586
+time=2408160
+mem_heap_B=1637946
+mem_heap_extra_B=404086
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 1637946 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1397242 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 1397242 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 1397242 0x400A99: main (test_hm_file.c:28)
+ n1: 240640 0x401502: _realloc (hm_vector.c:159)
+  n1: 240640 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 240640 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 240640 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 240640 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 240640 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 240640 0x400A99: main (test_hm_file.c:28)
+ n0: 64 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=34
 #-----------
-time=2873576
-mem_heap_B=1276824
-mem_heap_extra_B=299728
+time=2503608
+mem_heap_B=1563992
+mem_heap_extra_B=382592
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=35
 #-----------
-time=2965528
-mem_heap_B=1205444
-mem_heap_extra_B=279156
+time=2575208
+mem_heap_B=1508408
+mem_heap_extra_B=366576
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=36
 #-----------
-time=3026760
-mem_heap_B=1157724
-mem_heap_extra_B=265644
+time=2670728
+mem_heap_B=1434246
+mem_heap_extra_B=345218
 mem_stacks_B=0
-heap_tree=detailed
-n3: 1157724 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 917044 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 917044 0x400A56: processfile (test_hm_file.c:78)
-   n0: 917044 0x40094B: main (test_hm_file.c:27)
- n1: 240640 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 240640 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 240640 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 240640 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 240640 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 240640 0x40094B: main (test_hm_file.c:27)
- n0: 40 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=37
 #-----------
-time=3118696
-mem_heap_B=1086248
-mem_heap_extra_B=245184
+time=2742360
+mem_heap_B=1378686
+mem_heap_extra_B=329146
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=38
 #-----------
-time=3179984
-mem_heap_B=1038596
-mem_heap_extra_B=231548
+time=2790144
+mem_heap_B=1341560
+mem_heap_extra_B=318488
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=39
 #-----------
-time=3271912
-mem_heap_B=967200
-mem_heap_extra_B=211016
+time=2885680
+mem_heap_B=1267424
+mem_heap_extra_B=297088
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 1267424 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1026720 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 1026720 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 1026720 0x400A99: main (test_hm_file.c:28)
+ n1: 240640 0x401502: _realloc (hm_vector.c:159)
+  n1: 240640 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 240640 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 240640 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 240640 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 240640 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 240640 0x400A99: main (test_hm_file.c:28)
+ n0: 64 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=40
 #-----------
-time=3333208
-mem_heap_B=919646
-mem_heap_extra_B=197274
+time=2957304
+mem_heap_B=1211894
+mem_heap_extra_B=280994
 mem_stacks_B=0
-heap_tree=detailed
-n3: 919646 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 678966 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 678966 0x400A56: processfile (test_hm_file.c:78)
-   n0: 678966 0x40094B: main (test_hm_file.c:27)
- n1: 240640 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 240640 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 240640 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 240640 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 240640 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 240640 0x40094B: main (test_hm_file.c:27)
- n0: 40 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=41
 #-----------
-time=3394536
-mem_heap_B=872238
-mem_heap_extra_B=183354
+time=3028952
+mem_heap_B=1156042
+mem_heap_extra_B=265198
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=42
 #-----------
-time=3455792
-mem_heap_B=824710
-mem_heap_extra_B=169626
+time=3076720
+mem_heap_B=1118950
+mem_heap_extra_B=254522
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=43
 #-----------
-time=3517096
-mem_heap_B=777148
-mem_heap_extra_B=155884
+time=3148328
+mem_heap_B=1063188
+mem_heap_extra_B=238676
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=44
 #-----------
-time=3578432
-mem_heap_B=729632
-mem_heap_extra_B=142064
+time=3219920
+mem_heap_B=1007696
+mem_heap_extra_B=222576
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=45
 #-----------
-time=3639688
-mem_heap_B=682236
-mem_heap_extra_B=128204
+time=3291512
+mem_heap_B=952046
+mem_heap_extra_B=206634
 mem_stacks_B=0
-heap_tree=detailed
-n3: 682236 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
- n1: 441556 0x400BF5: hm_pair_create (hm_pair.c:46)
-  n1: 441556 0x400A56: processfile (test_hm_file.c:78)
-   n0: 441556 0x40094B: main (test_hm_file.c:27)
- n1: 240640 0x401382: _hm_vector_resize (hm_vector.c:170)
-  n1: 240640 0x4015B8: _hm_vector_shiftR (hm_vector.c:255)
-   n1: 240640 0x40105A: hm_vector_put (hm_vector.c:73)
-    n1: 240640 0x40171E: hm_list_put (hm_list_vector.c:26)
-     n1: 240640 0x400A6B: processfile (test_hm_file.c:78)
-      n0: 240640 0x40094B: main (test_hm_file.c:27)
- n0: 40 in 2 places, all below massif's threshold (01.00%)
+heap_tree=empty
 #-----------
 snapshot=46
 #-----------
-time=3731560
-mem_heap_B=611110
-mem_heap_extra_B=107458
+time=3339248
+mem_heap_B=915068
+mem_heap_extra_B=195876
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=47
 #-----------
-time=3823456
-mem_heap_B=539750
-mem_heap_extra_B=86922
+time=3410848
+mem_heap_B=859692
+mem_heap_extra_B=179652
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=48
 #-----------
-time=3884752
-mem_heap_B=492156
-mem_heap_extra_B=73220
+time=3458576
+mem_heap_B=822588
+mem_heap_extra_B=169028
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=49
 #-----------
-time=3976688
-mem_heap_B=420854
-mem_heap_extra_B=52586
+time=3530176
+mem_heap_B=767110
+mem_heap_extra_B=152906
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=50
 #-----------
-time=4026792
-mem_heap_B=382040
-mem_heap_extra_B=41296
+time=3577960
+mem_heap_B=730074
+mem_heap_extra_B=142158
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=51
 #-----------
-time=4076912
-mem_heap_B=343254
-mem_heap_extra_B=29962
+time=3625712
+mem_heap_B=693114
+mem_heap_extra_B=131366
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=52
 #-----------
-time=4127032
-mem_heap_B=304336
-mem_heap_extra_B=18760
+time=3673464
+mem_heap_B=656102
+mem_heap_extra_B=120626
 mem_stacks_B=0
-heap_tree=empty
+heap_tree=detailed
+n3: 656102 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 415398 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 415398 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 415398 0x400A99: main (test_hm_file.c:28)
+ n1: 240640 0x401502: _realloc (hm_vector.c:159)
+  n1: 240640 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 240640 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 240640 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 240640 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 240640 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 240640 0x400A99: main (test_hm_file.c:28)
+ n0: 64 in 2 places, all below massif's threshold (01.00%)
 #-----------
 snapshot=53
 #-----------
-time=4177128
-mem_heap_B=265796
-mem_heap_extra_B=7204
+time=3721216
+mem_heap_B=619144
+mem_heap_extra_B=109832
 mem_stacks_B=0
 heap_tree=empty
 #-----------
 snapshot=54
 #-----------
-time=4450072
-mem_heap_B=40
-mem_heap_extra_B=16
+time=3768984
+mem_heap_B=582108
+mem_heap_extra_B=99100
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=55
+#-----------
+time=3816744
+mem_heap_B=544970
+mem_heap_extra_B=88478
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=3864512
+mem_heap_B=507960
+mem_heap_extra_B=77720
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=57
+#-----------
+time=3912264
+mem_heap_B=470868
+mem_heap_extra_B=67060
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=3960000
+mem_heap_B=433796
+mem_heap_extra_B=56396
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=59
+#-----------
+time=4007776
+mem_heap_B=396796
+mem_heap_extra_B=45620
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=4055512
+mem_heap_B=359862
+mem_heap_extra_B=34818
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=61
+#-----------
+time=4103280
+mem_heap_B=322800
+mem_heap_extra_B=24112
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=62
+#-----------
+time=4151048
+mem_heap_B=285862
+mem_heap_extra_B=13282
+mem_stacks_B=0
+heap_tree=detailed
+n3: 285862 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 240640 0x401502: _realloc (hm_vector.c:159)
+  n1: 240640 0x4015CA: _hm_vector_resize (hm_vector.c:190)
+   n1: 240640 0x401827: _hm_vector_shiftR (hm_vector.c:275)
+    n1: 240640 0x4012F0: hm_vector_put (hm_vector.c:90)
+     n1: 240640 0x4009B3: hm_list_put (hm_list.h:53)
+      n1: 240640 0x400BC5: processfile (test_hm_file.c:80)
+       n0: 240640 0x400A99: main (test_hm_file.c:28)
+ n1: 45158 0x400D4F: hm_pair_create (hm_pair.c:47)
+  n1: 45158 0x400BB0: processfile (test_hm_file.c:80)
+   n0: 45158 0x400A99: main (test_hm_file.c:28)
+ n0: 64 in 2 places, all below massif's threshold (01.00%)
+#-----------
+snapshot=63
+#-----------
+time=4198776
+mem_heap_B=249018
+mem_heap_extra_B=2398
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=64
+#-----------
+time=4450120
+mem_heap_B=64
+mem_heap_extra_B=8
 mem_stacks_B=0
 heap_tree=empty

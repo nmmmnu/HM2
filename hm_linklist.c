@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>	// strcmp
+#include <stdio.h>
 
 
 
@@ -33,6 +34,7 @@ hm_list_t *hm_linklist_getlist(hm_linklist_t *ll){
 	l->destroy	= (void (*)(void *))				hm_linklist_destroy;
 	l->removeall	= (void (*)(void *))				hm_linklist_removeall;
 	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_linklist_map;
+	l->dump		= (void (*)(const void *))			hm_linklist_dump;
 
 	l->put		= (int (*)(void *, void *))			hm_linklist_put;
 	l->get		= (const void *(*)(const void *, const char *))	hm_linklist_get;
@@ -193,11 +195,24 @@ hm_listsize_t hm_linklist_count(const hm_linklist_t *l){
 	return count;
 }
 
-
 void hm_linklist_map(const hm_linklist_t *l, hm_data_map_func_t map_func){
 	const hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next)
 		map_func(node->data);
+}
+
+void hm_linklist_dump(const hm_linklist_t *l){
+	printf("%s @ %p {\n", "hm_linklist_t", l);
+
+	const hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		printf("\t%s @ %p {\n", "hm_linklist_node_t", node);
+		printf("\t\t%-10s : %p\n", "next", node->next);
+		printf("\t\t%-10s : %p\n", "data", node->data);
+		printf("\t}\n");
+	}
+
+	printf("}\n");
 }
 
 // ===============================================================

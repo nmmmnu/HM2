@@ -40,6 +40,7 @@ hm_listsize_t hm_vector_count(const hm_vector_t *v);
 hm_list_t *hm_vector_getlist(hm_vector_t *v);
 
 void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func);
+void hm_vector_dump(const hm_vector_t *v);
 
 #endif
 
