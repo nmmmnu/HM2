@@ -1,4 +1,4 @@
-CC   = gcc -Wall -g -O0 -c
+CC   = gcc -Wall -g -O0  -c
 LINK = gcc -o
 LIBS =
 #-ljemalloc

@@ -14,15 +14,11 @@
 
 
 #ifdef HM_PAIR_EXPIRATION
-static inline timestamp_t _hm_pair_now();
+static hm_timestamp_t _hm_pair_now();
 #endif
 
 
-hm_pair_t *hm_pair_create(const char*key, const char*val){
-	return hm_pair_createx(key, val, 0);
-};
-
-hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
+hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
 	/*
 	For the moment, we assume key and value are strings.
 
@@ -68,15 +64,7 @@ hm_pair_t *hm_pair_createx(const char*key, const char*val, expires_t expires){
 	return pair;
 }
 
-const char *hm_pair_getkey(const hm_pair_t *pair){
-	return & pair->buffer[0];
-}
-
-const char *hm_pair_getval(const hm_pair_t *pair){
-	return & pair->buffer[ pair->keylen ];
-}
-
-static int _hm_pair_cmp(const void *m1, const void *m2, keysize_t size1, keysize_t size2){
+static int _hm_pair_cmp(const void *m1, const void *m2, hm_keysize_t size1, hm_keysize_t size2){
 	if (size1 == size2)
 		return memcmp(m1, m2, size1);
 
@@ -103,17 +91,14 @@ int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
 	return _hm_pair_cmp(& pair1->buffer[0], & pair2->buffer[0], pair1->keylen, pair2->keylen);
 }
 
-
-int hm_pair_valid(const hm_pair_t *pair){
 #ifdef HM_PAIR_EXPIRATION
+int hm_pair_valid(const hm_pair_t *pair){
 	if (! pair->expires)
 		return 1;
 
 	return pair->created + pair->expires * TIMESTAMP_MICROTIME_MULTIPLE > _hm_pair_now();
-#else
-	return 1;
-#endif
 }
+#endif
 
 void hm_pair_dump(const hm_pair_t *pair){
 	printf("%s @ %p{\n", "hm_pair_t", pair);
@@ -125,7 +110,7 @@ void hm_pair_dump(const hm_pair_t *pair){
 // ===============================================================
 
 #ifdef HM_PAIR_EXPIRATION
-inline static timestamp_t _hm_pair_now(){
+static hm_timestamp_t _hm_pair_now(){
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);

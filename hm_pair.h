@@ -6,36 +6,49 @@
 #define HM_PAIR_EXPIRATION
 
 #ifdef HM_PAIR_EXPIRATION
-typedef uint64_t timestamp_t;
-typedef uint32_t expires_t;		// 136 years, not that bad.
+typedef uint64_t hm_timestamp_t;
+typedef uint32_t hm_expires_t;		// 136 years, not that bad.
 #endif
-typedef uint16_t keysize_t;
-typedef uint32_t valsize_t;
+typedef uint16_t hm_keysize_t;
+typedef uint32_t hm_valsize_t;
 
 typedef struct _hm_pair_t{
 #ifdef HM_PAIR_EXPIRATION
-	timestamp_t	created;	// 8
-	expires_t	expires;	// 4
+	hm_timestamp_t	created;	// 8
+	hm_expires_t	expires;	// 4
 #endif
 
-	keysize_t	keylen;		// 2
-	valsize_t	vallen;		// 4
+	hm_keysize_t	keylen;		// 2
+	hm_valsize_t	vallen;		// 4
 
 	char		buffer[];	// dynamic
 }hm_pair_t;
 
 
-
-hm_pair_t *hm_pair_create(const char *key, const char *val);
 hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires);
 
-const char *hm_pair_getkey(const hm_pair_t *pair);
-const char *hm_pair_getval(const hm_pair_t *pair);
+inline static hm_pair_t *hm_pair_create(const char*key, const char*val){
+	return hm_pair_createx(key, val, 0);
+};
+
+inline static const char *hm_pair_getkey(const hm_pair_t *pair){
+	return & pair->buffer[0];
+}
+
+inline static const char *hm_pair_getval(const hm_pair_t *pair){
+	return & pair->buffer[ pair->keylen ];
+}
 
 int hm_pair_cmpkey(const hm_pair_t *pair, const char *key);
 int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2);
 
+#ifdef HM_PAIR_EXPIRATION
 int hm_pair_valid(const hm_pair_t *pair);
+#else
+inline static int hm_pair_valid(const hm_pair_t *pair){
+	return 1;
+}
+#endif
 
 void hm_pair_dump(const hm_pair_t *pair);
 
