@@ -5,6 +5,8 @@
 
 #define HM_PAIR_EXPIRATION
 
+#include <stdlib.h>	// size_t
+
 #ifdef HM_PAIR_EXPIRATION
 typedef uint64_t hm_timestamp_t;
 typedef uint32_t hm_expires_t;		// 136 years, not that bad.
@@ -30,6 +32,10 @@ hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires);
 inline static hm_pair_t *hm_pair_create(const char*key, const char*val){
 	return hm_pair_createx(key, val, 0);
 };
+
+inline static size_t hm_pair_sizeof(const hm_pair_t *pair){
+	return sizeof(hm_pair_t) + pair->keylen + pair->vallen;
+}
 
 inline static const char *hm_pair_getkey(const hm_pair_t *pair){
 	return & pair->buffer[0];

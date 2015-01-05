@@ -38,13 +38,13 @@ hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
 	if (key == NULL || val == NULL)
 		return NULL;
 
-	uint64_t keylen = strlen(key) + 1;
-	uint64_t vallen = strlen(val) + 1;
+	hm_keysize_t keylen = strlen(key) + 1;
+	hm_valsize_t vallen = strlen(val) + 1;
 
 	if (keylen >= MAX_KEYSIZE || vallen >= MAX_VALSIZE)
 		return NULL;
 
-	hm_pair_t *pair = malloc( sizeof(hm_pair_t) + keylen + vallen);
+	hm_pair_t *pair = malloc(sizeof(hm_pair_t) + keylen + vallen);
 
 	if (pair == NULL)
 		return NULL;
