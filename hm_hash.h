@@ -4,13 +4,13 @@
 #include "hm_list.h"
 #include "hm_vector.h"
 
-typedef uint64_t hm_capacity_t;
+typedef size_t hm_capacity_t;
 
 
 typedef hm_vector_t hm_collision_list_t;
 
 typedef struct _hm_hash_t{
-	hm_capacity_t		capacity;	// 8
+	hm_capacity_t		capacity;	// system dependent
 
 	hm_data_getkey_func_t 	getkey;		// system dependent
 	hm_data_valid_func_t	valid;		// system dependent

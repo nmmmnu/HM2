@@ -2,10 +2,10 @@
 #define _HM_LIST_H
 
 
-#include <stdint.h>
+#include <stdlib.h>
 
 
-typedef uint64_t hm_listsize_t;
+typedef size_t hm_listsize_t;
 
 
 typedef const char*(*hm_data_getkey_func_t)(const void *);

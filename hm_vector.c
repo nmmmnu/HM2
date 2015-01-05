@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>	// memmove, strcmp
 #include <stdio.h>
-#include <inttypes.h>	// PRIu64
+//#include <inttypes.h>	// PRIu64
 
 
 
@@ -136,10 +136,10 @@ void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func){
 void hm_vector_dump(const hm_vector_t *v){
 	printf("%s @ %p {\n", "hm_vector_t", v);
 
-	printf("\t%-10s : %10" PRIu64 "\n", "size", v->size);
-	printf("\t%-10s : %10" PRIu64 "\n", "realloc...", v->realloc_chunk_size);
-	printf("\t%-10s : %10" PRIu64 "\n", "buffer...", v->buffer_alloc_size);
-	printf("\t%-10s : %10" PRIu64 "\n", "waste mem", v->buffer_alloc_size -  v->size * sizeof(void *));
+	printf("\t%-10s : %10zu\n", "size", (size_t)v->size);
+	printf("\t%-10s : %10zu\n", "realloc...", v->realloc_chunk_size);
+	printf("\t%-10s : %10zu\n", "buffer...", v->buffer_alloc_size);
+	printf("\t%-10s : %10zu\n", "waste mem", v->buffer_alloc_size - v->size * sizeof(void *));
 
 	printf("\t%-10s : [\n", "buffer");
 	hm_listsize_t i;

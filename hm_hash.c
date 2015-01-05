@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>	// memset
-#include <inttypes.h>	// PRIu64
+//#include <inttypes.h>	// PRIu64
 #include <stdio.h>
 
 
@@ -143,7 +143,7 @@ void hm_hash_map(const hm_hash_t *table, hm_data_map_func_t map_func){
 void hm_hash_dump(const hm_hash_t *table){
 	printf("%s @ %p {\n", "hm_hash_t", table);
 
-	printf("\t%-10s : %10" PRIu64 "\n", "capacity", table->capacity);
+	printf("\t%-10s : %10zu\n", "capacity", table->capacity);
 
 	printf("\t%-10s : [\n", "lists");
 	hm_capacity_t i;
