@@ -1,10 +1,11 @@
 #include "hm_pair.h"
 
+#ifdef HM_PAIR_EXPIRATION
 #include <sys/time.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#endif
 
+#include <string.h>	// memcpy, memcmp
+#include <endian.h>	// htobe16
 
 
 #define TIMESTAMP_MICROTIME_MULTIPLE 1 * 1000 * 1000
@@ -100,6 +101,34 @@ int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
+	char buffer[ sizeof(hm_pair_t) ];
+
+	unsigned char pos = 0;	
+	uint16_t *be16;
+	uint32_t *be32;
+	
+	// "rasterize" numbers
+	
+#ifdef HM_PAIR_EXPIRATION
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->created);	
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->expires);
+#endif
+	be16 = (uint16_t *) & buffer[pos];	pos = pos + sizeof(uint16_t);	*be16 = htobe16(pair->keylen);	
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->vallen);	
+	
+	// write numbers at once
+	if (fwrite(buffer, pos, 1, F) == 0)
+		return -1;
+
+	// write data
+	if (fwrite(pair->buffer, pair->keylen + pair->vallen, 1, F) == 0)
+		return -1;
+
+	// done
+	return 0;
+}
+
 void hm_pair_dump(const hm_pair_t *pair){
 	printf("%s @ %p{\n", "hm_pair_t", pair);
 	printf("\t%-10s : %s\n", "key",		hm_pair_getkey(pair));
@@ -115,6 +144,6 @@ static hm_timestamp_t _hm_pair_now(){
 
 	gettimeofday(&tv, NULL);
 
-	return tv.tv_sec * TIMESTAMP_MICROTIME_MULTIPLE + tv.tv_usec;
+	return tv.tv_sec; // * TIMESTAMP_MICROTIME_MULTIPLE + tv.tv_usec;
 }
 #endif

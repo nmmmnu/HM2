@@ -1,16 +1,21 @@
-CC   = gcc -Wall -g -O0  -c
+CC   = gcc -Wall -g -O0  -fpack-struct -c
 LINK = gcc -o
 LIBS =
 #-ljemalloc
 
 
 
-all: test_hm_ve test_hm_ll test_hm_ha	test_hm_file_ve test_hm_file_ll test_hm_file_ha
+all:	test_hm_ve test_hm_ll test_hm_ha		\
+	test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
+	test_hm_fwrite
 
 
 
 clean:
-	rm -f *.o	test_hm_ve test_hm_ll test_hm_ha	test_hm_file_ve test_hm_file_ll test_hm_file_ha
+	rm -f *.o	\
+		test_hm_ve test_hm_ll test_hm_ha		\
+		test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
+		test_hm_fwrite
 
 
 
@@ -62,6 +67,13 @@ test_hm_file_ha.o: test_hm_file.c	hm_pair.h hm_list.h test_hm_factory.h	hm_hash.
 	$(CC) test_hm_file.c -D USE_HASH
 	mv test_hm_file.o test_hm_file_ha.o
 
+
+
+test_hm_fwrite:			test_hm_fwrite.o hm_pair.o hm_vector.o
+	$(LINK) test_hm_fwrite	test_hm_fwrite.o hm_pair.o hm_vector.o
+	
+test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h
+	$(CC) test_hm_fwrite.c
 
 
 

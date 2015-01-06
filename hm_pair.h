@@ -6,13 +6,18 @@
 #define HM_PAIR_EXPIRATION
 
 #include <stdlib.h>	// size_t
+#include <stdio.h>	// FILE *
+
+
 
 #ifdef HM_PAIR_EXPIRATION
-typedef uint64_t hm_timestamp_t;
+typedef uint32_t hm_timestamp_t;	// to be changed to uint64_t
 typedef uint32_t hm_expires_t;		// 136 years, not that bad.
 #endif
 typedef uint16_t hm_keysize_t;
 typedef uint32_t hm_valsize_t;
+
+
 
 typedef struct _hm_pair_t{
 #ifdef HM_PAIR_EXPIRATION
@@ -24,7 +29,14 @@ typedef struct _hm_pair_t{
 	hm_valsize_t	vallen;		// 4
 
 	char		buffer[];	// dynamic
-}hm_pair_t;
+}
+
+#ifdef __GNUC__
+__attribute__((__packed__))
+#endif
+
+hm_pair_t; // end typedef
+
 
 
 hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires);
@@ -55,6 +67,8 @@ inline static int hm_pair_valid(const hm_pair_t *pair){
 	return 1;
 }
 #endif
+
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *);
 
 void hm_pair_dump(const hm_pair_t *pair);
 
