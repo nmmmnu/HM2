@@ -152,7 +152,7 @@ void hm_hash_dump(const hm_hash_t *table){
 
 		hm_vector_dump(v);
 
-		if (i > 16){
+		if (i > 4){
 			printf("\t\t...\n");
 			break;
 		}

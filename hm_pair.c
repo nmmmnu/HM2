@@ -1,9 +1,5 @@
 #include "hm_pair.h"
 
-#ifdef HM_PAIR_EXPIRATION
-#include <sys/time.h>
-#endif
-
 #include <string.h>	// memcpy, memcmp
 #include <endian.h>	// htobe16
 
@@ -13,7 +9,10 @@
 
 
 #ifdef HM_PAIR_EXPIRATION
+#include <sys/time.h>
+
 static hm_timestamp_t _hm_pair_now();
+inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec);
 #endif
 
 
@@ -91,11 +90,6 @@ int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
 }
 
 #ifdef HM_PAIR_EXPIRATION
-
-inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec){
-	return (hm_timestamp_t) sec << 32 | usec;
-}
-
 int hm_pair_valid(const hm_pair_t *pair){
 	if (! pair->expires)
 		return 1;
@@ -123,6 +117,11 @@ void hm_pair_dump(const hm_pair_t *pair){
 // ===============================================================
 
 #ifdef HM_PAIR_EXPIRATION
+
+inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec){
+	return (hm_timestamp_t) sec << 32 | usec;
+}
+
 static hm_timestamp_t _hm_pair_now(){
 	struct timeval tv;
 
@@ -132,6 +131,7 @@ static hm_timestamp_t _hm_pair_now(){
 
 	return _hm_calc_time(tv.tv_sec, tv.tv_usec);
 }
+
 #endif
 
 // ===============================================================
