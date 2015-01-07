@@ -65,11 +65,7 @@ inline static int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
-inline static int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
-	// new version, struct is packed and is in big endian
-	// write data, return 0 in case of success
-	return ! fwrite(pair, hm_pair_sizeof(pair), 1, F);
-}
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
 
 void hm_pair_dump(const hm_pair_t *pair);
 

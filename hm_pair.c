@@ -101,6 +101,15 @@ int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
+	// new version, struct is packed and is in big endian
+
+	// this one is pretty short, but we want to be linked
+
+	// write data, return 0 in case of success
+	return ! fwrite(pair, hm_pair_sizeof(pair), 1, F);
+}
+
 void hm_pair_dump(const hm_pair_t *pair){
 	printf("%s @ %p{\n", "hm_pair_t", pair);
 	printf("\t%-10s : %s\n", "key",		hm_pair_getkey(pair));
