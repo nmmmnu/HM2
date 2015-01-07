@@ -8,8 +8,6 @@
 #include <endian.h>	// htobe16
 
 
-#define TIMESTAMP_MICROTIME_MULTIPLE 1 * 1000 * 1000
-
 #define MAX_KEYSIZE	0xffff
 #define MAX_VALSIZE	0xffffffff
 
@@ -51,8 +49,8 @@ hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
 		return NULL;
 
 #ifdef HM_PAIR_EXPIRATION
-	pair->created	= _hm_pair_now();
-	pair->expires	= expires;
+	pair->created	= htobe64(_hm_pair_now());
+	pair->expires	= htobe32(expires);
 #endif
 
 	pair->keylen	= htobe16(keylen);
@@ -93,11 +91,16 @@ int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
 }
 
 #ifdef HM_PAIR_EXPIRATION
+
+inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec){
+	return (hm_timestamp_t) sec << 32 | usec;
+}
+
 int hm_pair_valid(const hm_pair_t *pair){
 	if (! pair->expires)
 		return 1;
 
-	return pair->created + pair->expires * TIMESTAMP_MICROTIME_MULTIPLE > _hm_pair_now();
+	return be64toh(pair->created) + _hm_calc_time(be32toh(pair->expires), 0) > _hm_pair_now();
 }
 #endif
 
@@ -125,7 +128,9 @@ static hm_timestamp_t _hm_pair_now(){
 
 	gettimeofday(&tv, NULL);
 
-	return tv.tv_sec; // * TIMESTAMP_MICROTIME_MULTIPLE + tv.tv_usec;
+	//return tv.tv_sec;
+
+	return _hm_calc_time(tv.tv_sec, tv.tv_usec);
 }
 #endif
 

@@ -12,7 +12,7 @@
 
 
 #ifdef HM_PAIR_EXPIRATION
-typedef uint32_t hm_timestamp_t;	// to be changed to uint64_t
+typedef uint64_t hm_timestamp_t;
 typedef uint32_t hm_expires_t;		// 136 years, not that bad.
 #endif
 typedef uint16_t hm_keysize_t;
