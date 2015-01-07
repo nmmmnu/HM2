@@ -2,6 +2,7 @@
 #define _HM_PAIR_H
 
 #include <stdint.h>
+#include <endian.h>
 
 #define HM_PAIR_EXPIRATION
 
@@ -29,13 +30,9 @@ typedef struct _hm_pair_t{
 	hm_valsize_t	vallen;		// 4
 
 	char		buffer[];	// dynamic
-}
 
-#ifdef __GNUC__
-__attribute__((__packed__))
-#endif
-
-hm_pair_t; // end typedef
+} __attribute__((__packed__)) hm_pair_t;
+// yes, we *want* __attribute__ to give error on no-GCC
 
 
 
@@ -46,7 +43,7 @@ inline static hm_pair_t *hm_pair_create(const char*key, const char*val){
 };
 
 inline static size_t hm_pair_sizeof(const hm_pair_t *pair){
-	return sizeof(hm_pair_t) + pair->keylen + pair->vallen;
+	return sizeof(hm_pair_t) + be16toh(pair->keylen) + be32toh(pair->vallen);
 }
 
 inline static const char *hm_pair_getkey(const hm_pair_t *pair){
@@ -54,7 +51,7 @@ inline static const char *hm_pair_getkey(const hm_pair_t *pair){
 }
 
 inline static const char *hm_pair_getval(const hm_pair_t *pair){
-	return & pair->buffer[ pair->keylen ];
+	return & pair->buffer[ be16toh(pair->keylen) ];
 }
 
 int hm_pair_cmpkey(const hm_pair_t *pair, const char *key);
@@ -68,7 +65,11 @@ inline static int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
-int hm_pair_fwrite(const hm_pair_t *pair, FILE *);
+inline static int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
+	// new version, struct is packed and is in big endian
+	// write data, return 0 in case of success
+	return ! fwrite(pair, hm_pair_sizeof(pair), 1, F);
+}
 
 void hm_pair_dump(const hm_pair_t *pair);
 

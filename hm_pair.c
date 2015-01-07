@@ -55,8 +55,8 @@ hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
 	pair->expires	= expires;
 #endif
 
-	pair->keylen	= keylen;
-	pair->vallen	= vallen;
+	pair->keylen	= htobe16(keylen);
+	pair->vallen	= htobe32(vallen);
 
 	// memcpy so we can switch to blobs later...
 	memcpy(& pair->buffer[0     ], key, keylen);
@@ -82,14 +82,14 @@ int hm_pair_cmpkey(const hm_pair_t *pair, const char *key){
 	if (key == NULL)
 		return -1;
 
-	return _hm_pair_cmp(& pair->buffer[0], key, pair->keylen, strlen(key) + 1);
+	return _hm_pair_cmp(& pair->buffer[0], key, be16toh(pair->keylen), strlen(key) + 1);
 }
 
 int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
 	if (pair1 == NULL || pair2 == NULL)
 		return 0;
 
-	return _hm_pair_cmp(& pair1->buffer[0], & pair2->buffer[0], pair1->keylen, pair2->keylen);
+	return _hm_pair_cmp(& pair1->buffer[0], & pair2->buffer[0], be16toh(pair1->keylen), be16toh(pair2->keylen));
 }
 
 #ifdef HM_PAIR_EXPIRATION
@@ -100,34 +100,6 @@ int hm_pair_valid(const hm_pair_t *pair){
 	return pair->created + pair->expires * TIMESTAMP_MICROTIME_MULTIPLE > _hm_pair_now();
 }
 #endif
-
-int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
-	char buffer[ sizeof(hm_pair_t) ];
-
-	unsigned char pos = 0;	
-	uint16_t *be16;
-	uint32_t *be32;
-	
-	// "rasterize" numbers
-	
-#ifdef HM_PAIR_EXPIRATION
-	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->created);	
-	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->expires);
-#endif
-	be16 = (uint16_t *) & buffer[pos];	pos = pos + sizeof(uint16_t);	*be16 = htobe16(pair->keylen);	
-	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->vallen);	
-	
-	// write numbers at once
-	if (fwrite(buffer, pos, 1, F) == 0)
-		return -1;
-
-	// write data
-	if (fwrite(pair->buffer, pair->keylen + pair->vallen, 1, F) == 0)
-		return -1;
-
-	// done
-	return 0;
-}
 
 void hm_pair_dump(const hm_pair_t *pair){
 	printf("%s @ %p{\n", "hm_pair_t", pair);
@@ -147,3 +119,37 @@ static hm_timestamp_t _hm_pair_now(){
 	return tv.tv_sec; // * TIMESTAMP_MICROTIME_MULTIPLE + tv.tv_usec;
 }
 #endif
+
+// ===============================================================
+
+/*
+
+// old version with aligned struct and rasterize
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
+	char buffer[ sizeof(hm_pair_t) ];
+
+	unsigned char pos = 0;
+	uint16_t *be16;
+	uint32_t *be32;
+
+	// "rasterize" numbers
+
+#ifdef HM_PAIR_EXPIRATION
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->created);
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->expires);
+#endif
+	be16 = (uint16_t *) & buffer[pos];	pos = pos + sizeof(uint16_t);	*be16 = htobe16(pair->keylen);
+	be32 = (uint32_t *) & buffer[pos];	pos = pos + sizeof(uint32_t);	*be32 = htobe32(pair->vallen);
+
+	// write numbers at once
+	if (fwrite(buffer, pos, 1, F) == 0)
+		return -1;
+
+	// write data
+	if (fwrite(pair->buffer, pair->keylen + pair->vallen, 1, F) == 0)
+		return -1;
+
+	// done
+	return 0;
+}
+*/
