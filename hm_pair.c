@@ -16,33 +16,29 @@ inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec);
 #endif
 
 
-hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
+hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen, uint32_t expires){
 	/*
-	For the moment, we assume key and value are strings.
-
-	In first version, we kept the character data inside the buffer,
-	and skipped the last \0 terminating character.
-
-	By this way we "save" 2 bytes.
-
-	However examinig memory allocation shows, that memory used is
-	much more than memory allocated.
-
-	By this reason we will put the terminating character,
-	so we can pass key and value back to the client using refference
-	to stored value. Comparrisson will work easyer and better too.
+	Assumptions:
+	1. key   is string, up to uint16_t
+	2. value is blob up to uint32_t
+	3. after the key we store \0 byte, so we can use it as C string.
+	4. after the value we store \0 byte, so we can use it as C string.
 	*/
 
-	if (key == NULL || val == NULL)
+	if (key == NULL)
 		return NULL;
 
-	hm_keysize_t keylen = strlen(key) + 1;
-	hm_valsize_t vallen = strlen(val) + 1;
+	// because we need to to thombstones someday, we allow empty values
+	// we do not need to change the val
+	if (val == NULL)
+		vallen = 0;
+
+	hm_keysize_t keylen = strlen(key);
 
 	if (keylen >= MAX_KEYSIZE || vallen >= MAX_VALSIZE)
 		return NULL;
 
-	hm_pair_t *pair = malloc(sizeof(hm_pair_t) + keylen + vallen);
+	hm_pair_t *pair = malloc(sizeof(hm_pair_t) + keylen + 1 + vallen + 1);
 
 	if (pair == NULL)
 		return NULL;
@@ -57,37 +53,20 @@ hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
 
 	// memcpy so we can switch to blobs later...
 	memcpy(& pair->buffer[0     ], key, keylen);
-	memcpy(& pair->buffer[keylen], val, vallen);
+	pair->buffer[keylen] = '\0';
+
+	// this is safe with NULL pointer.
+	memcpy(& pair->buffer[keylen + 1], val, vallen);
+	pair->buffer[keylen + 1 + vallen] = '\0';
+
+//	unsigned int i;
+//	for(i = 0; i < keylen + 1 + vallen + 1; i++)
+//		printf("%5u : %5d : %c\n", i, pair->buffer[i], pair->buffer[i]);
+//	exit(0);
 
 	return pair;
 }
 
-static int _hm_pair_cmp(const void *m1, const void *m2, hm_keysize_t size1, hm_keysize_t size2){
-	if (size1 == size2)
-		return memcmp(m1, m2, size1);
-
-	if (size1 < size2){
-		int x =  memcmp(m1, m2, size1);
-		return x ? x : -1;
-	}else{
-		int x =  memcmp(m1, m2, size2);
-		return x ? x : +1;
-	}
-}
-
-int hm_pair_cmpkey(const hm_pair_t *pair, const char *key){
-	if (key == NULL)
-		return -1;
-
-	return _hm_pair_cmp(& pair->buffer[0], key, be16toh(pair->keylen), strlen(key) + 1);
-}
-
-int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
-	if (pair1 == NULL || pair2 == NULL)
-		return 0;
-
-	return _hm_pair_cmp(& pair1->buffer[0], & pair2->buffer[0], be16toh(pair1->keylen), be16toh(pair2->keylen));
-}
 
 #ifdef HM_PAIR_EXPIRATION
 int hm_pair_valid(const hm_pair_t *pair){
@@ -166,4 +145,20 @@ int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
 	// done
 	return 0;
 }
+
+static int _hm_pair_cmp(const void *m1, const void *m2, hm_keysize_t size1, hm_keysize_t size2){
+	if (size1 == size2)
+		return memcmp(m1, m2, size1);
+
+	if (size1 < size2){
+		int x =  memcmp(m1, m2, size1);
+		return x ? x : -1;
+	}else{
+		int x =  memcmp(m1, m2, size2);
+		return x ? x : +1;
+	}
+}
+
+	//return _hm_pair_cmp(& pair->buffer[0], key, be16toh(pair->keylen), strlen(key));
+	//return _hm_pair_cmp(& pair1->buffer[0], & pair2->buffer[0], be16toh(pair1->keylen), be16toh(pair2->keylen));
 */
