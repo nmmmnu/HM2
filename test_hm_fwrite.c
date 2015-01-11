@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>	// free
 #include <ctype.h>	// isspace
-#include <endian.h>	// htobe16
+//#include <endian.h>	// htobe16
 
 #include <fcntl.h>	// open
 #include <unistd.h>	// close
@@ -65,11 +65,11 @@ int main(int argc, char **argv){
 }
 
 static void writeFile(hm_hash_t *h, const char *filename){
-	int fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	FILE *F = fopen(filename, "w");
 
-	hm_hash_fwrite(h, fd);
+	hm_hash_fwrite(h, F);
 
-	close(fd);
+	fclose(F);
 }
 
 

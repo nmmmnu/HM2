@@ -3,13 +3,11 @@
 
 #include <stdint.h>
 #include <endian.h>
-
-#define HM_PAIR_EXPIRATION
-
 #include <stdlib.h>	// size_t
 #include <string.h>	// strlen
+#include <stdio.h>	// FILE
 
-
+#define HM_PAIR_EXPIRATION
 
 #ifdef HM_PAIR_EXPIRATION
 typedef uint64_t hm_timestamp_t;
@@ -101,7 +99,7 @@ inline static int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
-int hm_pair_fwrite(const hm_pair_t *pair, int fd);
+int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
 
 void hm_pair_dump(const hm_pair_t *pair);
 
