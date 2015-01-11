@@ -1,12 +1,13 @@
 #include "hm_pair.h"
 #include "hm_disk.h"
 
-#include <stdio.h>	// FILE
+#include <stdio.h>
 #include <stdlib.h>	// free
 #include <ctype.h>	// isspace
 #include <endian.h>	// htobe16
 
 #include <fcntl.h>	// open
+#include <unistd.h>	// close
 #include <sys/mman.h>	// mmap
 
 #define BUFFER_SIZE 1024
@@ -44,8 +45,8 @@ int main(int argc, char **argv){
 
 	const char *keytofind = argv[3];
 
-	int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	char *m = mmap(NULL, (size_t) 1024 * 1024 * 1024 * 10, PROT_WRITE, MAP_SHARED, fd, /* offset */ 0);
+	int fd = open(filename, O_RDONLY);
+	char *m = mmap(NULL, (size_t) 1024 * 1024 * 1024 * 10, PROT_READ, MAP_SHARED, fd, /* offset */ 0);
 
 	if (m == MAP_FAILED){
 		printf("MMAP failed...\n");
@@ -64,11 +65,11 @@ int main(int argc, char **argv){
 }
 
 static void writeFile(hm_hash_t *h, const char *filename){
-	FILE *F = fopen(filename, "w");
+	int fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
-	hm_hash_fwrite(h, F);
+	hm_hash_fwrite(h, fd);
 
-	fclose(F);
+	close(fd);
 }
 
 

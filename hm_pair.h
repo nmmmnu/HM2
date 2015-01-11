@@ -7,7 +7,6 @@
 #define HM_PAIR_EXPIRATION
 
 #include <stdlib.h>	// size_t
-#include <stdio.h>	// FILE *
 #include <string.h>	// strlen
 
 
@@ -102,7 +101,7 @@ inline static int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
-int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
+int hm_pair_fwrite(const hm_pair_t *pair, int fd);
 
 void hm_pair_dump(const hm_pair_t *pair);
 

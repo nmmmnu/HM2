@@ -1,6 +1,8 @@
 #include "hm_pair.h"
 
+#include <unistd.h>	// write
 #include <string.h>	// memcpy, memcmp
+#include <stdio.h>	// printf
 #include <endian.h>	// htobe16
 
 
@@ -77,13 +79,13 @@ int hm_pair_valid(const hm_pair_t *pair){
 }
 #endif
 
-int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
+int hm_pair_fwrite(const hm_pair_t *pair, int fd){
 	// new version, struct is packed and is in big endian
 
 	// this one is pretty short, but we want to be linked
 
 	// write data, return 0 in case of success
-	return ! fwrite(pair, hm_pair_sizeof(pair), 1, F);
+	return write(fd, pair, hm_pair_sizeof(pair));
 }
 
 void hm_pair_dump(const hm_pair_t *pair){

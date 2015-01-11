@@ -6,9 +6,8 @@
 #include "hm_pair.h"
 
 
-int hm_hash_fwrite(const hm_hash_t *h, FILE *F);
-
-int hm_vector_fwrite(const hm_vector_t *v, FILE *F);
+int hm_hash_fwrite(const hm_hash_t *h, int fd);
+int hm_vector_fwrite(const hm_vector_t *v, int fd);
 
 const hm_pair_t *hm_vector_mmap(const char *mem, const char *key);
 const hm_pair_t *hm_hash_mmap(const char *mem, const char *key);

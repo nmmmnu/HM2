@@ -1,42 +1,43 @@
 #include "hm_disk.h"
 
 #include <endian.h>	// htobe16
-#include <unistd.h>	// ftruncate
+#include <unistd.h>	// ftruncate, write, lseek
 
 
 static const hm_pair_t *_hm_vector_locate_pair_bsearch(const char *mem, const char *key);
-static int _hm_fwrite_junk(hm_listsize_t count, FILE *F);
+static int _hm_fwrite_junk(int fd, uint64_t size);
 
+inline static off_t _ftell(fd){
+	return lseek(fd, 0, SEEK_CUR);
+}
 
-
-int hm_vector_fwrite(const hm_vector_t *v, FILE *F){
+int hm_vector_fwrite(const hm_vector_t *v, int fd){
 	uint64_t be;
 
-	const uint64_t start = ftell(F);
+	const uint64_t start = _ftell(fd);
 
 	// write table size
-	be = htobe64( (uint64_t) v->size);
-	fwrite(& be, sizeof(uint64_t), 1, F);
+	be = htobe64( (uint64_t) v->size );
+	write(fd, & be, sizeof(uint64_t));
 
-	const uint64_t table_start = ftell(F);
+	const uint64_t table_start = _ftell(fd);
 
 	// write junk zero table.
 	// this is made in order to expand the file size.
 	// using fwrite with v->size fails in some cases.
-	_hm_fwrite_junk(v->size, F);
+	_hm_fwrite_junk(fd, v->size * sizeof(uint64_t));
 
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		// write item
-		fseek(F, 0, SEEK_END);
-		const uint64_t pos = ftell(F) - start;
+		const uint64_t abspos = lseek(fd, 0, SEEK_END);
 
-		hm_pair_fwrite(v->buffer[i], F);
+		hm_pair_fwrite(v->buffer[i], fd);
 
 		// write pos
-		fseek(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(pos);
-		fwrite(& be, sizeof(uint64_t), 1, F);
+		lseek(fd, table_start + sizeof(uint64_t) * i, SEEK_SET);
+		be = htobe64(abspos - start);
+		write(fd, & be, sizeof(uint64_t));
 	}
 
 	// file written (hopefully)
@@ -44,34 +45,33 @@ int hm_vector_fwrite(const hm_vector_t *v, FILE *F){
 	return 0;
 }
 
-int hm_hash_fwrite(const hm_hash_t *h, FILE *F){
+int hm_hash_fwrite(const hm_hash_t *h, int fd){
 	uint64_t be;
 
-	const uint64_t start = ftell(F);
+	const uint64_t start = _ftell(fd);
 
 	// write table size
 	be = htobe64( (uint64_t) h->capacity);
-	fwrite(& be, sizeof(uint64_t), 1, F);
+	write(fd, & be, sizeof(uint64_t));
 
-	const uint64_t table_start = ftell(F);
+	const uint64_t table_start = _ftell(fd);
 
 	// write junk zero table.
 	// this is made in order to expand the file size.
 	// using fwrite with v->size fails in some cases.
-	_hm_fwrite_junk(h->capacity, F);
+	_hm_fwrite_junk(fd, h->capacity * sizeof(uint64_t));
 
 	hm_capacity_t i;
 	for(i = 0; i < h->capacity; i++){
 		// write item
-		fseek(F, 0, SEEK_END);
-		const uint64_t pos = ftell(F) - start;
+		const uint64_t abspos = lseek(fd, 0, SEEK_END);
 
-		hm_vector_fwrite( & h->buckets[i], F);
+		hm_vector_fwrite( & h->buckets[i], fd);
 
 		// write pos
-		fseek(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(pos);
-		fwrite(& be, sizeof(uint64_t), 1, F);
+		lseek(fd, table_start + sizeof(uint64_t) * i, SEEK_SET);
+		be = htobe64(abspos - start);
+		write(fd, & be, sizeof(uint64_t));
 	}
 
 	// file written (hopefully)
@@ -139,26 +139,37 @@ static const hm_pair_t *_hm_vector_locate_pair_bsearch(const char *mem, const ch
 	return NULL;
 }
 
+#if 0
 
-static int _hm_fwrite_junk(hm_listsize_t count, FILE *F){
+static int _hm_fwrite_junk(int fd, hm_listsize_t count){
 	uint64_t be = 0xdeedbeef;
 
 	hm_listsize_t i;
 	for(i = 0; i < count; i++)
-		fwrite(& be, sizeof(uint64_t), 1, F);
+		write(fd, & be, sizeof(uint64_t));
 
 	return 0;
 }
 
+#else
 
-/*
-static int _hm_fwrite_junk(hm_listsize_t count, FILE *F){
-	fflush(F);
+static int _hm_fwrite_junk(int fd, uint64_t size){
+	const short int buffer_max = 4096;
+	char buffer[buffer_max];
 
-	uint64_t size = ftell(F) + sizeof(uint64_t) * count;
+	uint64_t written = 0;
 
-	ftruncate(fileno(F), size);
+	while(written < size){
+		uint64_t xsize = size - written;
+		if (xsize > buffer_max)
+			xsize = buffer_max;
+
+		write(fd, buffer, xsize);
+
+		written = written + xsize;
+	}
 
 	return 0;
 }
-*/
+
+#endif
