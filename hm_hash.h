@@ -40,4 +40,6 @@ hm_list_t *hm_hash_getlist(hm_hash_t *table);
 void hm_hash_map(const hm_hash_t *table, hm_data_map_func_t map_func);
 void hm_hash_dump(const hm_hash_t *table);
 
+unsigned long int hm_hash_calc(const char *str);
+
 #endif

@@ -12,7 +12,7 @@ test_hm_file_ha
 
 test_hm_fwrite
 
-file.bin
+data*.bin
 
 data
 data/

@@ -3,6 +3,7 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 
 
 typedef size_t hm_listsize_t;
@@ -12,6 +13,7 @@ typedef const char*(*hm_data_getkey_func_t)(const void *);
 typedef const char*(*hm_data_valid_func_t)(const void *, const void *);
 
 typedef void (*hm_data_map_func_t)(const void *);
+typedef void (*hm_data_fwrite_func_t)(const void *, FILE *);
 
 
 // ================================

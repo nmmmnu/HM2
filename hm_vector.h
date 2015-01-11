@@ -1,10 +1,6 @@
 #ifndef _HM_VECTOR_H
 #define _HM_VECTOR_H
 
-
-#include <stdlib.h>
-
-
 #include "hm_list.h"
 
 

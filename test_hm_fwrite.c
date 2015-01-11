@@ -1,69 +1,107 @@
 #include "hm_pair.h"
-#include "hm_vector.h"
+#include "hm_disk.h"
 
 #include <stdio.h>	// FILE
 #include <stdlib.h>	// free
-
+#include <ctype.h>	// isspace
 #include <endian.h>	// htobe16
 
-hm_vector_t *getVector();
+#include <fcntl.h>	// open
+#include <sys/mman.h>	// mmap
 
-int writeVector(FILE *F, const hm_vector_t *v);
+#define BUFFER_SIZE 1024
+#define PROCESS_STEP 1000 * 10
+
+
+static char *trim(char *s);
+static void loadFile(hm_hash_t *h, const char *filename);
+static void writeFile(hm_hash_t *h, const char *filename);
+
 
 int main(int argc, char **argv){
-	hm_vector_t *v = getVector();
+	const char *filename = argv[2];
 
-	const char *filename = "file.bin";
+	if (0){
+		static hm_hash_t h_real;
+		hm_hash_t *h = hm_hash_create(& h_real, 1024 * 1024, (hm_data_getkey_func_t) hm_pair_getkey, NULL, 1024);
 
-	FILE *F = fopen(filename, "w");
+		printf("Load start..\n");
 
-	writeVector(F, v);
+		loadFile(h, argv[1]);
 
-	fclose(F);
+		printf("Load done..\n");
+		getchar();
 
-	return 0;
-}
+		printf("Save start..\n");
 
-hm_vector_t *getVector(){
-	static hm_vector_t v_real;
-	hm_vector_t *v = hm_vector_create(& v_real, 1024, (hm_data_getkey_func_t) hm_pair_getkey, NULL);
+		writeFile(h, filename);
 
-	hm_vector_put(v, hm_pair_create("name",		"Niki"	));
-	hm_vector_put(v, hm_pair_create("age",		"41"	));
-	hm_vector_put(v, hm_pair_create("city",		"Sofia"	));
-	hm_vector_put(v, hm_pair_create("country",	"BG"	));
+		printf("Save done..\n");
+		getchar();
 
-	return v;
-}
-
-int writeVector(FILE *F, const hm_vector_t *v){
-	uint64_t be = htobe64( (uint64_t) v->size);
-
-	rewind(F);
-	// write table size
-	fwrite(& be, sizeof(uint64_t), 1, F);
-
-	const long int table_start = ftell(F);
-
-	// write junk table.
-	be = 0x00;
-	fwrite(& be, sizeof(uint64_t), v->size, F);
-
-	hm_listsize_t i;
-	for(i = 0; i < v->size; i++){
-		// write item
-		fseek(F, 0, SEEK_END);
-		const uint64_t pos = ftell(F);
-		be = htobe64(pos);
-		hm_pair_fwrite(v->buffer[i], F);
-
-		// write pos
-		fseek(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		fwrite(& be, sizeof(uint64_t), 1, F);
+		exit(0);
 	}
 
-	// file written (hopefully)
+	const char *keytofind = argv[3];
+
+	int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	char *m = mmap(NULL, (size_t) 1024 * 1024 * 1024 * 10, PROT_WRITE, MAP_SHARED, fd, /* offset */ 0);
+
+	if (m == MAP_FAILED){
+		printf("MMAP failed...\n");
+		exit(1);
+	}
+
+	const hm_pair_t *pair = hm_hash_mmap(m, keytofind);
+
+	if (pair){
+		hm_pair_dump(pair);
+	}else{
+		printf("Not Found\n");
+	}
 
 	return 0;
+}
+
+static void writeFile(hm_hash_t *h, const char *filename){
+	FILE *F = fopen(filename, "w");
+
+	hm_hash_fwrite(h, F);
+
+	fclose(F);
+}
+
+
+static void loadFile(hm_hash_t *h, const char *filename){
+	char buffer[BUFFER_SIZE];
+
+	FILE *f = fopen(filename, "r");
+
+	unsigned int i = 0;
+	char *key;
+	while( (key = fgets(buffer, BUFFER_SIZE, f)) ){
+		trim(key);
+
+		hm_hash_put(h, hm_pair_create(key, NULL));
+
+		i++;
+
+		if (i % ( PROCESS_STEP ) == 0){
+			printf("Processed %10u...\n", i);
+		}
+	}
+
+	fclose(f);
+}
+
+static char *trim(char *s){
+	size_t i;
+	for(i = strlen(s); i > 0; i--)
+		if (isspace((int) s[i]) || s[i] == '\0')
+			s[i] = '\0';
+		else
+			break;
+
+	return s;
 }
 

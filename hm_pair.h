@@ -75,7 +75,7 @@ inline static const char *hm_pair_getkey(const hm_pair_t *pair){
 }
 
 inline static const char *hm_pair_getval(const hm_pair_t *pair){
-	return & pair->buffer[ be16toh(pair->keylen) + 1 ];
+	return pair->vallen ? & pair->buffer[ be16toh(pair->keylen) + 1 ] : NULL;
 }
 
 

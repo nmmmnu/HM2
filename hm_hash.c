@@ -9,8 +9,7 @@
 
 
 
-#define hash(a) hm_hash(a)
-static unsigned long int hm_hash(const char *str);
+#define hash(a) hm_hash_calc(a)
 static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const char *key);
 
 
@@ -162,18 +161,8 @@ void hm_hash_dump(const hm_hash_t *table){
 	printf("}\n");
 }
 
-
-// ===============================================================
-
-static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const char *key){
-	if (key == NULL)
-		return 0;
-
-	return hash(key) % table->capacity + 1;
-}
-
 // DJB Hash function from CDB
-static unsigned long int hm_hash(const char *str){
+unsigned long int hm_hash_calc(const char *str){
 	// mysterious DJB const
 	unsigned long hash = 5381;
 
@@ -185,4 +174,15 @@ static unsigned long int hm_hash(const char *str){
 
 	return hash;
 }
+
+// ===============================================================
+
+static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const char *key){
+	if (key == NULL)
+		return 0;
+
+	return hash(key) % table->capacity + 1;
+}
+
+
 

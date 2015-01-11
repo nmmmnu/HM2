@@ -1,21 +1,25 @@
-CC   = gcc -Wall -g -O0  -fpack-struct -c
-LINK = gcc -o
-LIBS =
+CC	= gcc -Wall			\
+		-g -O0			\
+		-fpack-struct		\
+		-D_FILE_OFFSET_BITS=64	\
+		-c
+LINK	= gcc -o
+LIBS	=
 #-ljemalloc
 
+TARGETS = 	\
+		test_hm_ve test_hm_ll test_hm_ha		\
+		test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
+		test_hm_fwrite
 
 
-all:	test_hm_ve test_hm_ll test_hm_ha		\
-	test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
-	test_hm_fwrite
+
+all: $(TARGETS)
 
 
 
 clean:
-	rm -f *.o	\
-		test_hm_ve test_hm_ll test_hm_ha		\
-		test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
-		test_hm_fwrite
+	rm -f *.o $(TARGETS)
 
 
 
@@ -69,10 +73,10 @@ test_hm_file_ha.o: test_hm_file.c	hm_pair.h hm_list.h test_hm_factory.h	hm_hash.
 
 
 
-test_hm_fwrite:			test_hm_fwrite.o hm_pair.o hm_vector.o
-	$(LINK) test_hm_fwrite	test_hm_fwrite.o hm_pair.o hm_vector.o
-	
-test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h
+test_hm_fwrite:			test_hm_fwrite.o hm_pair.o hm_vector.o hm_hash.o hm_disk.o
+	$(LINK) test_hm_fwrite	test_hm_fwrite.o hm_pair.o hm_vector.o hm_hash.o hm_disk.o		$(LIBS)
+
+test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_disk.h
 	$(CC) test_hm_fwrite.c
 
 
@@ -91,4 +95,6 @@ hm_linklist.o: hm_linklist.c hm_linklist.h hm_list.h
 hm_hash.o: hm_hash.c hm_hash.h hm_pair.h hm_list.h hm_vector.h
 	$(CC) hm_hash.c
 
+hm_disk.o: hm_disk.c hm_disk.h hm_vector.h hm_pair.h
+	$(CC) hm_disk.c
 

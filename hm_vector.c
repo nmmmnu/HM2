@@ -2,7 +2,8 @@
 
 #include <stdlib.h>
 #include <string.h>	// memmove, strcmp
-#include <stdio.h>
+#include <endian.h>	// htobe16
+#include <stdint.h>
 //#include <inttypes.h>	// PRIu64
 
 
