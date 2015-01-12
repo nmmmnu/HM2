@@ -25,7 +25,7 @@ void hm_pair_test(const int delay){
 
 	hm_pair_t *p3 = hm_pair_createtombstone(key);
 
-	PRINTF_TEST("hm_pair_t", "tombstone",	strlen(hm_pair_getval(p3)) == 0			);
+	PRINTF_TEST("hm_pair_t", "tombstone",	hm_pair_getval(p3) == NULL			);
 
 	PRINTF_TEST("hm_pair_t", "cmp",		hm_pair_cmpkey(p1, key) == 0			);
 	PRINTF_TEST("hm_pair_t", "cmp",		hm_pair_cmpkey(p1, "~~~ non existent") < 0	);

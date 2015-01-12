@@ -5,7 +5,7 @@
 
 
 static const hm_pair_t *_hm_vector_locate_pair_bsearch(const char *mem, const char *key);
-static int _hm_fwrite_junk(FILE *F, uint64_t size);
+static int _hm_fwrite_junk(FILE *F, hm_listsize_t size);
 
 #define MIN(a, b) (a) > (b) ? (a) : (b)
 
