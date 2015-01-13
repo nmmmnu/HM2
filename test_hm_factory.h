@@ -1,22 +1,21 @@
 #ifndef _TEST_HM_FACTORY_H
 #define _TEST_HM_FACTORY_H
 
-#include "hm_list.h"
+#include "hm_pair.h"
 
-#include <stdlib.h>
-
-const unsigned short int vector_realloc_chunk_size = 1024;
+#define	vector_realloc_chunk_size	1024
 
 // =======================================
 
 #ifdef USE_VECTOR
+
+#define HM_LIST
 #include "hm_vector.h"
+#undef HM_LIST
 
-static hm_list_t *_list_factory(){
+static void *_list_factory(){
 	static hm_vector_t v_real;
-	hm_vector_t *vp = hm_vector_create(& v_real, vector_realloc_chunk_size , (hm_data_getkey_func_t) hm_pair_getkey, NULL);
-
-	return hm_vector_getlist(vp);
+	return hm_vector_create(& v_real, vector_realloc_chunk_size);
 }
 
 #endif

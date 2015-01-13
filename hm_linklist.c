@@ -16,33 +16,11 @@ typedef struct _hm_linklist_node_t{
 static hm_linklist_t *_hm_linklist_clear(hm_linklist_t *l);
 
 
-hm_linklist_t *hm_linklist_create(hm_linklist_t *l, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
-	l->getkey = getkey;
-	l->valid = valid;
-
+hm_linklist_t *hm_linklist_create(hm_linklist_t *l){
 	return _hm_linklist_clear(l);
 }
 
-hm_list_t *hm_linklist_getlist(hm_linklist_t *ll){
-	hm_list_t *l = malloc(sizeof(hm_list_t));
 
-	if (l == NULL)
-		return l;
-
-	l->list		= ll;
-
-	l->destroy	= (void (*)(void *))				hm_linklist_destroy;
-	l->removeall	= (void (*)(void *))				hm_linklist_removeall;
-	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_linklist_map;
-	l->dump		= (void (*)(const void *))			hm_linklist_dump;
-
-	l->put		= (int (*)(void *, void *))			hm_linklist_put;
-	l->get		= (const void *(*)(const void *, const char *))	hm_linklist_get;
-	l->remove	= (int (*)(void *, const char *))		hm_linklist_remove;
-	l->count	= (hm_listsize_t (*)(const void *))		hm_linklist_count;
-
-	return l;
-}
 
 void hm_linklist_destroy(hm_linklist_t *l){
 	hm_linklist_removeall(l);
@@ -67,7 +45,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 	if (newdata == NULL)
 		return 0;
 
-	const char *key = l->getkey(newdata);
+	const char *key = hm_list_getkey(newdata);
 
 	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
 	if (newnode == NULL){
@@ -83,18 +61,16 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 	for(node = l->head; node; node = node->next){
 		const void *olddata = node->data;
 
-		const int cmp = strcmp(l->getkey(olddata), key);
+		const int cmp = strcmp(hm_list_getkey(olddata), key);
 
 		if (cmp == 0){
 			// handle delete
 
-			if (l->valid){
-				// check if the data in database is valid
-				if (l->valid(newdata, olddata)){
-					// prevent memory leak
-					free(newdata);
-					return 0;
-				}
+			// check if the data in database is valid
+			if (hm_list_valid(newdata, olddata)){
+				// prevent memory leak
+				free(newdata);
+				return 0;
 			}
 
 			if (prev){
@@ -139,7 +115,7 @@ const void *hm_linklist_get(const hm_linklist_t *l, const char *key){
 	for(node = l->head; node; node = node->next){
 		const void *data = node->data;
 
-		const int cmp = strcmp(l->getkey(data), key);
+		const int cmp = strcmp(hm_list_getkey(data), key);
 
 		if (cmp == 0)
 			return data;
@@ -160,7 +136,7 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
 		const void *data = node->data;
-		const int cmp = strcmp(l->getkey(data), key);
+		const int cmp = strcmp(hm_list_getkey(data), key);
 
 		if (cmp == 0){
 			if (prev){
@@ -193,12 +169,6 @@ hm_listsize_t hm_linklist_count(const hm_linklist_t *l){
 	}
 
 	return count;
-}
-
-void hm_linklist_map(const hm_linklist_t *l, hm_data_map_func_t map_func){
-	const hm_linklist_node_t *node;
-	for(node = l->head; node; node = node->next)
-		map_func(node->data);
 }
 
 void hm_linklist_dump(const hm_linklist_t *l){

@@ -18,35 +18,10 @@ static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index);
 
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid){
+hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size){
 	v->realloc_chunk_size = realloc_chunk_size ? realloc_chunk_size : DEFAULT_REALLOC_CHUNK_SIZE;
-	v->use_linear_search = 0;
-
-	v->getkey = getkey;
-	v->valid = valid;
 
 	return _hm_vector_clear(v, 0);
-}
-
-hm_list_t *hm_vector_getlist(hm_vector_t *v){
-	hm_list_t *l = malloc(sizeof(hm_list_t));
-
-	if (l == NULL)
-		return l;
-
-	l->list		= v;
-
-	l->destroy	= (void (*)(void *))				hm_vector_destroy;
-	l->removeall	= (void (*)(void *))				hm_vector_removeall;
-	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_vector_map;
-	l->dump		= (void (*)(const void *))			hm_vector_dump;
-
-	l->put		= (int (*)(void *, void *))			hm_vector_put;
-	l->get		= (const void *(*)(const void *, const char *))	hm_vector_get;
-	l->remove	= (int (*)(void *, const char *))		hm_vector_remove;
-	l->count	= (hm_listsize_t (*)(const void *))		hm_vector_count;
-
-	return l;
 }
 
 void hm_vector_removeall(hm_vector_t *v){
@@ -65,7 +40,7 @@ void hm_vector_destroy(hm_vector_t *v){
 }
 
 int hm_vector_put(hm_vector_t *v, void *newdata){
-	const char *key = v->getkey(newdata);
+	const char *key = hm_list_getkey(newdata);
 
 	hm_listsize_t index;
 	int cmp = _hm_vector_locate_position(v, key, & index);
@@ -75,13 +50,11 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 
 		void *olddata = v->buffer[index];
 
-		if (v->valid){
-			// check if the data in database is valid
-			if (v->valid(newdata, olddata) ){
-				// prevent memory leak
-				free(newdata);
-				return 0;
-			}
+		// check if the data in database is valid
+		if (! hm_list_valid(newdata, olddata) ){
+			// prevent memory leak
+			free(newdata);
+			return 0;
 		}
 
 		free(olddata);
@@ -128,24 +101,19 @@ hm_listsize_t hm_vector_count(const hm_vector_t *v){
 	return v->size;
 }
 
-void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func){
-	hm_listsize_t i;
-	for(i = 0; i < v->size; i++)
-		map_func(v->buffer[i]);
-}
-
-void hm_vector_dump(const hm_vector_t *v){
+int hm_vector_printf(const hm_vector_t *v){
 	printf("%s @ %p {\n", "hm_vector_t", v);
 
-	printf("\t%-10s : %10zu\n", "size", (size_t)v->size);
-	printf("\t%-10s : %10zu\n", "realloc...", v->realloc_chunk_size);
-	printf("\t%-10s : %10zu\n", "buffer...", v->buffer_alloc_size);
-	printf("\t%-10s : %10zu\n", "waste mem", v->buffer_alloc_size - v->size * sizeof(void *));
+	printf("\t%-10s : %10zu\n", "size",		(size_t)v->size);
+	printf("\t%-10s : %10zu\n", "realloc...",	v->realloc_chunk_size);
+	printf("\t%-10s : %10zu\n", "buffer...",	v->buffer_alloc_size);
+	printf("\t%-10s : %10zu\n", "waste mem",	v->buffer_alloc_size - v->size * sizeof(void *));
 
 	printf("\t%-10s : [\n", "buffer");
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		printf("\t\t%p\n", v->buffer[i]);
+
 		if (i > 16){
 			printf("\t\t...\n");
 			break;
@@ -154,6 +122,17 @@ void hm_vector_dump(const hm_vector_t *v){
 	printf("\t]\n");
 
 	printf("}\n");
+
+	for(i = 0; i < v->size; i++){
+		hm_list_printf(v->buffer[i]);
+
+		if (i > 16){
+			break;
+		}
+	}
+
+
+	return 0;
 }
 
 // ===============================================================
@@ -224,12 +203,14 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	return 1;
 }
 
+#if 0
+
 static int _hm_vector_locate_position_linear(const hm_vector_t *v, const char *key, hm_listsize_t *index){
 	// linear - visit every node
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		const void *data = v->buffer[i];
-		const int cmp = strcmp(v->getkey(data), key);
+		const int cmp = strcmp(hm_list_getkey(data), key);
 
 		if (cmp == 0){
 			*index = i;
@@ -245,6 +226,8 @@ static int _hm_vector_locate_position_linear(const hm_vector_t *v, const char *k
 	*index = i;
 	return -1;
 }
+
+#else
 
 static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *key, hm_listsize_t *index){
 
@@ -263,7 +246,7 @@ static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *
 
 		const void *data = v->buffer[mid];
 
-		cmp = strcmp(v->getkey(data), key);
+		cmp = strcmp(hm_list_getkey(data), key);
 
 		if (cmp == 0){
 			*index = mid;
@@ -283,17 +266,15 @@ static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *
 	return cmp;
 }
 
+#endif
+
 static int _hm_vector_locate_position(const hm_vector_t *v, const char *key, hm_listsize_t *index){
 	if (v->size == 0){
 		*index = 0;
 		return 1;
 	}
 
-	if (v->use_linear_search){
-		return _hm_vector_locate_position_linear(v, key, index);
-	}else{
-		return _hm_vector_locate_position_bsearch(v, key, index);
-	}
+	return _hm_vector_locate_position_bsearch(v, key, index);
 }
 
 static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index){

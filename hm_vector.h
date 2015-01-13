@@ -1,15 +1,10 @@
 #ifndef _HM_VECTOR_H
 #define _HM_VECTOR_H
 
-#include "hm_list.h"
+#include "hm_list_defs.h"
 
 
 typedef struct _hm_vector_t{
-	char use_linear_search;		// 1
-
-	hm_data_getkey_func_t getkey;	// system dependent
-	hm_data_valid_func_t valid;	// system dependent
-
 	hm_listsize_t size;		// 8
 
 	size_t realloc_chunk_size;	// system dependent
@@ -19,7 +14,7 @@ typedef struct _hm_vector_t{
 }hm_vector_t;
 
 
-hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size, hm_data_getkey_func_t getkey, hm_data_valid_func_t valid);
+hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size);
 
 void hm_vector_destroy(hm_vector_t *v);
 
@@ -33,10 +28,21 @@ int hm_vector_remove(hm_vector_t *v, const char *key);
 
 hm_listsize_t hm_vector_count(const hm_vector_t *v);
 
-hm_list_t *hm_vector_getlist(hm_vector_t *v);
+int hm_vector_printf(const hm_vector_t *v);
 
-void hm_vector_map(const hm_vector_t *v, hm_data_map_func_t map_func);
-void hm_vector_dump(const hm_vector_t *v);
+#ifdef HM_LIST
+	#define hm_list_t		hm_vector_t
+
+	#define hm_list_destroy(a)	hm_vector_destroy(a)
+	#define hm_list_removeall(a)	hm_vector_removeall(a)
+
+	#define hm_list_put(a, data)	hm_vector_put(a, data)
+	#define hm_list_get(a, b)	hm_vector_get(a, b)
+	#define hm_list_remove(a, b)	hm_vector_remove(a, b)
+
+	#define hm_list_count(a)	hm_vector_count(a)
+	#define hm_list_printf(a)	hm_vector_printf(a)
+#endif
 
 #endif
 

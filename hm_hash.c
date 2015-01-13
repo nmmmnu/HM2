@@ -14,18 +14,13 @@ static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const cha
 
 
 
-hm_hash_t *hm_hash_create(hm_hash_t *table, hm_capacity_t capacity,
-		hm_data_getkey_func_t getkey, hm_data_valid_func_t valid,
-		size_t vector_realloc_chunk_size){
+hm_hash_t *hm_hash_create(hm_hash_t *table, hm_capacity_t capacity, size_t vector_realloc_chunk_size){
 	void *buckets = malloc(sizeof(hm_collision_list_t) * capacity);
 
 	if (buckets == NULL)
 		return NULL;
 
 	table->capacity = capacity;
-
-	table->getkey = getkey;
-	table->valid = valid;
 
 	table->vector_realloc_chunk_size = vector_realloc_chunk_size;
 
@@ -34,31 +29,10 @@ hm_hash_t *hm_hash_create(hm_hash_t *table, hm_capacity_t capacity,
 	// we no longer may use simple memset()
 	hm_capacity_t i;
 	for(i = 0; i < table->capacity; i++)
-		hm_vector_create( & table->buckets[i], vector_realloc_chunk_size, getkey, valid);
+		hm_vector_create( & table->buckets[i], vector_realloc_chunk_size);
 
 	return table;
 };
-
-hm_list_t *hm_hash_getlist(hm_hash_t *table){
-	hm_list_t *l = malloc(sizeof(hm_list_t));
-
-	if (l == NULL)
-		return l;
-
-	l->list		= table;
-
-	l->destroy	= (void (*)(void *))				hm_hash_destroy;
-	l->removeall	= (void (*)(void *))				hm_hash_removeall;
-	l->map		= (void (*)(const void *, hm_data_map_func_t))	hm_hash_map;
-	l->dump		= (void (*)(const void *))			hm_hash_dump;
-
-	l->put		= (int (*)(void *, void *))			hm_hash_put;
-	l->get		= (const void *(*)(const void *, const char *))	hm_hash_get;
-	l->remove	= (int (*)(void *, const char *))		hm_hash_remove;
-	l->count	= (hm_listsize_t (*)(const void *))		hm_hash_count;
-
-	return l;
-}
 
 void hm_hash_destroy(hm_hash_t *table){
 	hm_capacity_t i;
@@ -78,7 +52,7 @@ int hm_hash_put(hm_hash_t *table, void *data){
 	if (data == NULL)
 		return 0;
 
-	hm_capacity_t index = _hm_hash_getbucketforkey(table, table->getkey(data) );
+	hm_capacity_t index = _hm_hash_getbucketforkey(table, hm_list_getkey(data) );
 
 	if (index == 0)
 		return 0;
@@ -131,15 +105,7 @@ hm_listsize_t hm_hash_count(const hm_hash_t *table){
 	return count;
 }
 
-void hm_hash_map(const hm_hash_t *table, hm_data_map_func_t map_func){
-	hm_capacity_t i;
-	for(i = 0; i < table->capacity; i++){
-		hm_collision_list_t *v = & table->buckets[i];
-		hm_vector_map(v, map_func);
-	}
-}
-
-void hm_hash_dump(const hm_hash_t *table){
+int hm_hash_printf(const hm_hash_t *table){
 	printf("%s @ %p {\n", "hm_hash_t", table);
 
 	printf("\t%-10s : %10zu\n", "capacity", table->capacity);
@@ -149,7 +115,7 @@ void hm_hash_dump(const hm_hash_t *table){
 	for(i = 0; i < table->capacity; i++){
 		hm_collision_list_t *v = & table->buckets[i];
 
-		hm_vector_dump(v);
+		hm_vector_printf(v);
 
 		if (i > 4){
 			printf("\t\t...\n");
@@ -159,6 +125,8 @@ void hm_hash_dump(const hm_hash_t *table){
 	printf("\t]\n");
 
 	printf("}\n");
+
+	return 0;
 }
 
 // DJB Hash function from CDB

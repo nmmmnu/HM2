@@ -1,5 +1,3 @@
-#include "hm_pair.h"
-#include "hm_list.h"
 #include "test_hm_factory.h"
 
 #include <stdio.h>
@@ -35,15 +33,15 @@ void hm_pair_test(const int delay){
 	PRINTF_TEST("hm_pair_t", "val",		strcmp(hm_pair_getval(p1), val) == 0		);
 
 
-	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p1)				);
+	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p1, NULL)				);
 
 #ifdef HM_PAIR_EXPIRATION
-	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2)				);
+	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL)				);
 
 	if (delay){
 	printf("sleep for 1 sec...\n");
 	sleep(1);
-	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2) == 0				);
+	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL) == 0				);
 	}
 #endif
 
@@ -104,8 +102,7 @@ static void _hm_list_test_remove(hm_list_t *v){
 
 static void _hm_list_test_dump(hm_list_t *v){
 	_hm_list_populate(v);
-	hm_list_map(v, (hm_data_map_func_t) hm_pair_dump);
-	hm_list_dump(v);
+	hm_list_printf(v);
 
 	PRINTF_TEST("hm_list_t", "put",		1	);
 	PRINTF_TEST("hm_list_t", "free",	1	);
@@ -119,7 +116,6 @@ void hm_list_test(){
 	_hm_list_test_remove(v);
 
 	hm_list_destroy(v);
-	free(v);
 }
 
 

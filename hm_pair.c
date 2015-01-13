@@ -70,11 +70,11 @@ hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen,
 
 
 #ifdef HM_PAIR_EXPIRATION
-int hm_pair_valid(const hm_pair_t *pair){
-	if (! pair->expires)
+int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
+	if (! pair1->expires)
 		return 1;
 
-	return be64toh(pair->created) + _hm_calc_time(be32toh(pair->expires), 0) > _hm_pair_now();
+	return be64toh(pair1->created) + _hm_calc_time(be32toh(pair1->expires), 0) > _hm_pair_now();
 }
 #endif
 
@@ -87,11 +87,15 @@ int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
 	return fwrite(pair, hm_pair_sizeof(pair), 1, F);
 }
 
-void hm_pair_dump(const hm_pair_t *pair){
-	printf("%s @ %p{\n", "hm_pair_t", pair);
-	printf("\t%-10s : %s\n", "key",		hm_pair_getkey(pair));
-	printf("\t%-10s : %s\n", "value",	hm_pair_getval(pair));
-	printf("}\n");
+int hm_pair_printf(const hm_pair_t *pair){
+	printf("| %s | %-12p | %-20s | %-20s |\n",
+			"hm_pair_t",
+			pair,
+			hm_pair_getkey(pair),
+			hm_pair_getval(pair)
+	);
+
+	return 0;
 }
 
 // ===============================================================

@@ -92,15 +92,15 @@ inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2
 // Misc functions
 
 #ifdef HM_PAIR_EXPIRATION
-int hm_pair_valid(const hm_pair_t *pair);
+int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
 #else
-inline static int hm_pair_valid(const hm_pair_t *pair){
+inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 	return 1;
 }
 #endif
 
 int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
 
-void hm_pair_dump(const hm_pair_t *pair);
+int hm_pair_printf(const hm_pair_t *pair);
 
 #endif
