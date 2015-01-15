@@ -101,7 +101,7 @@ hm_listsize_t hm_vector_count(const hm_vector_t *v){
 	return v->size;
 }
 
-void _hm_vector_printf_more(const hm_vector_t *v){
+static void _hm_vector_printf_more(const hm_vector_t *v){
 	printf("%s @ %p {\n", "hm_vector_t", v);
 
 	printf("\t%-10s : %10zu\n", "size",		(size_t)v->size);

@@ -1,13 +1,15 @@
-#ifndef _hm_hash_t_H
-#define _hm_hash_t_H
+#ifndef _HM_HASH_H
+#define _HM_HASH_H
 
 #include "hm_list_defs.h"
 #include "hm_vector.h"
 
+
 typedef size_t hm_capacity_t;
 
-
 typedef hm_vector_t hm_collision_list_t;
+
+
 
 typedef struct _hm_hash_t{
 	hm_capacity_t		capacity;	// system dependent
@@ -30,7 +32,7 @@ int hm_hash_remove(hm_hash_t *table, const char *key);
 
 hm_listsize_t hm_hash_count(const hm_hash_t *table);
 
-int hm_hash_printf(const hm_hash_t *table);
+int hm_hash_printf(const hm_hash_t *table, int more);
 
 unsigned long int hm_hash_calc(const char *str);
 

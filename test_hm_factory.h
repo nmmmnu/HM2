@@ -3,19 +3,18 @@
 
 #include "hm_pair.h"
 
-#define	vector_realloc_chunk_size	1024
+#define	VECTOR_CHUNK_SIZE	1024
+#define HASHTABLE_BUCKETS	4
 
 // =======================================
 
 #ifdef USE_VECTOR
 
-#define HM_LIST
-#include "hm_vector.h"
-#undef HM_LIST
+#include "hm_vector_list.h"
 
 static void *_list_factory(){
 	static hm_vector_t v_real;
-	return hm_vector_create(& v_real, vector_realloc_chunk_size);
+	return hm_vector_create(& v_real, VECTOR_CHUNK_SIZE);
 }
 
 #endif
@@ -24,9 +23,7 @@ static void *_list_factory(){
 
 #ifdef USE_LINKLIST
 
-#define HM_LIST
-#include "hm_linklist.h"
-#undef HM_LIST
+#include "hm_linklist_list.h"
 
 static void *_list_factory(){
 	static hm_linklist_t ll_real;
@@ -38,13 +35,12 @@ static void *_list_factory(){
 // =======================================
 
 #ifdef USE_HASH
-#include "hm_hash.h"
 
-static hm_list_t *_list_factory(){
+#include "hm_hash_list.h"
+
+static void *_list_factory(){
 	static hm_hash_t ha_real;
-	hm_hash_t *ha = hm_hash_create(& ha_real, 1024 * 1024, (hm_data_getkey_func_t) hm_pair_getkey, NULL, vector_realloc_chunk_size);
-
-	return hm_hash_getlist(ha);
+	return hm_hash_create(& ha_real, HASHTABLE_BUCKETS, VECTOR_CHUNK_SIZE);
 }
 
 #endif

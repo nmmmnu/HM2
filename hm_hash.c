@@ -1,7 +1,5 @@
 #include "hm_hash.h"
 
-#include "hm_vector.h"
-
 #include <stdlib.h>
 #include <string.h>	// memset
 //#include <inttypes.h>	// PRIu64
@@ -105,7 +103,7 @@ hm_listsize_t hm_hash_count(const hm_hash_t *table){
 	return count;
 }
 
-int hm_hash_printf(const hm_hash_t *table){
+static void _hm_hash_printf_more(const hm_hash_t *table){
 	printf("%s @ %p {\n", "hm_hash_t", table);
 
 	printf("\t%-10s : %10zu\n", "capacity", table->capacity);
@@ -115,7 +113,7 @@ int hm_hash_printf(const hm_hash_t *table){
 	for(i = 0; i < table->capacity; i++){
 		hm_collision_list_t *v = & table->buckets[i];
 
-		hm_vector_printf(v);
+		hm_vector_printf(v, 1);
 
 		if (i > 4){
 			printf("\t\t...\n");
@@ -125,6 +123,25 @@ int hm_hash_printf(const hm_hash_t *table){
 	printf("\t]\n");
 
 	printf("}\n");
+}
+
+int hm_hash_printf(const hm_hash_t *table, int more){
+	if (more)
+		_hm_hash_printf_more(table);
+
+	hm_capacity_t i;
+	for(i = 0; i < table->capacity; i++){
+		hm_collision_list_t *v = & table->buckets[i];
+
+		printf("Bucket # %2zu:\n", i);
+		
+		hm_vector_printf(v, 0);
+
+		if (i > 16){
+			printf("...\n");
+			break;
+		}
+	}
 
 	return 0;
 }
