@@ -23,13 +23,14 @@ static void *_list_factory(){
 // =======================================
 
 #ifdef USE_LINKLIST
+
+#define HM_LIST
 #include "hm_linklist.h"
+#undef HM_LIST
 
-static hm_list_t *_list_factory(){
+static void *_list_factory(){
 	static hm_linklist_t ll_real;
-	hm_linklist_t *lp = hm_linklist_create(& ll_real, (hm_data_getkey_func_t) hm_pair_getkey, NULL);
-
-	return hm_linklist_getlist(lp);
+	return hm_linklist_create(& ll_real);
 }
 
 #endif

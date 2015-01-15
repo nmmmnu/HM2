@@ -102,7 +102,7 @@ static void _hm_list_test_remove(hm_list_t *v){
 
 static void _hm_list_test_dump(hm_list_t *v){
 	_hm_list_populate(v);
-	hm_list_printf(v);
+	hm_list_printf(v, 0);
 
 	PRINTF_TEST("hm_list_t", "put",		1	);
 	PRINTF_TEST("hm_list_t", "free",	1	);

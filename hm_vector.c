@@ -101,7 +101,7 @@ hm_listsize_t hm_vector_count(const hm_vector_t *v){
 	return v->size;
 }
 
-int hm_vector_printf(const hm_vector_t *v){
+void _hm_vector_printf_more(const hm_vector_t *v){
 	printf("%s @ %p {\n", "hm_vector_t", v);
 
 	printf("\t%-10s : %10zu\n", "size",		(size_t)v->size);
@@ -122,7 +122,13 @@ int hm_vector_printf(const hm_vector_t *v){
 	printf("\t]\n");
 
 	printf("}\n");
+}
 
+int hm_vector_printf(const hm_vector_t *v, int more){
+	if (more)
+		_hm_vector_printf_more(v);
+	
+	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		hm_list_printf(v->buffer[i]);
 
@@ -130,7 +136,6 @@ int hm_vector_printf(const hm_vector_t *v){
 			break;
 		}
 	}
-
 
 	return 0;
 }

@@ -67,7 +67,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 			// handle delete
 
 			// check if the data in database is valid
-			if (hm_list_valid(newdata, olddata)){
+			if (! hm_list_valid(newdata, olddata)){
 				// prevent memory leak
 				free(newdata);
 				return 0;
@@ -171,7 +171,7 @@ hm_listsize_t hm_linklist_count(const hm_linklist_t *l){
 	return count;
 }
 
-void hm_linklist_dump(const hm_linklist_t *l){
+static void _hm_linklist_printf_more(const hm_linklist_t *l){
 	printf("%s @ %p {\n", "hm_linklist_t", l);
 
 	const hm_linklist_node_t *node;
@@ -183,6 +183,25 @@ void hm_linklist_dump(const hm_linklist_t *l){
 	}
 
 	printf("}\n");
+}
+
+int hm_linklist_printf(const hm_linklist_t *l, int more){
+	if (more)
+		_hm_linklist_printf_more(l);
+
+	unsigned char i = 0;
+	const hm_linklist_node_t *node;
+	for(node = l->head; node; node = node->next){
+		hm_list_printf(node->data);
+
+		if (i > 16){
+			break;
+		}
+		
+		i++;
+	}
+	
+	return 0;
 }
 
 // ===============================================================

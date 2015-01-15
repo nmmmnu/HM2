@@ -28,7 +28,7 @@ int hm_vector_remove(hm_vector_t *v, const char *key);
 
 hm_listsize_t hm_vector_count(const hm_vector_t *v);
 
-int hm_vector_printf(const hm_vector_t *v);
+int hm_vector_printf(const hm_vector_t *v, int more);
 
 #ifdef HM_LIST
 	#define hm_list_t		hm_vector_t
@@ -41,7 +41,7 @@ int hm_vector_printf(const hm_vector_t *v);
 	#define hm_list_remove(a, b)	hm_vector_remove(a, b)
 
 	#define hm_list_count(a)	hm_vector_count(a)
-	#define hm_list_printf(a)	hm_vector_printf(a)
+	#define hm_list_printf(a, b)	hm_vector_printf(a, b)
 #endif
 
 #endif
