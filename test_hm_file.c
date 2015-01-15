@@ -1,5 +1,4 @@
 #include "hm_pair.h"
-#include "hm_list.h"
 #include "test_hm_factory.h"
 
 #include <stdio.h>
@@ -36,9 +35,13 @@ int main(int argc, char **argv){
 
 	if (pair == NULL)
 		printf("Key %s not found\n", findkey);
-	else
-		printf("Key %s found - %s\n", findkey, hm_pair_getval(pair));
-
+	else{
+		printf("Key %s found\n", findkey);
+		
+		printf("---begin---\n");
+		hm_pair_printf(pair);
+		printf("----end----\n");
+	}
 
 
 	//getchar();
@@ -52,7 +55,6 @@ int main(int argc, char **argv){
 	printf("Done...\n");
 
 	hm_list_destroy(v);
-	free(v);
 
 
 
