@@ -23,7 +23,7 @@ int hm_vector_fwrite(const hm_vector_t *v, FILE *F){
 	// write junk zero table.
 	// this is made in order to expand the file size.
 	// using fwrite with v->size fails in some cases.
-	_hm_fwrite_junk(F, v->size * sizeof(uint64_t));
+	_hm_fwrite_junk(F, v->size);
 
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
@@ -58,7 +58,7 @@ int hm_hash_fwrite(const hm_hash_t *h, FILE *F){
 	// write junk zero table.
 	// this is made in order to expand the file size.
 	// using fwrite with v->size fails in some cases.
-	_hm_fwrite_junk(F, h->capacity * sizeof(uint64_t));
+	_hm_fwrite_junk(F, h->capacity);
 
 	hm_capacity_t i;
 	for(i = 0; i < h->capacity; i++){

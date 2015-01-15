@@ -2,6 +2,8 @@
 #include "hm_disk.h"
 
 #include <stdio.h>
+#include <inttypes.h>	// PRIu64
+
 #include <stdlib.h>	// free
 #include <ctype.h>	// isspace
 //#include <endian.h>	// htobe16
@@ -9,44 +11,53 @@
 #include <fcntl.h>	// open
 #include <unistd.h>	// close
 #include <sys/mman.h>	// mmap
+#include <sys/stat.h>	// stat
 
-#define BUFFER_SIZE 1024
-#define PROCESS_STEP 1000 * 10
+#define BUFFER_SIZE	1024
+#define PROCESS_STEP	1000 * 10
+
+#define HASH_BUCKETS	4
+//1024 * 1024
+#define VECTOR_CHUNK	1024
 
 
 static char *trim(char *s);
 static void loadFile(hm_hash_t *h, const char *filename);
 static void writeFile(hm_hash_t *h, const char *filename);
 
+int create_file(const char *filename_to_load, const char *filename_to_write){
+	static hm_hash_t h_real;
+	hm_hash_t *h = hm_hash_create(& h_real, HASH_BUCKETS, VECTOR_CHUNK);
 
-int main(int argc, char **argv){
-	const char *filename = argv[2];
+	printf("Load start..\n");
 
-	if (0){
-		static hm_hash_t h_real;
-		hm_hash_t *h = hm_hash_create(& h_real, 1024 * 1024, (hm_data_getkey_func_t) hm_pair_getkey, NULL, 1024);
+	loadFile(h, filename_to_load);
 
-		printf("Load start..\n");
+	printf("Load done..\n");
+	getchar();
 
-		loadFile(h, argv[1]);
+	printf("Save start..\n");
 
-		printf("Load done..\n");
-		getchar();
+	writeFile(h, filename_to_write);
 
-		printf("Save start..\n");
+	printf("Save done..\n");
+	getchar();
 
-		writeFile(h, filename);
+	return 0;
+}
 
-		printf("Save done..\n");
-		getchar();
+int find_in_file(const char *filename, const char *keytofind){
+	FILE *F = fopen(filename, "r");
 
-		exit(0);
-	}
+	fseek(F, 0, SEEK_END);
+	
+	const uint64_t size = ftello(F);
 
-	const char *keytofind = argv[3];
+	int fd = fileno(F);
 
-	int fd = open(filename, O_RDONLY);
-	char *m = mmap(NULL, (size_t) 1024 * 1024 * 1024 * 10, PROT_READ, MAP_SHARED, fd, /* offset */ 0);
+	printf("File: %s (%d) is %" PRIu64 " bytes...\n", filename, fd, size);
+
+	char *m = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, /* offset */ 0);
 
 	if (m == MAP_FAILED){
 		printf("MMAP failed...\n");
@@ -56,12 +67,32 @@ int main(int argc, char **argv){
 	const hm_pair_t *pair = hm_hash_mmap(m, keytofind);
 
 	if (pair){
-		hm_pair_dump(pair);
+		printf("---begin---\n");
+		hm_pair_printf(pair);
+		printf("----end----\n");
 	}else{
 		printf("Not Found\n");
 	}
 
+	fclose(F);
+
 	return 0;
+}
+
+int main(int argc, char **argv){
+	switch(argc){
+	case 3:
+		return create_file(argv[1], argv[2]);
+	
+	case 4:
+		return find_in_file(argv[2], argv[3]);
+	}
+
+	printf("Usage:\n");
+	printf("\t%s [txt file] [db file] - create a database\n", argv[0]);
+	printf("\t%s find [db file] [key] - find in the database\n", argv[0]);
+
+	return 1;
 }
 
 static void writeFile(hm_hash_t *h, const char *filename){

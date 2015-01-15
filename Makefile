@@ -14,7 +14,8 @@ TARGETS = 	\
 
 TARGETS =	\
 		test_hm_ve test_hm_ll test_hm_ha		\
-		test_hm_file_ve test_hm_file_ll test_hm_file_ha
+		test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
+		test_hm_fwrite
 
 
 all: $(TARGETS)
@@ -76,8 +77,8 @@ test_hm_file_ha.o:		test_hm_file.c		hm_pair.h hm_list_defs.h	hm_hash.h	hm_hash_l
 
 
 
-test_hm_fwrite:			test_hm_fwrite.o hm_pair.o hm_vector.o hm_hash.o hm_disk.o
-	$(LINK) test_hm_fwrite	test_hm_fwrite.o hm_pair.o hm_vector.o hm_hash.o hm_disk.o		$(LIBS)
+test_hm_fwrite:			test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_disk.o
+	$(LINK) test_hm_fwrite	test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_disk.o	$(LIBS)
 
 test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_disk.h
 	$(CC) test_hm_fwrite.c
