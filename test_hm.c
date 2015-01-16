@@ -32,16 +32,22 @@ void hm_pair_test(const int delay){
 	PRINTF_TEST("hm_pair_t", "key",		strcmp(hm_pair_getkey(p1), key) == 0		);
 	PRINTF_TEST("hm_pair_t", "val",		strcmp(hm_pair_getval(p1), val) == 0		);
 
-
+	// these always pass
 	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p1, NULL)				);
+	PRINTF_TEST("hm_pair_t", "checksum",	hm_pair_validchecksum(p1)			);
+
+#ifdef HM_PAIR_CHECKSUM
+	// corrupt p1
+	p1->keylen--;
+	PRINTF_TEST("hm_pair_t", "checksum",	! hm_pair_validchecksum(p1)			);
+#endif
 
 #ifdef HM_PAIR_EXPIRATION
 	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL)				);
-
 	if (delay){
 	printf("sleep for 1 sec...\n");
 	sleep(1);
-	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL) == 0				);
+	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL) == 0			);
 	}
 #endif
 

@@ -4,7 +4,10 @@
 #include "hm_pair.h"
 
 #define	VECTOR_CHUNK_SIZE	1024
-#define HASHTABLE_BUCKETS	4
+
+#ifndef HASHTABLE_BUCKETS
+#define HASHTABLE_BUCKETS	16
+#endif
 
 // =======================================
 

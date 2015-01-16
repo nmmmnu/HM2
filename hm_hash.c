@@ -134,7 +134,7 @@ int hm_hash_printf(const hm_hash_t *table, int more){
 		hm_collision_list_t *v = & table->buckets[i];
 
 		printf("Bucket # %2zu:\n", i);
-		
+
 		hm_vector_printf(v, 0);
 
 		if (i > 16){
@@ -166,8 +166,13 @@ static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const cha
 	if (key == NULL)
 		return 0;
 
+	/*
+	Instead of modulo, this can be done with bit AND.
+	Doing so, really increase the speed a bit,
+	but code for file based operations get more complicated,
+	and overal result will be low quality code.
+	*/
+
 	return hash(key) % table->capacity + 1;
 }
-
-
 

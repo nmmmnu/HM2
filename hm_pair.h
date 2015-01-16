@@ -8,7 +8,12 @@
 #include <stdio.h>	// FILE
 
 #define HM_PAIR_EXPIRATION
+#define HM_PAIR_CHECKSUM
 
+
+#ifdef HM_PAIR_CHECKSUM
+typedef uint8_t hm_checksum_t;
+#endif
 #ifdef HM_PAIR_EXPIRATION
 typedef uint64_t hm_timestamp_t;
 typedef uint32_t hm_expires_t;		// 136 years, not that bad.
@@ -19,11 +24,13 @@ typedef uint32_t hm_valsize_t;
 
 
 typedef struct _hm_pair_t{
+#ifdef HM_PAIR_CHECKSUM
+	hm_checksum_t	checksum;	// 1
+#endif
 #ifdef HM_PAIR_EXPIRATION
 	hm_timestamp_t	created;	// 8
 	hm_expires_t	expires;	// 4
 #endif
-
 	hm_keysize_t	keylen;		// 2
 	hm_valsize_t	vallen;		// 4
 
@@ -95,6 +102,14 @@ inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
 #else
 inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
+	return 1;
+}
+#endif
+
+#ifdef HM_PAIR_CHECKSUM
+int hm_pair_validchecksum(const hm_pair_t *pair);
+#else
+inline static int hm_pair_validchecksum(const hm_pair_t *pair){
 	return 1;
 }
 #endif
