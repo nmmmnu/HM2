@@ -64,9 +64,8 @@ hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen,
 	memcpy(& pair->buffer[keylen + 1], val, vallen);
 	pair->buffer[keylen + 1 + vallen] = '\0';
 
-#ifdef HM_PAIR_CHECKSUM
-	pair->checksum = _hm_pair_checksum(pair);
-#endif
+	// this is dummy method if no checksum
+	hm_pair_checksummake(pair);
 
 #if 0
 	printf("hm_pair_t @ %12p\nbuffer %12p\nkey %u\nval %u\n", pair, pair->buffer, keylen, vallen);
@@ -89,7 +88,10 @@ int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
-int hm_pair_validchecksum(const hm_pair_t *pair){
+void hm_pair_checksummake(hm_pair_t *pair){
+	pair->checksum = _hm_pair_checksum(pair);
+}
+int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return pair->checksum == _hm_pair_checksum(pair);
 }
 #endif

@@ -34,12 +34,12 @@ void hm_pair_test(const int delay){
 
 	// these always pass
 	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p1, NULL)				);
-	PRINTF_TEST("hm_pair_t", "checksum",	hm_pair_validchecksum(p1)			);
+	PRINTF_TEST("hm_pair_t", "checksum",	hm_pair_checksumvalid(p1)			);
 
 #ifdef HM_PAIR_CHECKSUM
 	// corrupt p1
 	p1->keylen--;
-	PRINTF_TEST("hm_pair_t", "checksum",	! hm_pair_validchecksum(p1)			);
+	PRINTF_TEST("hm_pair_t", "checksum",	! hm_pair_checksumvalid(p1)			);
 #endif
 
 #ifdef HM_PAIR_EXPIRATION

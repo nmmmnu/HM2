@@ -107,9 +107,13 @@ inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
-int hm_pair_validchecksum(const hm_pair_t *pair);
+void hm_pair_checksummake(hm_pair_t *pair);
+int hm_pair_checksumvalid(const hm_pair_t *pair);
 #else
-inline static int hm_pair_validchecksum(const hm_pair_t *pair){
+inline static void hm_pair_checksummake(const hm_pair_t *pair){
+	/* noop */
+}
+inline static int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return 1;
 }
 #endif
