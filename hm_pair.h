@@ -22,7 +22,6 @@ typedef uint16_t hm_keysize_t;
 typedef uint32_t hm_valsize_t;
 
 
-
 typedef struct _hm_pair_t{
 #ifdef HM_PAIR_CHECKSUM
 	hm_checksum_t	checksum;	// 1
@@ -40,60 +39,31 @@ typedef struct _hm_pair_t{
 // yes, we *want* __attribute__ to give error on no-GCC
 
 
-
 // Create pair
 
 hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen, uint32_t expires);
 
-inline static hm_pair_t *hm_pair_createn(const char*key, const char*val, hm_valsize_t vallen){
-	return hm_pair_createnx(key, val, vallen, 0);
-}
-
-inline static hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires){
-	hm_valsize_t vallen = val == NULL ? 0 : strlen(val);
-	return hm_pair_createnx(key, val, vallen, expires);
-}
-
-inline static hm_pair_t *hm_pair_create(const char*key, const char*val){
-	return hm_pair_createx(key, val, 0);
-};
-
-inline static hm_pair_t *hm_pair_createtombstone(const char*key){
-	return hm_pair_create(key, NULL);
-};
-
+inline static hm_pair_t *hm_pair_createn(const char*key, const char*val, hm_valsize_t vallen);
+inline static hm_pair_t *hm_pair_createx(const char *key, const char *val, uint32_t expires);
+inline static hm_pair_t *hm_pair_create(const char*key, const char*val);
+inline static hm_pair_t *hm_pair_createtombstone(const char*key);
 
 
 // sizeof
 
-inline static size_t hm_pair_sizeof(const hm_pair_t *pair){
-	return sizeof(hm_pair_t) + be16toh(pair->keylen) + 1 + be32toh(pair->vallen) + 1;
-}
-
+inline static size_t hm_pair_sizeof(const hm_pair_t *pair);
 
 
 // Get key and value
 
-inline static const char *hm_pair_getkey(const hm_pair_t *pair){
-	return & pair->buffer[0];
-}
-
-inline static const char *hm_pair_getval(const hm_pair_t *pair){
-	return pair->vallen ? & pair->buffer[ be16toh(pair->keylen) + 1 ] : NULL;
-}
-
+inline static const char *hm_pair_getkey(const hm_pair_t *pair);
+inline static const char *hm_pair_getval(const hm_pair_t *pair);
 
 
 // Cmp functions
 
-inline static int hm_pair_cmpkey(const hm_pair_t *pair, const char *key){
-	return key == NULL ? -1 : strcmp(hm_pair_getkey(pair), key);
-}
-
-inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
-	return strcmp(hm_pair_getkey(pair1), hm_pair_getkey(pair2));
-}
-
+inline static int hm_pair_cmpkey(const hm_pair_t *pair, const char *key);
+inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2);
 
 
 // Misc functions
@@ -101,25 +71,20 @@ inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2
 #ifdef HM_PAIR_EXPIRATION
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
 #else
-inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
-	return 1;
-}
+inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
 void hm_pair_checksummake(hm_pair_t *pair);
 int hm_pair_checksumvalid(const hm_pair_t *pair);
 #else
-inline static void hm_pair_checksummake(const hm_pair_t *pair){
-	/* noop */
-}
-inline static int hm_pair_checksumvalid(const hm_pair_t *pair){
-	return 1;
-}
+inline static void hm_pair_checksummake(const hm_pair_t *pair);
+inline static int hm_pair_checksumvalid(const hm_pair_t *pair);
 #endif
 
 int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
-
 int hm_pair_printf(const hm_pair_t *pair);
+
+#include "hm_pair_inlines.h"
 
 #endif
