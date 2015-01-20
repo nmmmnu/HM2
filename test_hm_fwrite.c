@@ -1,17 +1,13 @@
 #include "hm_pair.h"
-#include "hm_disk.h"
+#include "hm_file.h"
 
 #include <stdio.h>
-#include <inttypes.h>	// PRIu64
 
-#include <stdlib.h>	// free
+#include <stdlib.h>	// NULL
 #include <ctype.h>	// isspace
-//#include <endian.h>	// htobe16
 
-#include <fcntl.h>	// open
-#include <unistd.h>	// close
-#include <sys/mman.h>	// mmap
-#include <sys/stat.h>	// stat
+
+
 
 #define BUFFER_SIZE	1024
 #define PROCESS_STEP	1000 * 10
@@ -21,11 +17,14 @@
 #define VECTOR_CHUNK	1024
 
 
+int hm_hash_fwrite(const hm_hash_t *h, FILE *F);
+
+
 static char *trim(char *s);
 static void loadFile(hm_hash_t *h, const char *filename);
-static void writeFile(hm_hash_t *h, const char *filename);
 
-int create_file(const char *filename_to_load, const char *filename_to_write){
+
+static int create_file(const char *filename_to_load, const char *filename_to_write){
 	static hm_hash_t h_real;
 	hm_hash_t *h = hm_hash_create(& h_real, HASH_BUCKETS, VECTOR_CHUNK);
 
@@ -38,7 +37,7 @@ int create_file(const char *filename_to_load, const char *filename_to_write){
 
 	printf("Save start..\n");
 
-	writeFile(h, filename_to_write);
+	hm_file_createfromhash(h, filename_to_write);
 
 	printf("Save done..\n");
 	getchar();
@@ -46,25 +45,18 @@ int create_file(const char *filename_to_load, const char *filename_to_write){
 	return 0;
 }
 
-int find_in_file(const char *filename, const char *keytofind){
-	FILE *F = fopen(filename, "r");
 
-	fseek(F, 0, SEEK_END);
+static int find_in_file(const char *filename, const char *keytofind){
+	hm_file_t mmf_real;
 	
-	const uint64_t size = ftello(F);
+	hm_file_t *mmf = hm_file_open(&mmf_real, filename);
 
-	int fd = fileno(F);
-
-	printf("File: %s (%d) is %" PRIu64 " bytes...\n", filename, fd, size);
-
-	char *m = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, /* offset */ 0);
-
-	if (m == MAP_FAILED){
-		printf("MMAP failed...\n");
+	if (mmf == NULL){
+		printf("Can not mmap file\n");
 		exit(1);
 	}
-
-	const hm_pair_t *pair = hm_hash_mmap(m, keytofind);
+	
+	const hm_pair_t *pair = hm_file_get(mmf, keytofind);
 
 	if (pair){
 		printf("---begin---\n");
@@ -74,7 +66,7 @@ int find_in_file(const char *filename, const char *keytofind){
 		printf("Not Found\n");
 	}
 
-	fclose(F);
+	hm_file_close(mmf);
 
 	return 0;
 }
@@ -95,13 +87,6 @@ int main(int argc, char **argv){
 	return 1;
 }
 
-static void writeFile(hm_hash_t *h, const char *filename){
-	FILE *F = fopen(filename, "w");
-
-	hm_hash_fwrite(h, F);
-
-	fclose(F);
-}
 
 
 static void loadFile(hm_hash_t *h, const char *filename){
@@ -125,6 +110,7 @@ static void loadFile(hm_hash_t *h, const char *filename){
 
 	fclose(f);
 }
+
 
 static char *trim(char *s){
 	size_t i;
