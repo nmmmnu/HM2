@@ -17,6 +17,8 @@ data*.bin
 data
 data/
 
+massif.out.*
+
 a.out
 x.c
 

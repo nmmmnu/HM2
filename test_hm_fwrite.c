@@ -12,9 +12,8 @@
 #define BUFFER_SIZE	1024
 #define PROCESS_STEP	1000 * 10
 
-#define HASH_BUCKETS	4
-//1024 * 1024
-#define VECTOR_CHUNK	1024
+#define HASH_BUCKETS	1024 * 1024
+#define VECTOR_CHUNK	1 * sizeof(void *)
 
 
 int hm_hash_fwrite(const hm_hash_t *h, FILE *F);
@@ -48,14 +47,14 @@ static int create_file(const char *filename_to_load, const char *filename_to_wri
 
 static int find_in_file(const char *filename, const char *keytofind){
 	hm_file_t mmf_real;
-	
+
 	hm_file_t *mmf = hm_file_open(&mmf_real, filename);
 
 	if (mmf == NULL){
 		printf("Can not mmap file\n");
 		exit(1);
 	}
-	
+
 	const hm_pair_t *pair = hm_file_get(mmf, keytofind);
 
 	if (pair){
@@ -75,7 +74,7 @@ int main(int argc, char **argv){
 	switch(argc){
 	case 3:
 		return create_file(argv[1], argv[2]);
-	
+
 	case 4:
 		return find_in_file(argv[2], argv[3]);
 	}

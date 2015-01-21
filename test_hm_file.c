@@ -37,7 +37,7 @@ int main(int argc, char **argv){
 		printf("Key %s not found\n", findkey);
 	else{
 		printf("Key %s found\n", findkey);
-		
+
 		printf("---begin---\n");
 		hm_pair_printf(pair);
 		printf("----end----\n");
@@ -54,13 +54,15 @@ int main(int argc, char **argv){
 	hm_list_removeall(v);
 	printf("Done...\n");
 
+	printf("Destroy file\n");
 	hm_list_destroy(v);
-
+	printf("Done...\n");
 
 
 	//getchar();
 
 
+	printf("main() end...\n");
 
 	return 0;
 }

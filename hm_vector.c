@@ -8,7 +8,7 @@
 
 
 
-#define DEFAULT_REALLOC_CHUNK_SIZE 1024
+#define DEFAULT_REALLOC_CHUNK_SIZE 1 * sizeof(void *)
 
 
 static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free);
@@ -28,6 +28,7 @@ void hm_vector_removeall(hm_vector_t *v){
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		void *data = v->buffer[i];
+
 		if (data)
 			hm_list_free(data);
 	}
@@ -73,6 +74,9 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 }
 
 const void *hm_vector_get(const hm_vector_t *v, const char *key){
+	if (key == NULL)
+		return NULL;
+
 	hm_listsize_t index;
 	if (_hm_vector_locate_position(v, key, & index) == 0)
 		return v->buffer[index];
@@ -163,7 +167,7 @@ static size_t _hm_vector_calcnewsize(size_t size, size_t realloc_chunk_size){
 }
 
 static inline void *_realloc(void *buffer, size_t size){
-	//printf("realloc(): %8u\n", size);
+	//printf("realloc(): %12zu\n", size);
 
 	return realloc(buffer, size);
 }
@@ -208,32 +212,6 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 	return 1;
 }
 
-#if 0
-
-static int _hm_vector_locate_position_linear(const hm_vector_t *v, const char *key, hm_listsize_t *index){
-	// linear - visit every node
-	hm_listsize_t i;
-	for(i = 0; i < v->size; i++){
-		const void *data = v->buffer[i];
-		const int cmp = strcmp(hm_list_getkey(data), key);
-
-		if (cmp == 0){
-			*index = i;
-			return 0;
-		}
-
-		if (cmp > 0){
-			*index = i;
-			return 1;
-		}
-	}
-
-	*index = i;
-	return -1;
-}
-
-#else
-
 static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *key, hm_listsize_t *index){
 
 	/*
@@ -243,7 +221,7 @@ static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *
 
 	hm_listsize_t start = 0;
 	hm_listsize_t end = v->size;
-	int cmp;
+	int cmp = 0;
 
 	while (start < end){
 	//	hm_listsize_t mid = start + ((end - start) /  2);
@@ -270,8 +248,6 @@ static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *
 	*index = start;
 	return cmp;
 }
-
-#endif
 
 static int _hm_vector_locate_position(const hm_vector_t *v, const char *key, hm_listsize_t *index){
 	if (v->size == 0){

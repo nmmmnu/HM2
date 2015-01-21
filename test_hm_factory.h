@@ -3,7 +3,7 @@
 
 #include "hm_pair.h"
 
-#define	VECTOR_CHUNK_SIZE	1024
+#define	VECTOR_CHUNK_SIZE	8 * sizeof(void *)
 
 #ifndef HASHTABLE_BUCKETS
 #define HASHTABLE_BUCKETS	16

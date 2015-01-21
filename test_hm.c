@@ -124,13 +124,20 @@ void hm_list_test(){
 	hm_list_destroy(v);
 }
 
+void print_sizes(){
+	const char *format = "sizeof(%-10s) = %5zu\n";
 
+	printf(format, "hm_pair_t", sizeof(hm_pair_t));
+	printf(format, "hm_list_t", sizeof(hm_list_t));
+}
 
 
 int main(int argc, char **argv){
 	hm_pair_test(argc > 1);
 
 	hm_list_test();
+
+	print_sizes();
 
 	return 0;
 }

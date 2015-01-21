@@ -1,5 +1,5 @@
 CC	= gcc -Wall			\
-		-g -O0			\
+		-g -Os			\
 		-fpack-struct		\
 		-D_FILE_OFFSET_BITS=64	\
 		-c
