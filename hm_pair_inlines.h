@@ -11,11 +11,15 @@ inline static hm_pair_t *hm_pair_createx(const char *key, const char *val, uint3
 
 inline static hm_pair_t *hm_pair_create(const char*key, const char*val){
 	return hm_pair_createx(key, val, 0);
-};
+}
 
 inline static hm_pair_t *hm_pair_createtombstone(const char*key){
 	return hm_pair_create(key, NULL);
-};
+}
+
+inline static void hm_pair_free(hm_pair_t *pair){
+	free(pair);
+}
 
 // sizeof
 

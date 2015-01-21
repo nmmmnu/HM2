@@ -34,7 +34,7 @@ void hm_linklist_removeall(hm_linklist_t *l){
 
 		node = node->next;
 
-		free(copy->data);
+		hm_list_free(copy->data);
 		free(copy);
 	}
 
@@ -50,7 +50,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
 	if (newnode == NULL){
 		// prevent memory leak
-		free(newdata);
+		hm_list_free(newdata);
 		return 0;
 	}
 
@@ -69,7 +69,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 			// check if the data in database is valid
 			if (! hm_list_valid(newdata, olddata)){
 				// prevent memory leak
-				free(newdata);
+				hm_list_free(newdata);
 				return 0;
 			}
 
@@ -83,7 +83,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 
 			newnode->next = node->next;
 
-			free(node->data);
+			hm_list_free(node->data);
 			free(node);
 			return 1;
 		}
@@ -146,7 +146,7 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 				l->head = node->next;
 			}
 
-			free(node->data);
+			hm_list_free(node->data);
 			free(node);
 			return 1;
 		}
@@ -197,10 +197,10 @@ int hm_linklist_printf(const hm_linklist_t *l, int more){
 		if (i > 16){
 			break;
 		}
-		
+
 		i++;
 	}
-	
+
 	return 0;
 }
 

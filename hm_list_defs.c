@@ -17,3 +17,7 @@ int hm_list_fwrite(const void *pair, FILE *F){
 int hm_list_printf(const void *pair){
 	return hm_pair_printf( (const hm_pair_t *) pair);
 }
+
+void hm_list_free(void *item){
+	hm_pair_free(item);
+}

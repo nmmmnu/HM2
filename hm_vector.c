@@ -29,7 +29,7 @@ void hm_vector_removeall(hm_vector_t *v){
 	for(i = 0; i < v->size; i++){
 		void *data = v->buffer[i];
 		if (data)
-			free(data);
+			hm_list_free(data);
 	}
 
 	_hm_vector_clear(v, 1);
@@ -53,18 +53,18 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 		// check if the data in database is valid
 		if (! hm_list_valid(newdata, olddata) ){
 			// prevent memory leak
-			free(newdata);
+			hm_list_free(newdata);
 			return 0;
 		}
 
-		free(olddata);
+		hm_list_free(olddata);
 		v->buffer[index] = newdata;
 		return 1;
 	}
 
 	if ( ! _hm_vector_shiftR(v, index) ){
 		// prevent memory leak
-		free(newdata);
+		hm_list_free(newdata);
 		return 0;
 	}
 
@@ -90,7 +90,7 @@ int hm_vector_remove(hm_vector_t *v, const char *key){
 	}
 
 	// proceed with remove
-	free(v->buffer[index]);
+	hm_list_free(v->buffer[index]);
 
 	_hm_vector_shiftL(v, index);
 
@@ -127,7 +127,7 @@ static void _hm_vector_printf_more(const hm_vector_t *v){
 int hm_vector_printf(const hm_vector_t *v, int more){
 	if (more)
 		_hm_vector_printf_more(v);
-	
+
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
 		hm_list_printf(v->buffer[i]);
