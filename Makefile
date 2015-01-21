@@ -77,10 +77,10 @@ test_hm_file_ha.o:		test_hm_file.c		hm_pair.h hm_list_defs.h	hm_hash.h	hm_hash_l
 
 
 
-test_hm_fwrite:			test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_disk.o
-	$(LINK) test_hm_fwrite	test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_disk.o	$(LIBS)
+test_hm_fwrite:			test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o
+	$(LINK) test_hm_fwrite	test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o	$(LIBS)
 
-test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_disk.h
+test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_file.h
 	$(CC) test_hm_fwrite.c
 
 
@@ -105,6 +105,7 @@ hm_linklist.o: hm_linklist.c hm_linklist.h hm_list_defs.h
 hm_hash.o: hm_hash.c hm_hash.h hm_pair.h hm_list_defs.h hm_vector.h
 	$(CC) hm_hash.c
 
-hm_disk.o: hm_disk.c hm_disk.h hm_vector.h hm_pair.h
-	$(CC) hm_disk.c
+hm_file.o: hm_file.c hm_file.h hm_hash.h hm_pair.h
+	$(CC) hm_file.c
+
 
