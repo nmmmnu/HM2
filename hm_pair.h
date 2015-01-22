@@ -7,8 +7,8 @@
 #include <string.h>	// strlen
 #include <stdio.h>	// FILE
 
-#define HM_PAIR_EXPIRATION
-#define HM_PAIR_CHECKSUM
+//#define HM_PAIR_EXPIRATION
+//#define HM_PAIR_CHECKSUM
 
 
 #ifdef HM_PAIR_CHECKSUM

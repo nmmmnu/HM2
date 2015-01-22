@@ -4,6 +4,9 @@
 #include <stdio.h>	// printf
 #include <endian.h>	// htobe16
 
+//#include "malloc_tools.h"
+
+#define xmalloc malloc
 
 #define MAX_KEYSIZE	0xffff
 #define MAX_VALSIZE	0xffffffff
@@ -43,7 +46,7 @@ hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen,
 	if (keylen >= MAX_KEYSIZE || vallen >= MAX_VALSIZE)
 		return NULL;
 
-	hm_pair_t *pair = malloc(sizeof(hm_pair_t) + keylen + 1 + vallen + 1 + 1000);
+	hm_pair_t *pair = xmalloc(sizeof(hm_pair_t) + keylen + 1 + vallen + 1);
 
 	if (pair == NULL)
 		return NULL;

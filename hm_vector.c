@@ -166,7 +166,7 @@ static size_t _hm_vector_calcnewsize(size_t size, size_t realloc_chunk_size){
 	return newsize * realloc_chunk_size;
 }
 
-static inline void *_realloc(void *buffer, size_t size){
+static inline void *xrealloc(void *buffer, size_t size){
 	//printf("realloc(): %12zu\n", size);
 
 	return realloc(buffer, size);
@@ -200,7 +200,7 @@ static int _hm_vector_resize(hm_vector_t *v, int delta){
 		return 1;
 	}
 
-	void *new_buffer = _realloc(v->buffer, new_buffer_alloc_size);
+	void *new_buffer = xrealloc(v->buffer, new_buffer_alloc_size);
 
 	if (new_buffer == NULL)
 		return 0;
