@@ -41,6 +41,9 @@ void hm_vector_destroy(hm_vector_t *v){
 }
 
 int hm_vector_put(hm_vector_t *v, void *newdata){
+	if (newdata == NULL)
+		return 0;
+
 	const char *key = hm_list_getkey(newdata);
 
 	hm_listsize_t index;

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>	// sleep
-#include <stdlib.h>	// free
 
 
 
@@ -51,11 +50,11 @@ void hm_pair_test(const int delay){
 	}
 #endif
 
-	free(p1);
+	hm_pair_free(p1);
 #ifdef HM_PAIR_EXPIRATION
-	free(p2);
+	hm_pair_free(p2);
 #endif
-	free(p3);
+	hm_pair_free(p3);
 }
 
 

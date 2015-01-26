@@ -7,14 +7,16 @@
 //#include "malloc_tools.h"
 
 #define xmalloc malloc
+#define xfree   free
 
-#define MAX_KEYSIZE	0xffff
-#define MAX_VALSIZE	0xffffffff
+#define MAX_KEYSIZE	( (hm_keysize_t) -1 )
+#define MAX_VALSIZE	( (hm_valsize_t) -1 )
 
 
 #ifdef HM_PAIR_CHECKSUM
 static hm_checksum_t _hm_pair_checksum(const hm_pair_t *pair);
 #endif
+
 
 #ifdef HM_PAIR_EXPIRATION
 #include <sys/time.h>
@@ -78,6 +80,10 @@ hm_pair_t *hm_pair_createnx(const char*key, const char*val, hm_valsize_t vallen,
 #endif
 
 	return pair;
+}
+
+void hm_pair_free(hm_pair_t *pair){
+	xfree(pair);
 }
 
 #ifdef HM_PAIR_EXPIRATION

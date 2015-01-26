@@ -48,7 +48,7 @@ inline static hm_pair_t *hm_pair_createx(const char *key, const char *val, uint3
 inline static hm_pair_t *hm_pair_create(const char*key, const char*val);
 inline static hm_pair_t *hm_pair_createtombstone(const char*key);
 
-inline static void hm_pair_free(hm_pair_t *pair);
+void hm_pair_free(hm_pair_t *pair);
 
 // sizeof
 

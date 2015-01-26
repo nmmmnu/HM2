@@ -17,10 +17,6 @@ inline static hm_pair_t *hm_pair_createtombstone(const char*key){
 	return hm_pair_create(key, NULL);
 }
 
-inline static void hm_pair_free(hm_pair_t *pair){
-	free(pair);
-}
-
 // sizeof
 
 inline static size_t hm_pair_sizeof(const hm_pair_t *pair){
