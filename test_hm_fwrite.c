@@ -103,7 +103,8 @@ static void loadFile(hm_hash_t *h, const char *filename){
 		i++;
 
 		if (i % ( PROCESS_STEP ) == 0){
-			printf("Processed %10u records %10zu MB...\n", i, hm_pair_memsize() / 1024 / 1024 );
+			printf("Processed %10u records, %10zu bytes...\n", i, hm_hash_sizeof(h) );
+
 		}
 	}
 

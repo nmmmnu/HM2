@@ -91,7 +91,7 @@ void processfile(hm_list_t *v, const char *filename, int op){
 		i++;
 
 		if (i % ( PROCESS_STEP ) == 0){
-			printf("Processed %10u...\n", i);
+			printf("Processed %10u records, %10zu bytes...\n", i, hm_list_sizeof(v) );
 		}
 	}
 

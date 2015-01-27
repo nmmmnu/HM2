@@ -59,18 +59,22 @@ void hm_pair_test(const int delay){
 
 
 
-static hm_list_t *_hm_list_populate(hm_list_t *v){
+static size_t _hm_list_populate(hm_list_t *v){
 	hm_list_removeall(v);
-	// go to empty list
-	hm_list_put(v, hm_pair_create("3 city", "Sofia")	);
-	// go first
-	hm_list_put(v, hm_pair_create("1 name", "Niki")		);
-	// go middle
-	hm_list_put(v, hm_pair_create("2 age", "22")		);
-	// go last
-	hm_list_put(v, hm_pair_create("4 os", "Linux")		);
 
-	return v;
+	void *p;
+	size_t size = 0;
+
+	// go to empty list
+	p = hm_pair_create("3 city", "Sofia");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	// go first
+	p = hm_pair_create("1 name", "Niki");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	// go middle
+	p = hm_pair_create("2 age", "22");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	// go last
+	p = hm_pair_create("4 os", "Linux");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+
+	return size;
 }
 
 static void _hm_list_test_overwrite(hm_list_t *v){
@@ -106,11 +110,13 @@ static void _hm_list_test_remove(hm_list_t *v){
 }
 
 static void _hm_list_test_dump(hm_list_t *v){
-	_hm_list_populate(v);
+	size_t size = _hm_list_populate(v);
+
 	hm_list_printf(v, 0);
 
-	PRINTF_TEST("hm_list_t", "put",		1	);
-	PRINTF_TEST("hm_list_t", "free",	1	);
+	PRINTF_TEST("hm_list_t", "sizeof",	hm_list_sizeof(v) == size		);
+	PRINTF_TEST("hm_list_t", "put",		1					);
+	PRINTF_TEST("hm_list_t", "free",	1					);
 }
 
 void hm_list_test(){

@@ -13,6 +13,7 @@
 #define hm_list_remove(a, b)	hm_hash_remove(a, b)
 
 #define hm_list_count(a)	hm_hash_count(a)
+#define hm_list_sizeof(a)	hm_hash_sizeof(a)
 #define hm_list_printf(a, b)	hm_hash_printf(a, b)
 
 #endif

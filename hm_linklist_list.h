@@ -13,6 +13,7 @@
 #define hm_list_remove(a, b)	hm_linklist_remove(a, b)
 
 #define hm_list_count(a)	hm_linklist_count(a)
+#define hm_list_sizeof(a)	hm_linklist_sizeof(a)
 #define hm_list_printf(a, b)	hm_linklist_printf(a, b)
 
 #endif

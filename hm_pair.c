@@ -1,9 +1,12 @@
 #include "hm_pair.h"
-#include "hm_pair_malloc.c"
 
 #include <string.h>	// memcpy, memcmp
 #include <stdio.h>	// printf
 #include <endian.h>	// htobe16
+
+
+#define xmalloc(s) malloc(s)
+#define xfree(p)   free(p)
 
 
 #define MAX_KEYSIZE	( (hm_keysize_t) -1 )

@@ -17,7 +17,6 @@ static int _hm_vector_shiftL(hm_vector_t *v, hm_listsize_t index);
 static int _hm_vector_shiftR(hm_vector_t *v, hm_listsize_t index);
 
 
-
 hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size){
 	v->realloc_chunk_size = realloc_chunk_size ? realloc_chunk_size : DEFAULT_REALLOC_CHUNK_SIZE;
 
@@ -61,7 +60,12 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 			return 0;
 		}
 
+		v->datasize = v->datasize
+					- hm_list_sizeof(olddata)
+					+ hm_list_sizeof(newdata);
+
 		hm_list_free(olddata);
+
 		v->buffer[index] = newdata;
 		return 1;
 	}
@@ -72,6 +76,7 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 		return 0;
 	}
 
+	v->datasize += hm_list_sizeof(newdata);
 	v->buffer[index] = newdata;
 	return 1;
 }
@@ -97,21 +102,20 @@ int hm_vector_remove(hm_vector_t *v, const char *key){
 	}
 
 	// proceed with remove
-	hm_list_free(v->buffer[index]);
+	void *data = v->buffer[index];
+	v->datasize -= hm_list_sizeof(data);
+	hm_list_free(data);
 
 	_hm_vector_shiftL(v, index);
 
 	return 1;
 }
 
-hm_listsize_t hm_vector_count(const hm_vector_t *v){
-	return v->size;
-}
-
 static void _hm_vector_printf_more(const hm_vector_t *v){
 	printf("%s @ %p {\n", "hm_vector_t", v);
 
 	printf("\t%-10s : %10zu\n", "size",		(size_t)v->size);
+	printf("\t%-10s : %10zu\n", "datasize",		hm_vector_sizeof(v) );
 	printf("\t%-10s : %10zu\n", "realloc...",	v->realloc_chunk_size);
 	printf("\t%-10s : %10zu\n", "buffer...",	v->buffer_alloc_size);
 	printf("\t%-10s : %10zu\n", "waste mem",	v->buffer_alloc_size - v->size * sizeof(void *));
@@ -154,6 +158,7 @@ static hm_vector_t *_hm_vector_clear(hm_vector_t *v, int also_free){
 		free(v->buffer);
 
 	v->size = 0;
+	v->datasize = 0;
 	v->buffer_alloc_size = 0;
 	v->buffer = NULL;
 

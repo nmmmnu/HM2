@@ -11,6 +11,7 @@ void hm_list_free(void *item);
 const char *hm_list_getkey(const void *item);
 int hm_list_valid( const void *item1, const void *item2);
 int hm_list_printf(const void *item);
+size_t hm_list_sizeof(const void *item);
 int hm_list_fwrite(const void *item, FILE *F);
 
 #endif

@@ -4,8 +4,8 @@ CC	= gcc -Wall			\
 		-D_FILE_OFFSET_BITS=64	\
 		-c
 LINK	= gcc -o
-OBJ	= mp_malloc.o
-LIBS	= $(OBJ)
+#OBJ	= mp_malloc.o
+LIBS	=
 #-ljemalloc
 
 TARGETS = 	\
@@ -19,7 +19,7 @@ TARGETS =	\
 		test_hm_fwrite
 
 
-all: $(OBJ) $(TARGETS)
+all: $(TARGETS)
 
 
 
@@ -89,10 +89,7 @@ test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_file.h
 hm_pair.h: hm_pair_inlines.h
 	touch hm_pair.h
 
-hm_pair.c: hm_pair_malloc.c
-	touch hm_pair.c
-
-hm_pair.o: hm_pair.c hm_pair.h	hm_pair_inlines.h hm_pair_malloc.c
+hm_pair.o: hm_pair.c hm_pair.h
 	$(CC) hm_pair.c
 
 

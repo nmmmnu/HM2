@@ -5,12 +5,13 @@
 
 
 typedef struct _hm_vector_t{
-	hm_listsize_t size;		// 8
+	hm_listsize_t	size;			// 8
 
-	size_t realloc_chunk_size;	// system dependent
-	size_t buffer_alloc_size;	// system dependent
+	size_t		datasize;		// system dependent
+	size_t		realloc_chunk_size;	// system dependent
+	size_t		buffer_alloc_size;	// system dependent
 
-	void **buffer;			// system dependent
+	void		**buffer;		// system dependent
 }hm_vector_t;
 
 
@@ -26,7 +27,13 @@ const void *hm_vector_get(const hm_vector_t *v, const char *key);
 
 int hm_vector_remove(hm_vector_t *v, const char *key);
 
-hm_listsize_t hm_vector_count(const hm_vector_t *v);
+inline static hm_listsize_t hm_vector_count(const hm_vector_t *v){
+	return v->size;
+}
+
+inline static size_t hm_vector_sizeof(const hm_vector_t *v){
+	return v->datasize;
+}
 
 int hm_vector_printf(const hm_vector_t *v, int more);
 

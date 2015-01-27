@@ -55,6 +55,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 	}
 
 	newnode->data = newdata;
+	l->datasize += hm_list_sizeof(newdata);
 
 	hm_linklist_node_t *prev = NULL;
 	hm_linklist_node_t *node;
@@ -83,6 +84,8 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 
 			newnode->next = node->next;
 
+			l->datasize -= hm_list_sizeof(node->data);
+
 			hm_list_free(node->data);
 			free(node);
 			return 1;
@@ -97,7 +100,7 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 	// put new pair here...
 	if (prev){
 		// we are at the middle
-		newnode-> next = prev->next;
+		newnode->next = prev->next;
 		prev->next = newnode;
 	}else{
 		newnode->next = l->head;
@@ -146,6 +149,7 @@ int hm_linklist_remove(hm_linklist_t *l, const char *key){
 				l->head = node->next;
 			}
 
+			l->datasize -= hm_list_sizeof(node->data);
 			hm_list_free(node->data);
 			free(node);
 			return 1;
@@ -173,6 +177,8 @@ hm_listsize_t hm_linklist_count(const hm_linklist_t *l){
 
 static void _hm_linklist_printf_more(const hm_linklist_t *l){
 	printf("%s @ %p {\n", "hm_linklist_t", l);
+
+	printf("\t%-10s : %zu\n", "datasize", hm_linklist_sizeof(l) );
 
 	const hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
@@ -207,6 +213,7 @@ int hm_linklist_printf(const hm_linklist_t *l, int more){
 // ===============================================================
 
 static hm_linklist_t *_hm_linklist_clear(hm_linklist_t *l){
+	l->datasize = 0;
 	l->head = NULL;
 
 	return l;

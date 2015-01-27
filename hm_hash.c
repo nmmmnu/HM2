@@ -98,15 +98,26 @@ hm_listsize_t hm_hash_count(const hm_hash_t *table){
 
 	hm_capacity_t i;
 	for(i = 0; i < table->capacity; i++)
-		count = count + hm_vector_count( & table->buckets[i] );
+		count +=hm_vector_count( & table->buckets[i] );
 
 	return count;
+}
+
+size_t hm_hash_sizeof(const hm_hash_t *table){
+	size_t size = 0;
+
+	hm_capacity_t i;
+	for(i = 0; i < table->capacity; i++)
+		size += hm_vector_sizeof( & table->buckets[i] );
+
+	return size;
 }
 
 static void _hm_hash_printf_more(const hm_hash_t *table){
 	printf("%s @ %p {\n", "hm_hash_t", table);
 
 	printf("\t%-10s : %10zu\n", "capacity", table->capacity);
+	printf("\t%-10s : %10zu\n", "datasize", hm_hash_sizeof(table) );
 
 	printf("\t%-10s : [\n", "lists");
 	hm_capacity_t i;
