@@ -20,6 +20,8 @@ hm_hash_t *hm_hash_create(hm_hash_t *table, hm_capacity_t capacity, size_t vecto
 
 	table->capacity = capacity;
 
+	table->datasize  = 0;
+	table->datacount = 0;
 	table->vector_realloc_chunk_size = vector_realloc_chunk_size;
 
 	table->buckets = buckets;
@@ -44,6 +46,9 @@ void hm_hash_removeall(hm_hash_t *table){
 	hm_capacity_t i;
 	for(i = 0; i < table->capacity; i++)
 		hm_vector_removeall( & table->buckets[i] );
+
+	table->datasize  = 0;
+	table->datacount = 0;
 }
 
 int hm_hash_put(hm_hash_t *table, void *data){
@@ -57,7 +62,13 @@ int hm_hash_put(hm_hash_t *table, void *data){
 
 	hm_collision_list_t *bucket = & table->buckets[index - 1];
 
-	if (hm_vector_put(bucket, data))
+	table->datacount -= hm_vector_count(bucket);
+	table->datasize  -= hm_vector_sizeof(bucket);
+	int result = hm_vector_put(bucket, data);
+	table->datasize  += hm_vector_sizeof(bucket);
+	table->datacount += hm_vector_count(bucket);
+
+	if (result)
 		return 1;
 
 	free(data);
@@ -90,9 +101,16 @@ int hm_hash_remove(hm_hash_t *table, const char *key){
 
 	hm_collision_list_t *bucket = & table->buckets[index - 1];
 
-	return hm_vector_remove(bucket, key);
+	table->datacount -= hm_vector_count(bucket);
+	table->datasize  -= hm_vector_sizeof(bucket);
+	int result = hm_vector_remove(bucket, key);
+	table->datasize  += hm_vector_sizeof(bucket);
+	table->datacount += hm_vector_count(bucket);
+
+	return result;
 }
 
+#if 0
 hm_listsize_t hm_hash_count(const hm_hash_t *table){
 	hm_listsize_t count = 0;
 
@@ -112,6 +130,7 @@ size_t hm_hash_sizeof(const hm_hash_t *table){
 
 	return size;
 }
+#endif
 
 static void _hm_hash_printf_more(const hm_hash_t *table){
 	printf("%s @ %p {\n", "hm_hash_t", table);
