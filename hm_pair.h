@@ -86,6 +86,8 @@ inline static int hm_pair_checksumvalid(const hm_pair_t *pair);
 int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
 int hm_pair_printf(const hm_pair_t *pair);
 
+size_t hm_pair_memsize();
+
 #include "hm_pair_inlines.h"
 
 #endif
