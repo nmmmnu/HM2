@@ -50,7 +50,7 @@ int hm_hash_put(hm_hash_t *table, void *data){
 	if (data == NULL)
 		return 0;
 
-	hm_capacity_t index = _hm_hash_getbucketforkey(table, hm_list_getkey(data) );
+	hm_capacity_t index = _hm_hash_getbucketforkey(table, hm_listdata_getkey(data) );
 
 	if (index == 0)
 		return 0;

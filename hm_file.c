@@ -15,16 +15,16 @@ static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F);
 
 hm_file_t *hm_file_open(hm_file_t *mmf, const char *filename){
 	FILE *F = fopen(filename, "r");
-	
+
 	if (F == NULL)
 		return NULL;
-	
+
 	fseek(F, 0, SEEK_END);
 
 	mmf->F = F;
 	mmf->filename = filename;
 	mmf->size = ftello(F);
-	
+
 	mmf->mem = mmap(NULL, mmf->size, PROT_READ, MAP_SHARED, fileno(mmf->F), /* offset */ 0);
 
 	//printf("%s %llu %p\n", mmf->filename, mmf->size, mmf->mem);
@@ -49,11 +49,11 @@ int hm_file_createfromhash(const hm_hash_t *hash, const char *filename){
 
 	if (F == NULL)
 		return 1;
-		
+
 	int res = _hm_file_fwrite_hash(hash, F);
 
 	fclose(F);
-	
+
 	return res;
 }
 
@@ -62,11 +62,11 @@ int hm_file_createfromvector(const hm_vector_t *vector, const char *filename){
 
 	if (F == NULL)
 		return 1;
-		
+
 	int res = _hm_file_fwrite_vector(vector, F);
 
 	fclose(F);
-	
+
 	return res;
 }
 
@@ -87,7 +87,7 @@ static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
 
 		//printf("| %lu %lu %lu | %lu | %lx | %s\n", start, mid, end, ptr, ptr, hm_pair_getkey(pair));
 
-		const int cmp = strcmp(hm_list_getkey(pair), key);
+		const int cmp = strcmp(hm_listdata_getkey(pair), key);
 
 		if (cmp == 0){
 			return pair;
@@ -159,7 +159,7 @@ static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F){
 		fseeko(F, 0, SEEK_END);
 		const uint64_t abspos = ftello(F);
 
-		hm_list_fwrite(v->buffer[i], F);
+		hm_listdata_fwrite(v->buffer[i], F);
 
 		// write pos
 		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);

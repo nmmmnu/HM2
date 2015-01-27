@@ -29,7 +29,7 @@ void hm_vector_removeall(hm_vector_t *v){
 		void *data = v->buffer[i];
 
 		if (data)
-			hm_list_free(data);
+			hm_listdata_free(data);
 	}
 
 	_hm_vector_clear(v, 1);
@@ -43,7 +43,7 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 	if (newdata == NULL)
 		return 0;
 
-	const char *key = hm_list_getkey(newdata);
+	const char *key = hm_listdata_getkey(newdata);
 
 	hm_listsize_t index;
 	int cmp = _hm_vector_locate_position(v, key, & index);
@@ -54,17 +54,17 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 		void *olddata = v->buffer[index];
 
 		// check if the data in database is valid
-		if (! hm_list_valid(newdata, olddata) ){
+		if (! hm_listdata_valid(newdata, olddata) ){
 			// prevent memory leak
-			hm_list_free(newdata);
+			hm_listdata_free(newdata);
 			return 0;
 		}
 
 		v->datasize = v->datasize
-					- hm_list_sizeof(olddata)
-					+ hm_list_sizeof(newdata);
+					- hm_listdata_sizeof(olddata)
+					+ hm_listdata_sizeof(newdata);
 
-		hm_list_free(olddata);
+		hm_listdata_free(olddata);
 
 		v->buffer[index] = newdata;
 		return 1;
@@ -72,11 +72,11 @@ int hm_vector_put(hm_vector_t *v, void *newdata){
 
 	if ( ! _hm_vector_shiftR(v, index) ){
 		// prevent memory leak
-		hm_list_free(newdata);
+		hm_listdata_free(newdata);
 		return 0;
 	}
 
-	v->datasize += hm_list_sizeof(newdata);
+	v->datasize += hm_listdata_sizeof(newdata);
 	v->buffer[index] = newdata;
 	return 1;
 }
@@ -103,8 +103,8 @@ int hm_vector_remove(hm_vector_t *v, const char *key){
 
 	// proceed with remove
 	void *data = v->buffer[index];
-	v->datasize -= hm_list_sizeof(data);
-	hm_list_free(data);
+	v->datasize -= hm_listdata_sizeof(data);
+	hm_listdata_free(data);
 
 	_hm_vector_shiftL(v, index);
 
@@ -141,7 +141,7 @@ int hm_vector_printf(const hm_vector_t *v, int more){
 
 	hm_listsize_t i;
 	for(i = 0; i < v->size; i++){
-		hm_list_printf(v->buffer[i]);
+		hm_listdata_printf(v->buffer[i]);
 
 		if (i > 16){
 			break;
@@ -237,7 +237,7 @@ static int _hm_vector_locate_position_bsearch(const hm_vector_t *v, const char *
 
 		const void *data = v->buffer[mid];
 
-		cmp = strcmp(hm_list_getkey(data), key);
+		cmp = strcmp(hm_listdata_getkey(data), key);
 
 		if (cmp == 0){
 			*index = mid;
