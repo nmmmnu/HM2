@@ -8,6 +8,18 @@
 
 #include "hm_list_defs.h"
 
+
+typedef struct _hm_disk_hash{
+	uint64_t	capacity;
+	uint64_t	collision_list[];
+} hm_disk_hash;
+
+typedef struct _hm_disk_vector{
+	uint64_t	size;
+	uint64_t	data[];
+} hm_disk_vector;
+
+
 static const void *_hm_file_get_hashmmap(const char *mem, const char *key);
 static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F);
 static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F);
@@ -74,15 +86,15 @@ int hm_file_createfromvector(const hm_vector_t *vector, const char *filename){
 // =============================================
 
 static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
-	const uint64_t *table = (uint64_t *) mem;
+	const hm_disk_vector *head = (hm_disk_vector *) mem;
 
 	uint64_t start = 0;
-	uint64_t end = be64toh(table[0]);
+	uint64_t end = be64toh(head->size);
 
 	while (start < end){
 		uint64_t mid = start + ((end - start) >> 1);
 
-		const uint64_t ptr = be64toh(table[mid + 1]);
+		const uint64_t ptr = be64toh( head->data[mid] );
 		const void *pair = & mem[ptr];
 
 		//printf("| %lu %lu %lu | %lu | %lx | %s\n", start, mid, end, ptr, ptr, hm_pair_getkey(pair));
@@ -113,13 +125,13 @@ static const void *_hm_file_get_hashmmap(const char *mem, const char *key){
 	if (key == NULL)
 		return NULL;
 
-	const uint64_t *table = (uint64_t *) mem;
+	const hm_disk_hash *head = (hm_disk_hash *) mem;
 
-	uint64_t capacity = be64toh(table[0]);
+	uint64_t capacity = be64toh(head->capacity);
 
 	uint64_t bucket = hm_hash_calc(key) % capacity;
 
-	uint64_t collision_list_ptr = be64toh(table[ bucket + 1]);
+	uint64_t collision_list_ptr = be64toh(head->collision_list[bucket]);
 
 	return _hm_file_get_vectormmap(& mem[collision_list_ptr], key);
 }
@@ -143,9 +155,10 @@ static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F){
 
 	const uint64_t start = ftello(F);
 
-	// write table size
-	be = htobe64( (uint64_t) v->size );
-	fwrite(& be, sizeof(uint64_t), 1, F);
+	// write table header (currently size only)
+	hm_disk_vector header;
+	header.size = htobe64( (uint64_t) v->size );
+	fwrite(& header, sizeof(header), 1, F);
 
 	const uint64_t table_start = ftello(F);
 
@@ -177,9 +190,10 @@ static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F){
 
 	const uint64_t start = ftello(F);
 
-	// write table size
-	be = htobe64( (uint64_t) h->capacity);
-	fwrite(& be, sizeof(uint64_t), 1, F);
+	// write table header (currently size only)
+	hm_disk_hash header;
+	header.capacity = htobe64( (uint64_t) h->capacity );
+	fwrite(& header, sizeof(header), 1, F);
 
 	const uint64_t table_start = ftello(F);
 
