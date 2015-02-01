@@ -11,6 +11,7 @@ test_hm_file_ll
 test_hm_file_ha
 
 test_hm_fwrite
+test_hm_dir
 
 data*.bin
 

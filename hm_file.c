@@ -219,3 +219,4 @@ static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F){
 
 	return 0;
 }
+
