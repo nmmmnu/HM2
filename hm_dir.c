@@ -8,7 +8,7 @@
 
 
 static int _hm_check_file(const char *filename);
-
+static hm_dir_t *_hm_dir_open_empty(hm_dir_t *dir);
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	dir->path = path;
@@ -17,12 +17,16 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 
 	int result = glob(path, 0, NULL, & globresults);
 
+	if (result == GLOB_NOMATCH)
+		return _hm_dir_open_empty(dir);
+
 	if (result)
 		return NULL;
 
+	// size is at least 1
 	size_t size = globresults.gl_pathc;
 
-	dir->files = malloc(size * sizeof(hm_file_t));
+	dir->files = malloc(size * sizeof(hm_fileholder_t));
 	if (dir->files == NULL)
 		return NULL;
 
@@ -36,7 +40,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 			continue;
 
 		// open the file
-		hm_file_t *file = hm_file_open(& dir->files[dir->count], filename);
+		hm_file_t *file = hm_file_open( & dir->files[dir->count].file, filename);
 
 		if (file == NULL){
 			// this is really problematic...
@@ -69,19 +73,19 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 
 
 	if (dir->count == 0){
-		hm_dir_close(dir);
+		// prevent memory leak.
+		free(dir->files);
 
-		return NULL;
+		return _hm_dir_open_empty(dir);
 	}
 
 
 	// do realloc to save some memory
 	// we do not care about errors, since original buffer is untouched.
-	hm_file_t *new_files = realloc(dir->files, dir->count * sizeof(hm_file_t));
+	hm_fileholder_t *new_files = realloc(dir->files, dir->count * sizeof(hm_fileholder_t));
 
 	if (new_files)
 		dir->files = new_files;
-
 
 	return dir;
 }
@@ -89,7 +93,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 void hm_dir_close(hm_dir_t *dir){
 	size_t i;
 	for(i = 0; i < dir->count; i++){
-		hm_file_t *file = & dir->files[i];
+		hm_file_t *file = & dir->files[i].file;
 
 		//printf("%5zu %s close\n", dir->count, file->filename);
 
@@ -107,7 +111,7 @@ void hm_dir_close(hm_dir_t *dir){
 const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	size_t i;
 	for(i = dir->count; i > 0; i--){
-		hm_file_t *file = & dir->files[i - 1];
+		hm_file_t *file = & dir->files[i - 1].file;
 
 		const void *data = hm_file_get(file, key);
 
@@ -124,7 +128,7 @@ void hm_dir_printf(const hm_dir_t *dir){
 	size_t i;
 	size_t j = 0;
 	for(i = dir->count; i > 0; i--){
-		hm_file_t *file = & dir->files[i - 1];
+		hm_file_t *file = & dir->files[i - 1].file;
 
 		printf("%5zu : %s\n", j++, file->filename);
 	}
@@ -146,3 +150,11 @@ static int _hm_check_file(const char *filename){
 
 	return 0;
 }
+
+static hm_dir_t *_hm_dir_open_empty(hm_dir_t *dir){
+	dir->count = 0;
+	dir->files = NULL;
+
+	return dir;
+}
+

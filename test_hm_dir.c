@@ -8,6 +8,7 @@
 static void print_usage(const char *name){
 	printf("Usage:\n");
 	printf("\t%s [directory] [key] - find in the database\n", name);
+	printf("\tDo not forget about quotes around the directory\n");
 }
 
 int main(int argc, char **argv){
