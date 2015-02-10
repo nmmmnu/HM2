@@ -4,41 +4,34 @@
 #include <stdio.h>	// printf
 #include <string.h>	// strdup
 
-static void _hm_dir_setempty(hm_dir_t *dir);
-
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	dir->path = path;
 
-	return hm_dir_reopen(dir) ? dir : NULL;
-}
-
-int hm_dir_reopen(hm_dir_t *dir){
 	glob_t globresults;
 
 	const char **files = hm_glob_open(& globresults, dir->path);
 
 	if (files == NULL)
-		return 0;
+		return NULL;
 
 	dir->count = hm_glob_size(files);
 
 	if (dir->count == 0){
 		hm_glob_close(& globresults, files);
 
-		_hm_dir_setempty(dir);
+		dir->count = 0;
+		dir->files = NULL;
 
-		return 1;
+		// success
+		return dir;
 	}
 
 	// dir->count is at least 1
 
 	dir->files = malloc(dir->count * sizeof(hm_file_t));
-	if (dir->files == NULL){
-		hm_glob_close(& globresults, files);
-
-		return 0;
-	}
+	if (dir->files == NULL)
+		return NULL;
 
 	size_t i;
 	for(i = 0; i < dir->count; i++){
@@ -51,13 +44,13 @@ int hm_dir_reopen(hm_dir_t *dir){
 			// some files are open, some are not.
 			// close / free everything
 
-			globfree(& globresults);
+			hm_glob_close(& globresults, files);
 
 			// dir->count is not increased,
 			// so no reason for this not to work...
 			hm_dir_close(dir);
 
-			return 0;
+			return NULL;
 		}
 
 		// I don't like this,
@@ -67,11 +60,9 @@ int hm_dir_reopen(hm_dir_t *dir){
 		file->filename = strdup(filename);
 	}
 
-
 	hm_glob_close(& globresults, files);
 
-
-	return 1;
+	return dir;
 }
 
 void hm_dir_close(hm_dir_t *dir){
@@ -79,14 +70,10 @@ void hm_dir_close(hm_dir_t *dir){
 	for(i = 0; i < dir->count; i++){
 		hm_file_t *file = & dir->files[i];
 
-		//printf("%5zu %s close\n", dir->count, file->filename);
-
 		hm_file_close(file);
 
 		// cast because file->filename is declared const
 		free( (void *) file->filename );
-
-		file++;
 	}
 
 	free(dir->files);
@@ -120,9 +107,4 @@ void hm_dir_printf(const hm_dir_t *dir){
 
 // ======================================================
 
-
-static void _hm_dir_setempty(hm_dir_t *dir){
-	dir->count = 0;
-	dir->files = NULL;
-}
 
