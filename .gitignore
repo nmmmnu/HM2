@@ -13,6 +13,8 @@ test_hm_file_ha
 test_hm_fwrite
 test_hm_dir
 
+test_hm_glob
+
 data*.bin
 
 data

@@ -3,20 +3,17 @@
 
 #include "hm_file.h"
 
-typedef struct _hm_fileholder_t{
-	hm_file_t	file;
-	int		tag;
-}hm_fileholder_t;
-
 typedef struct _hm_dir_t{
 	const char	*path;
 
 	size_t		count;
-	hm_fileholder_t	*files;
+	hm_file_t	*files;
 } hm_dir_t;
 
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path);
+
+int hm_dir_reopen(hm_dir_t *dir);
 
 void hm_dir_close(hm_dir_t *dir);
 

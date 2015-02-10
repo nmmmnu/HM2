@@ -57,6 +57,7 @@ inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 inline static void hm_pair_checksummake(const hm_pair_t *pair){
 	/* noop */
 }
+
 inline static int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return 1;
 }

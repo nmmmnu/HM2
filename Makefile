@@ -12,7 +12,8 @@ LIBS	=
 TARGETS =	\
 		test_hm_ve test_hm_ll test_hm_ha		\
 		test_hm_file_ve test_hm_file_ll test_hm_file_ha	\
-		test_hm_fwrite test_hm_dir
+		test_hm_fwrite test_hm_dir			\
+		test_hm_glob
 
 
 all: $(TARGETS)
@@ -82,11 +83,19 @@ test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_file.h
 
 
 
-test_hm_dir:			test_hm_dir.o		hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o hm_dir.o
-	$(LINK) test_hm_dir	test_hm_dir.o		hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o hm_dir.o	$(LIBS)
+test_hm_dir:			test_hm_dir.o hm_glob.o		hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o hm_dir.o
+	$(LINK) test_hm_dir	test_hm_dir.o hm_glob.o		hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o hm_dir.o	$(LIBS)
 
 test_hm_dir.o: test_hm_dir.c		hm_pair.h hm_vector.h hm_hash.h hm_file.h
 	$(CC) test_hm_dir.c
+
+
+
+test_hm_glob:			test_hm_glob.o hm_glob.o
+	$(LINK) test_hm_glob	test_hm_glob.o hm_glob.o
+
+test_hm_glob.o: test_hm_glob.c hm_glob.h
+	$(CC) test_hm_glob.c
 
 
 
@@ -115,6 +124,9 @@ hm_file.o: hm_file.c hm_file.h hm_hash.h hm_pair.h
 
 hm_dir.o: hm_dir.c hm_dir.h hm_file.h
 	$(CC) hm_dir.c
+
+hm_glob.o: hm_glob.c hm_glob.h
+	$(CC) hm_glob.c
 
 
 
