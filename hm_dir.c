@@ -79,6 +79,17 @@ void hm_dir_close(hm_dir_t *dir){
 	free(dir->files);
 }
 
+hm_dir_t *hm_dir_reopen(hm_dir_t *dir){
+	const char *path = dir->path;
+
+	// lame - close, then open
+	// however because it is read only should be quite fast.
+	// also code is simpler and probably less fd's will be used
+	hm_dir_close(dir);
+
+	return hm_dir_open(dir, path);
+}
+
 const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	size_t i;
 	for(i = dir->count; i > 0; i--){

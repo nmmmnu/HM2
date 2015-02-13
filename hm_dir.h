@@ -15,6 +15,8 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path);
 
 void hm_dir_close(hm_dir_t *dir);
 
+hm_dir_t *hm_dir_reopen(hm_dir_t *dir);
+
 const void *hm_dir_get(const hm_dir_t *dir, const char *key);
 
 void hm_dir_printf(const hm_dir_t *dir);

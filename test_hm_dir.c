@@ -11,22 +11,10 @@ static void print_usage(const char *name){
 	printf("\t\tDo not forget about quotes around the directory\n");
 }
 
-int main(int argc, char **argv){
-	if (argc < 2){
-		print_usage(argv[0]);
-		return 1;
-	}
-
-	const char *path      = argv[1];
-	const char *keytofind = argv[2];
-
-	hm_dir_t dir_real;
-
-	hm_dir_t *dir = hm_dir_open(& dir_real, path);
-
+static void dir_open_test(hm_dir_t *dir, const char *keytofind){
 	if (dir == NULL){
-		printf("Can not open database %s\n", path);
-		return 1;
+		printf("Can not open database\n");
+		exit(1);
 	}
 
 	hm_dir_printf(dir);
@@ -40,6 +28,24 @@ int main(int argc, char **argv){
 	}else{
 		printf("Not Found\n");
 	}
+}
+
+int main(int argc, char **argv){
+	if (argc < 2){
+		print_usage(argv[0]);
+		return 1;
+	}
+
+	const char *path      = argv[1];
+	const char *keytofind = argv[2];
+
+	hm_dir_t dir_real;
+
+	hm_dir_t *dir = hm_dir_open(& dir_real, path);
+	dir_open_test(dir, keytofind);
+
+	hm_dir_reopen(dir);
+	dir_open_test(dir, keytofind);
 
 	hm_dir_close(dir);
 
