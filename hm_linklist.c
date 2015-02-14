@@ -47,15 +47,6 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 
 	const char *key = hm_listdata_getkey(newdata);
 
-	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
-	if (newnode == NULL){
-		// prevent memory leak
-		hm_listdata_free(newdata);
-		return 0;
-	}
-
-	newnode->data = newdata;
-
 	hm_linklist_node_t *prev = NULL;
 	hm_linklist_node_t *node;
 	for(node = l->head; node; node = node->next){
@@ -64,7 +55,8 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 		const int cmp = strcmp(hm_listdata_getkey(olddata), key);
 
 		if (cmp == 0){
-			// handle delete
+			// handle overwrite,
+			// keep the node, overwrite the data
 
 			// check if the data in database is valid
 			if (! hm_listdata_valid(newdata, olddata)){
@@ -73,22 +65,13 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 				return 0;
 			}
 
-			if (prev){
-				// insert after prev
-				prev->next = newnode;
-			}else{
-				// insert first
-				l->head = newnode;
-			}
-
-			newnode->next = node->next;
-
 			l->datasize = l->datasize
 				- hm_listdata_sizeof(node->data)
 				+ hm_listdata_sizeof(newdata);
 
 			hm_listdata_free(node->data);
-			free(node);
+			node->data = newdata;
+
 			return 1;
 		}
 
@@ -97,6 +80,15 @@ int hm_linklist_put(hm_linklist_t *l, void *newdata){
 
 		prev = node;
 	}
+
+	hm_linklist_node_t *newnode = malloc(sizeof(hm_linklist_node_t));
+	if (newnode == NULL){
+		// prevent memory leak
+		hm_listdata_free(newdata);
+		return 0;
+	}
+
+	newnode->data = newdata;
 
 	// put new pair here...
 	if (prev){
@@ -137,7 +129,6 @@ const void *hm_linklist_get(const hm_linklist_t *l, const char *key){
 int hm_linklist_remove(hm_linklist_t *l, const char *key){
 	if (key == NULL)
 		return 0;
-
 
 	hm_linklist_node_t *prev = NULL;
 	hm_linklist_node_t *node;
@@ -227,19 +218,4 @@ static hm_linklist_t *_hm_linklist_clear(hm_linklist_t *l){
 
 	return l;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
