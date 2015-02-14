@@ -6,8 +6,10 @@
 #define	VECTOR_CHUNK_SIZE	8 * sizeof(void *)
 
 #ifndef HASHTABLE_BUCKETS
-#define HASHTABLE_BUCKETS	16
+#define HASHTABLE_BUCKETS	1000000
 #endif
+
+#define SKIPLIST_HEIGHT		32
 
 // =======================================
 
@@ -44,6 +46,19 @@ static void *_list_factory(){
 static void *_list_factory(){
 	static hm_hash_t ha_real;
 	return hm_hash_create(& ha_real, HASHTABLE_BUCKETS, VECTOR_CHUNK_SIZE);
+}
+
+#endif
+
+// =======================================
+
+#ifdef USE_SKIPLIST
+
+#include "hm_skiplist_list.h"
+
+static void *_list_factory(){
+	static hm_skiplist_t ls_real;
+	return hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
 }
 
 #endif
