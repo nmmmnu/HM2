@@ -218,12 +218,7 @@ static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l){
 }
 
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation){
-	//memset(l->loc, 0, l->height * sizeof(void *) );
-	//memcpy(l->loc, l->heads, l->height * sizeof(void *) );
-
-	// this actually is extremly dangerous...
-	if (key == NULL)
-		return NULL;
+	// if key is NULL, is extremly dangerous to return NULL or anything else.
 
 	int cmp = 1;
 
