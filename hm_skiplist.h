@@ -1,10 +1,13 @@
 #ifndef _HM_SKIPLIST_H
 #define _HM_SKIPLIST_H
 
-
 #include "hm_list_defs.h"
+#include "hm_file.h"
 
-typedef unsigned char	hm_skiplist_height_t;
+#include <stdio.h>	// FILE
+
+
+typedef unsigned char hm_skiplist_height_t;
 
 typedef struct _hm_skiplist_node_t hm_skiplist_node_t;
 
@@ -42,6 +45,12 @@ inline static size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
 int hm_skiplist_printf(const hm_skiplist_t *l, int more);
 
 void hm_skiplist_printf_lanes(const hm_skiplist_t *l);
+
+int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F);
+
+inline static const void *hm_skiplist_fget(const hm_file_t *mmf, const char *key){
+	return hm_file_line_get(mmf, key);
+}
 
 #endif
 

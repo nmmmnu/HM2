@@ -2,15 +2,16 @@
 
 #include <stdlib.h>
 #include <string.h>	// strcmp
-#include <stdio.h>
 
 #define MAX_HEIGHT 64
 #define DEF_HEIGHT 32
 
+typedef struct _hm_skiplist_node_t hm_skiplist_node_t;
+
 typedef struct _hm_skiplist_node_t{
 	void			*data;		// system dependent
 	hm_skiplist_height_t	height;		// 1
-	void			*next[];	// system dependent, dynamic, at least 1
+	hm_skiplist_node_t	*next[];	// system dependent, dynamic, at least 1
 }hm_skiplist_node_t;
 
 
@@ -202,6 +203,44 @@ int hm_skiplist_printf(const hm_skiplist_t *l, int more){
 		_hm_skiplist_printf_more(l);
 
 	_hm_skiplist_printf_lane(l, 0);
+
+	return 0;
+}
+
+int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
+	uint64_t be;
+
+	const uint64_t start = ftello(F);
+
+	// write table header (currently size only)
+	hm_fileformat_line_t header;
+	header.size = htobe64( (uint64_t) l->datacount );
+	fwrite(& header, sizeof(header), 1, F);
+
+	const uint64_t table_start = ftello(F);
+
+	// write junk zero table.
+	// this is made in order to expand the file size.
+	_hm_file_fwrite_junk(F, l->datacount);
+
+	hm_listsize_t i = 0;
+	const hm_skiplist_node_t *node;
+	for(node = l->heads[0]; node; node = node->next[0]){
+		// write item
+		fseeko(F, 0, SEEK_END);
+		const uint64_t abspos = ftello(F);
+
+		hm_listdata_fwrite(node->data, F);
+
+		// write pos
+		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
+		be = htobe64(abspos - start);
+		fwrite(& be, sizeof(uint64_t), 1, F);
+
+		i++;
+	}
+
+	// file written (hopefully)
 
 	return 0;
 }

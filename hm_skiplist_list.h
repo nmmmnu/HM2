@@ -16,4 +16,7 @@
 #define hm_list_sizeof(a)	hm_skiplist_sizeof(a)
 #define hm_list_printf(a, b)	hm_skiplist_printf(a, b)
 
+#define hm_list_fwrite(a, b)	hm_skiplist_fwrite(a, b)
+#define hm_list_fget(a, b)	hm_skiplist_fget(a, b)
+
 #endif

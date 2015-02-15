@@ -16,4 +16,7 @@
 #define hm_list_sizeof(a)	hm_vector_sizeof(a)
 #define hm_list_printf(a, b)	hm_vector_printf(a, b)
 
+#define hm_list_fwrite(a, b)	hm_vector_fwrite(a, b)
+#define hm_list_fget(a, b)	hm_vector_fget(a, b)
+
 #endif

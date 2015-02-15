@@ -16,5 +16,8 @@
 #define hm_list_sizeof(a)	hm_hash_sizeof(a)
 #define hm_list_printf(a, b)	hm_hash_printf(a, b)
 
+#define hm_list_fwrite(a, b)	hm_hash_fwrite(a, b)
+#define hm_list_fget(a, b)	hm_hash_fget(a, b)
+
 #endif
 

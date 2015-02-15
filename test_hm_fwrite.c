@@ -6,44 +6,47 @@
 #include <stdlib.h>	// NULL
 #include <ctype.h>	// isspace
 
-
-
-
 #define BUFFER_SIZE	1024
 #define PROCESS_STEP	1000 * 10
 
-#define HASH_BUCKETS	1024 * 1024
-#define VECTOR_CHUNK	1 * sizeof(void *)
+#define HASHTABLE_BUCKETS	1024 * 1024
 
 
-int hm_hash_fwrite(const hm_hash_t *h, FILE *F);
+#include "test_hm_factory.h"
 
 
 static char *trim(char *s);
-static void loadFile(hm_hash_t *h, const char *filename);
+static void loadFile(hm_list_t *list, const char *filename);
 
 
 static int create_file(const char *filename_to_load, const char *filename_to_write){
-	static hm_hash_t h_real;
-	hm_hash_t *h = hm_hash_create(& h_real, HASH_BUCKETS, VECTOR_CHUNK);
+	hm_list_t *list = _list_factory();
 
 	printf("Load start..\n");
 
-	loadFile(h, filename_to_load);
+	loadFile(list, filename_to_load);
 
 	printf("Load done..\n");
 	getchar();
 
 	printf("Save start..\n");
 
-	hm_file_createfromhash(h, filename_to_write);
+	FILE *F = fopen(filename_to_write, "w");
+	if (F == NULL){
+		printf("Can not create a file %s...\n", filename_to_write);
+		return 1;
+	}
+	hm_list_fwrite(list, F);
+	fclose(F);
 
 	printf("Save done..\n");
+
 	getchar();
+
+	//hm_list_destroy(list);
 
 	return 0;
 }
-
 
 static int find_in_file(const char *filename, const char *keytofind){
 	hm_file_t mmf_real;
@@ -55,7 +58,11 @@ static int find_in_file(const char *filename, const char *keytofind){
 		exit(1);
 	}
 
-	const hm_pair_t *pair = hm_file_get(mmf, keytofind);
+#ifdef USE_HASH
+	const hm_pair_t *pair = hm_file_hash_get(mmf, keytofind, _hm_hash_calc(keytofind));
+#else
+	const hm_pair_t *pair = hm_file_line_get(mmf, keytofind);
+#endif
 
 	if (pair){
 		printf("---begin---\n");
@@ -88,7 +95,7 @@ int main(int argc, char **argv){
 
 
 
-static void loadFile(hm_hash_t *h, const char *filename){
+static void loadFile(hm_list_t *list, const char *filename){
 	char buffer[BUFFER_SIZE];
 
 	FILE *f = fopen(filename, "r");
@@ -98,12 +105,12 @@ static void loadFile(hm_hash_t *h, const char *filename){
 	while( (key = fgets(buffer, BUFFER_SIZE, f)) ){
 		trim(key);
 
-		hm_hash_put(h, hm_pair_create(key, NULL));
+		hm_list_put(list, hm_pair_create(key, NULL));
 
 		i++;
 
 		if (i % ( PROCESS_STEP ) == 0){
-			printf("Processed %10u records, %10zu bytes...\n", i, hm_hash_sizeof(h) );
+			printf("Processed %10u records, %10zu bytes...\n", i, hm_list_sizeof(list) );
 
 		}
 	}
@@ -113,12 +120,11 @@ static void loadFile(hm_hash_t *h, const char *filename){
 
 
 static char *trim(char *s){
-	size_t i;
-	for(i = strlen(s); i > 0; i--)
-		if (isspace((int) s[i]) || s[i] == '\0')
-			s[i] = '\0';
-		else
-			break;
+	char *end = s + strlen(s) - 1;
+	while(end > s && isspace(*end))
+		end--;
+
+	*(end + 1) = 0;
 
 	return s;
 }

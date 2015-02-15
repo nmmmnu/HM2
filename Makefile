@@ -4,15 +4,15 @@ CC	= gcc -Wall			\
 		-D_FILE_OFFSET_BITS=64	\
 		-c
 LINK	= gcc -o
-#OBJ	= mp_malloc.o
 LIBS	=
 #-ljemalloc
 
 
 TARGETS =	\
-		test_hm_ve test_hm_ll test_hm_ha test_hm_sl			\
-		test_hm_file_ve test_hm_file_ll test_hm_file_ha	test_hm_file_sl	\
-		test_hm_fwrite test_hm_dir			\
+		test_hm_ve test_hm_ll test_hm_ha test_hm_sl				\
+		test_hm_file_ve test_hm_file_ll test_hm_file_ha	test_hm_file_sl		\
+		test_hm_fwrite_ve test_hm_fwrite_ll test_hm_fwrite_ha test_hm_fwrite_sl	\
+		test_hm_dir			\
 		test_hm_glob
 
 
@@ -90,11 +90,36 @@ test_hm_file_sl.o:		test_hm_file.c		hm_pair.h hm_list_defs.h	hm_skiplist.h	hm_sk
 
 
 
-test_hm_fwrite:			test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o
-	$(LINK) test_hm_fwrite	test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o		$(LIBS)
+test_hm_fwrite_ve:			test_hm_fwrite_ve.o	hm_pair.o hm_list_defs.o	hm_vector.o hm_file.o
+	$(LINK) test_hm_fwrite_ve	test_hm_fwrite_ve.o	hm_pair.o hm_list_defs.o	hm_vector.o hm_file.o		$(LIBS)
 
-test_hm_fwrite.o: test_hm_fwrite.c	hm_pair.h hm_vector.h hm_hash.h hm_file.h
-	$(CC) test_hm_fwrite.c
+test_hm_fwrite_ve.o: test_hm_fwrite.c	hm_pair.h hm_file.h	hm_vector.h			hm_vector_list.h test_hm_factory.h
+	$(CC) test_hm_fwrite.c		-D USE_VECTOR
+	mv test_hm_fwrite.o test_hm_fwrite_ve.o
+
+
+test_hm_fwrite_ll:			test_hm_fwrite_ll.o	hm_pair.o hm_list_defs.o	hm_linklist.o hm_file.o
+	$(LINK) test_hm_fwrite_ll	test_hm_fwrite_ll.o	hm_pair.o hm_list_defs.o	hm_linklist.o hm_file.o		$(LIBS)
+
+test_hm_fwrite_ll.o: test_hm_fwrite.c	hm_pair.h hm_file.h	hm_linklist.h			hm_linklist_list.h test_hm_factory.h
+	$(CC) test_hm_fwrite.c		-D USE_LINKLIST
+	mv test_hm_fwrite.o test_hm_fwrite_ll.o
+
+
+test_hm_fwrite_ha:			test_hm_fwrite_ha.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o
+	$(LINK) test_hm_fwrite_ha	test_hm_fwrite_ha.o	hm_pair.o hm_list_defs.o	hm_hash.o hm_vector.o hm_file.o	$(LIBS)
+
+test_hm_fwrite_ha.o: test_hm_fwrite.c	hm_pair.h hm_file.h	hm_vector.h hm_hash.h		hm_hash_list.h test_hm_factory.h
+	$(CC) test_hm_fwrite.c		-D USE_HASH
+	mv test_hm_fwrite.o test_hm_fwrite_ha.o
+
+
+test_hm_fwrite_sl:			test_hm_fwrite_sl.o	hm_pair.o hm_list_defs.o	hm_skiplist.o hm_file.o
+	$(LINK) test_hm_fwrite_sl	test_hm_fwrite_sl.o	hm_pair.o hm_list_defs.o	hm_skiplist.o hm_file.o		$(LIBS)
+
+test_hm_fwrite_sl.o: test_hm_fwrite.c	hm_pair.h hm_file.h	hm_skiplist.h			hm_skiplist_list.h test_hm_factory.h
+	$(CC) test_hm_fwrite.c		-D USE_SKIPLIST
+	mv test_hm_fwrite.o test_hm_fwrite_sl.o
 
 
 
@@ -137,7 +162,7 @@ hm_skiplist.o: hm_skiplist.c hm_skiplist.h hm_list_defs.h
 hm_hash.o: hm_hash.c hm_hash.h hm_pair.h hm_list_defs.h hm_vector.h
 	$(CC) hm_hash.c
 
-hm_file.o: hm_file.c hm_file.h hm_hash.h hm_pair.h
+hm_file.o: hm_file.c hm_file.h hm_pair.h hm_list_defs.h
 	$(CC) hm_file.c
 
 hm_dir.o: hm_dir.c hm_dir.h hm_file.h
@@ -146,7 +171,3 @@ hm_dir.o: hm_dir.c hm_dir.h hm_file.h
 hm_glob.o: hm_glob.c hm_glob.h
 	$(CC) hm_glob.c
 
-
-
-mp_malloc.o: mp_malloc/mp_malloc.c mp_malloc/mp_malloc.h
-	$(CC) mp_malloc/mp_malloc.c

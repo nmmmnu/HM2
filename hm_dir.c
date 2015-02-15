@@ -4,6 +4,7 @@
 #include <stdio.h>	// printf
 #include <string.h>	// strdup
 
+#define _hm_file_get(a, b) hm_file_line_get(a, b)
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	dir->path = path;
@@ -95,7 +96,7 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	for(i = dir->count; i > 0; i--){
 		hm_file_t *file = & dir->files[i - 1];
 
-		const void *data = hm_file_get(file, key);
+		const void *data = _hm_file_get(file, key);
 
 		if (data)
 			return data;

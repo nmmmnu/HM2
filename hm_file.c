@@ -1,29 +1,16 @@
 #include "hm_file.h"
 
 #include <endian.h>
-#include <stdint.h>
 #include <stdlib.h>	// NULL
 #include <string.h>	// strcmp
 #include <sys/mman.h>	// mmap
 
+
 #include "hm_list_defs.h"
 
 
-typedef struct _hm_disk_hash{
-	uint64_t	capacity;
-	uint64_t	collision_list[];
-} hm_disk_hash;
+inline static const void *_hm_file_line_get(const char *mem, const char *key);
 
-typedef struct _hm_disk_vector{
-	uint64_t	size;
-	uint64_t	data[];
-} hm_disk_vector;
-
-
-static const void *_hm_file_get_hashmmap(const char *mem, const char *key);
-static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F);
-static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F);
-static int _hm_file_fwrite_skiplist(const hm_skiplist_t *sl, FILE *F);
 
 hm_file_t *hm_file_open(hm_file_t *mmf, const char *filename){
 	FILE *F = fopen(filename, "r");
@@ -52,53 +39,32 @@ void hm_file_close(hm_file_t *mmf){
 	fclose(mmf->F);
 }
 
-const void *hm_file_get(const hm_file_t *mmf, const char *key){
-	return _hm_file_get_hashmmap(mmf->mem, key);
+const void *hm_file_line_get(const hm_file_t *mmf, const char *key){
+	if (key == NULL)
+		return NULL;
+
+	return _hm_file_line_get(mmf->mem, key);
 }
 
-int hm_file_createfromhash(const hm_hash_t *hash, const char *filename){
-	FILE *F = fopen(filename, "w");
+const void *hm_file_hash_get(const hm_file_t *mmf, const char *key, const unsigned long int hash){
+	if (key == NULL)
+		return NULL;
 
-	if (F == NULL)
-		return 1;
+	const hm_fileformat_hash_t *head = (hm_fileformat_hash_t *) mmf->mem;
 
-	int res = _hm_file_fwrite_hash(hash, F);
+	uint64_t capacity = be64toh(head->capacity);
 
-	fclose(F);
+	uint64_t bucket = /* hm_hash_calc(key) */ hash % capacity;
 
-	return res;
-}
+	uint64_t collision_list_ptr = be64toh(head->collision_list[bucket]);
 
-int hm_file_createfromvector(const hm_vector_t *vector, const char *filename){
-	FILE *F = fopen(filename, "w");
-
-	if (F == NULL)
-		return 1;
-
-	int res = _hm_file_fwrite_vector(vector, F);
-
-	fclose(F);
-
-	return res;
-}
-
-int hm_file_createfromskiplist(const hm_skiplist_t *sl, const char *filename){
-	FILE *F = fopen(filename, "w");
-
-	if (F == NULL)
-		return 1;
-
-	int res = _hm_file_fwrite_skiplist(sl, F);
-
-	fclose(F);
-
-	return res;
+	return _hm_file_line_get(& mmf->mem[collision_list_ptr], key);
 }
 
 // =============================================
 
 static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
-	const hm_disk_vector *head = (hm_disk_vector *) mem;
+	const hm_fileformat_line_t *head = (hm_fileformat_line_t *) mem;
 
 	uint64_t start = 0;
 	uint64_t end = be64toh(head->size);
@@ -129,144 +95,7 @@ static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
 	return NULL;
 }
 
-inline static const void *_hm_file_get_vectormmap(const char *mem, const char *key){
+inline static const void *_hm_file_line_get(const char *mem, const char *key){
 	return _hm_file_locate_bsearch(mem, key);
-}
-
-static const void *_hm_file_get_hashmmap(const char *mem, const char *key){
-	if (key == NULL)
-		return NULL;
-
-	const hm_disk_hash *head = (hm_disk_hash *) mem;
-
-	uint64_t capacity = be64toh(head->capacity);
-
-	uint64_t bucket = hm_hash_calc(key) % capacity;
-
-	uint64_t collision_list_ptr = be64toh(head->collision_list[bucket]);
-
-	return _hm_file_get_vectormmap(& mem[collision_list_ptr], key);
-}
-
-
-// =============================================
-
-
-static int _hm_file_fwrite_junk(FILE *F, hm_listsize_t count){
-	uint64_t be = 0xdeedbeef;
-
-	hm_listsize_t i;
-	for(i = 0; i < count; i++)
-		fwrite(& be, sizeof(uint64_t), 1, F);
-
-	return 0;
-}
-
-static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F){
-	uint64_t be;
-
-	const uint64_t start = ftello(F);
-
-	// write table header (currently size only)
-	hm_disk_vector header;
-	header.size = htobe64( (uint64_t) v->size );
-	fwrite(& header, sizeof(header), 1, F);
-
-	const uint64_t table_start = ftello(F);
-
-	// write junk zero table.
-	// this is made in order to expand the file size.
-	_hm_file_fwrite_junk(F, v->size);
-
-	hm_listsize_t i;
-	for(i = 0; i < v->size; i++){
-		// write item
-		fseeko(F, 0, SEEK_END);
-		const uint64_t abspos = ftello(F);
-
-		hm_listdata_fwrite(v->buffer[i], F);
-
-		// write pos
-		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(abspos - start);
-		fwrite(& be, sizeof(uint64_t), 1, F);
-	}
-
-	// file written (hopefully)
-
-	return 0;
-}
-
-static int _hm_file_fwrite_skiplist(const hm_skiplist_t *sl, FILE *F){
-	uint64_t be;
-
-	const uint64_t start = ftello(F);
-
-	// write table header (currently size only)
-	hm_disk_vector header;
-	header.size = htobe64( (uint64_t) sl->datacount );
-	fwrite(& header, sizeof(header), 1, F);
-
-	const uint64_t table_start = ftello(F);
-
-	// write junk zero table.
-	// this is made in order to expand the file size.
-	_hm_file_fwrite_junk(F, sl->datacount);
-#if 0
-	hm_listsize_t i = 0;
-	const hm_skiplist_node_t *node;
-	for(node = sl->heads[0]; node; node = node->next[0]){
-		// write item
-		fseeko(F, 0, SEEK_END);
-		const uint64_t abspos = ftello(F);
-
-		hm_listdata_fwrite(node->data, F);
-
-		// write pos
-		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(abspos - start);
-		fwrite(& be, sizeof(uint64_t), 1, F);
-
-		i++;
-	}
-#endif
-	// file written (hopefully)
-
-	return 0;
-}
-
-static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F){
-	uint64_t be;
-
-	const uint64_t start = ftello(F);
-
-	// write table header (currently size only)
-	hm_disk_hash header;
-	header.capacity = htobe64( (uint64_t) h->capacity );
-	fwrite(& header, sizeof(header), 1, F);
-
-	const uint64_t table_start = ftello(F);
-
-	// write junk zero table.
-	// this is made in order to expand the file size.
-	_hm_file_fwrite_junk(F, h->capacity);
-
-	hm_capacity_t i;
-	for(i = 0; i < h->capacity; i++){
-		// write item
-		fseek(F, 0, SEEK_END);
-		const uint64_t abspos = ftello(F);
-
-		_hm_file_fwrite_vector( & h->buckets[i], F);
-
-		// write pos
-		fseek(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(abspos - start);
-		fwrite(& be, sizeof(uint64_t), 1, F);
-	}
-
-	// file written (hopefully)
-
-	return 0;
 }
 

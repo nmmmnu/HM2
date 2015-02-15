@@ -3,13 +3,10 @@
 #include <stdlib.h>
 #include <string.h>	// memset
 //#include <inttypes.h>	// PRIu64
-#include <stdio.h>
 
 
-
-#define hash(a) hm_hash_calc(a)
+#define hash(a) _hm_hash_calc(a)
 static inline hm_capacity_t _hm_hash_getbucketforkey(hm_hash_t *table, const char *key);
-
 
 
 hm_hash_t *hm_hash_create(hm_hash_t *table, hm_capacity_t capacity, size_t vector_realloc_chunk_size){
@@ -177,7 +174,7 @@ int hm_hash_printf(const hm_hash_t *table, int more){
 }
 
 // DJB Hash function from CDB
-unsigned long int hm_hash_calc(const char *str){
+unsigned long int _hm_hash_calc(const char *str){
 	// mysterious DJB const
 	unsigned long hash = 5381;
 
@@ -188,6 +185,41 @@ unsigned long int hm_hash_calc(const char *str){
 	}
 
 	return hash;
+}
+
+int hm_hash_fwrite(const hm_hash_t *table, FILE *F){
+	uint64_t be;
+
+	const uint64_t start = ftello(F);
+
+	// write table header (currently size only)
+	hm_fileformat_hash_t header;
+	header.capacity = htobe64( (uint64_t) table->capacity );
+	fwrite(& header, sizeof(header), 1, F);
+
+	const uint64_t table_start = ftello(F);
+
+	// write junk zero table.
+	// this is made in order to expand the file size.
+	_hm_file_fwrite_junk(F, table->capacity);
+
+	hm_capacity_t i;
+	for(i = 0; i < table->capacity; i++){
+		// write item
+		fseek(F, 0, SEEK_END);
+		const uint64_t abspos = ftello(F);
+
+		hm_vector_fwrite( & table->buckets[i], F);
+
+		// write pos
+		fseek(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
+		be = htobe64(abspos - start);
+		fwrite(& be, sizeof(uint64_t), 1, F);
+	}
+
+	// file written (hopefully)
+
+	return 0;
 }
 
 // ===============================================================

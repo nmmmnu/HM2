@@ -25,3 +25,13 @@ size_t hm_listdata_sizeof(const void *pair){
 void hm_listdata_free(void *pair){
 	hm_pair_free(pair);
 }
+
+int _hm_file_fwrite_junk(FILE *F, hm_listsize_t count){
+	uint64_t be = 0xdeedbeef;
+
+	hm_listsize_t i;
+	for(i = 0; i < count; i++)
+		fwrite(& be, sizeof(uint64_t), 1, F);
+
+	return 0;
+}

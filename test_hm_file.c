@@ -9,7 +9,7 @@
 #define PROCESS_STEP 1000 * 10
 
 void processfile(hm_list_t *v, const char *filename, int op);
-char *trim(char *s);
+static char *trim(char *s);
 
 
 
@@ -99,13 +99,12 @@ void processfile(hm_list_t *v, const char *filename, int op){
 }
 
 
-char *trim(char *s){
-	size_t i;
-	for(i = strlen(s); i > 0; i--)
-		if (isspace((int) s[i]) || s[i] == '\0')
-			s[i] = '\0';
-		else
-			break;
+static char *trim(char *s){
+	char *end = s + strlen(s) - 1;
+	while(end > s && isspace(*end))
+		end--;
+
+	*(end + 1) = 0;
 
 	return s;
 }
