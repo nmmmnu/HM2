@@ -21,6 +21,8 @@ static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, con
 static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane);
 static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
 
+inline static void hm_error(const char *err, const char *file, unsigned int line);
+
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height){
 	if (height == 0 || height > MAX_HEIGHT)
 		height = DEF_HEIGHT;
@@ -218,7 +220,13 @@ static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l){
 }
 
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation){
-	// if key is NULL, is extremly dangerous to return NULL or anything else.
+	// it is extremly dangerous to have key == NULL here.
+	if (key == NULL){
+		hm_error("FATAL ERROR", __FILE__, __LINE__);
+	}
+
+	// smart over-optimizations, such skip NULL lanes or
+	// start from the middle of the list did not pay off.
 
 	int cmp = 1;
 
@@ -313,4 +321,9 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 
 		i++;
 	}
+}
+
+inline static void hm_error(const char *err, const char *file, unsigned int line){
+	fprintf(stderr, "%s: key is NULL on %s:%u\n", err, file, line);
+	exit(100);
 }
