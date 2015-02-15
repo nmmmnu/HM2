@@ -16,6 +16,7 @@ typedef struct _hm_hash_t{
 
 	size_t			datasize;			// system dependent
 	hm_listsize_t		datacount;			// system dependent
+
 	size_t			vector_realloc_chunk_size;	// system dependent
 
 	hm_collision_list_t	*buckets;			// pointer to dynamic array of hm_collision_list_t with collisions

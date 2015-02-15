@@ -6,8 +6,8 @@
 
 typedef struct _hm_vector_t{
 	hm_listsize_t	size;			// 8
-
 	size_t		datasize;		// system dependent
+
 	size_t		realloc_chunk_size;	// system dependent
 	size_t		buffer_alloc_size;	// system dependent
 

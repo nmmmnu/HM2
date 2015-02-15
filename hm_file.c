@@ -23,7 +23,7 @@ typedef struct _hm_disk_vector{
 static const void *_hm_file_get_hashmmap(const char *mem, const char *key);
 static int _hm_file_fwrite_hash(const hm_hash_t *h, FILE *F);
 static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F);
-
+static int _hm_file_fwrite_skiplist(const hm_skiplist_t *sl, FILE *F);
 
 hm_file_t *hm_file_open(hm_file_t *mmf, const char *filename){
 	FILE *F = fopen(filename, "r");
@@ -82,6 +82,18 @@ int hm_file_createfromvector(const hm_vector_t *vector, const char *filename){
 	return res;
 }
 
+int hm_file_createfromskiplist(const hm_skiplist_t *sl, const char *filename){
+	FILE *F = fopen(filename, "w");
+
+	if (F == NULL)
+		return 1;
+
+	int res = _hm_file_fwrite_skiplist(sl, F);
+
+	fclose(F);
+
+	return res;
+}
 
 // =============================================
 
@@ -180,6 +192,44 @@ static int _hm_file_fwrite_vector(const hm_vector_t *v, FILE *F){
 		fwrite(& be, sizeof(uint64_t), 1, F);
 	}
 
+	// file written (hopefully)
+
+	return 0;
+}
+
+static int _hm_file_fwrite_skiplist(const hm_skiplist_t *sl, FILE *F){
+	uint64_t be;
+
+	const uint64_t start = ftello(F);
+
+	// write table header (currently size only)
+	hm_disk_vector header;
+	header.size = htobe64( (uint64_t) sl->datacount );
+	fwrite(& header, sizeof(header), 1, F);
+
+	const uint64_t table_start = ftello(F);
+
+	// write junk zero table.
+	// this is made in order to expand the file size.
+	_hm_file_fwrite_junk(F, sl->datacount);
+#if 0
+	hm_listsize_t i = 0;
+	const hm_skiplist_node_t *node;
+	for(node = sl->heads[0]; node; node = node->next[0]){
+		// write item
+		fseeko(F, 0, SEEK_END);
+		const uint64_t abspos = ftello(F);
+
+		hm_listdata_fwrite(node->data, F);
+
+		// write pos
+		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
+		be = htobe64(abspos - start);
+		fwrite(& be, sizeof(uint64_t), 1, F);
+
+		i++;
+	}
+#endif
 	// file written (hopefully)
 
 	return 0;

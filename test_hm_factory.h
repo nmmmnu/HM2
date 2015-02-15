@@ -6,7 +6,7 @@
 #define	VECTOR_CHUNK_SIZE	8 * sizeof(void *)
 
 #ifndef HASHTABLE_BUCKETS
-#define HASHTABLE_BUCKETS	1000000
+#define HASHTABLE_BUCKETS	16
 #endif
 
 #define SKIPLIST_HEIGHT		32
