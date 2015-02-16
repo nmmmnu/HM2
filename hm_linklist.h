@@ -6,13 +6,11 @@
 #include <stdio.h>	// FILE
 
 
-typedef struct _hm_linklist_node_t hm_linklist_node_t;
-
 typedef struct _hm_linklist_t{
-	size_t			datasize;	// system dependent
-	hm_listsize_t		datacount;	// system dependent
+	size_t		datasize;	// system dependent
+	hm_listsize_t	datacount;	// system dependent
 
-	hm_linklist_node_t	*head;		// system dependent
+	void		*head;		// system dependent
 }hm_linklist_t;
 
 

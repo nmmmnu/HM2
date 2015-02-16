@@ -8,16 +8,14 @@
 
 typedef unsigned char hm_skiplist_height_t;
 
-typedef struct _hm_skiplist_node_t hm_skiplist_node_t;
-
 typedef struct _hm_skiplist_t{
 	size_t			datasize;	// system dependent
 	hm_listsize_t		datacount;	// system dependent
 
 	hm_skiplist_height_t	height;		// 1
 
-	hm_skiplist_node_t	**heads;	// system dependent, dynamic, at least 1
-	hm_skiplist_node_t	**loc;		// system dependent, dynamic, at least 1
+	void			**heads;	// system dependent, dynamic, at least 1
+	void			**loc;		// system dependent, dynamic, at least 1
 }hm_skiplist_t;
 
 

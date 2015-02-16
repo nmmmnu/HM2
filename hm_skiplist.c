@@ -6,12 +6,11 @@
 #define MAX_HEIGHT 64
 #define DEF_HEIGHT 32
 
-typedef struct _hm_skiplist_node_t hm_skiplist_node_t;
 
 typedef struct _hm_skiplist_node_t{
 	void			*data;		// system dependent
 	hm_skiplist_height_t	height;		// 1
-	hm_skiplist_node_t	*next[];	// system dependent, dynamic, at least 1
+	void			*next[];	// system dependent, dynamic, at least 1
 }hm_skiplist_node_t;
 
 
