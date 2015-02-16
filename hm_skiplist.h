@@ -2,7 +2,6 @@
 #define _HM_SKIPLIST_H
 
 #include "hm_list_defs.h"
-#include "hm_file.h"
 
 #include <stdio.h>	// FILE
 
@@ -47,10 +46,6 @@ int hm_skiplist_printf(const hm_skiplist_t *l, int more);
 void hm_skiplist_printf_lanes(const hm_skiplist_t *l);
 
 int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F);
-
-inline static const void *hm_skiplist_fget(const hm_file_t *mmf, const char *key){
-	return hm_file_line_get(mmf, key);
-}
 
 #endif
 

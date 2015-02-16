@@ -3,7 +3,6 @@
 
 #include "hm_list_defs.h"
 #include "hm_vector.h"
-#include "hm_file.h"
 
 #include <stdio.h>	// FILE
 
@@ -49,9 +48,5 @@ int hm_hash_printf(const hm_hash_t *table, int more);
 unsigned long int _hm_hash_calc(const char *str);
 
 int hm_hash_fwrite(const hm_hash_t *table, FILE *F);
-
-inline static const void *hm_hash_fget(const hm_file_t *mmf, const char *key){
-	return hm_file_hash_get(mmf, key, _hm_hash_calc(key));
-}
 
 #endif

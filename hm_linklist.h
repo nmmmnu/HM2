@@ -2,7 +2,6 @@
 #define _HM_LINKLIST_H
 
 #include "hm_list_defs.h"
-#include "hm_file.h"
 
 #include <stdio.h>	// FILE
 
@@ -40,10 +39,6 @@ inline static size_t hm_linklist_sizeof(const hm_linklist_t *l){
 int hm_linklist_printf(const hm_linklist_t *l, int more);
 
 int hm_linklist_fwrite(const hm_linklist_t *l, FILE *F);
-
-inline static const void *hm_linklist_fget(const hm_file_t *mmf, const char *key){
-	return hm_file_line_get(mmf, key);
-}
 
 #endif
 

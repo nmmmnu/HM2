@@ -2,7 +2,6 @@
 #define _HM_VECTOR_H
 
 #include "hm_list_defs.h"
-#include "hm_file.h"
 
 #include <stdio.h>	// FILE
 
@@ -40,9 +39,5 @@ inline static size_t hm_vector_sizeof(const hm_vector_t *v){
 int hm_vector_printf(const hm_vector_t *v, int more);
 
 int hm_vector_fwrite(const hm_vector_t *v, FILE *F);
-
-inline static const void *hm_vector_fget(const hm_file_t *mmf, const char *key){
-	return hm_file_line_get(mmf, key);
-}
 
 #endif
