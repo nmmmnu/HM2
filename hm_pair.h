@@ -8,7 +8,7 @@
 #include <stdio.h>	// FILE
 
 //#define HM_PAIR_EXPIRATION
-//#define HM_PAIR_CHECKSUM
+#define HM_PAIR_CHECKSUM
 
 
 #ifdef HM_PAIR_CHECKSUM
@@ -23,15 +23,15 @@ typedef uint32_t hm_valsize_t;
 
 
 typedef struct _hm_pair_t{
-#ifdef HM_PAIR_CHECKSUM
-	hm_checksum_t	checksum;	// 1
-#endif
 #ifdef HM_PAIR_EXPIRATION
 	hm_timestamp_t	created;	// 8
 	hm_expires_t	expires;	// 4
 #endif
-	hm_keysize_t	keylen;		// 2
 	hm_valsize_t	vallen;		// 4
+	hm_keysize_t	keylen;		// 2
+#ifdef HM_PAIR_CHECKSUM
+	hm_checksum_t	checksum;	// 1
+#endif
 
 	char		buffer[];	// dynamic
 

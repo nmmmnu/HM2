@@ -97,12 +97,15 @@ int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
+
 void hm_pair_checksummake(hm_pair_t *pair){
 	pair->checksum = _hm_pair_checksum(pair);
 }
+
 int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return pair->checksum == _hm_pair_checksum(pair);
 }
+
 #endif
 
 
@@ -143,10 +146,10 @@ static hm_checksum_t _hm_pair_checksum_real(const char *data2, size_t len){
 }
 
 static hm_checksum_t _hm_pair_checksum(const hm_pair_t *pair){
-	const char *vptr = (const char *) pair;
+	const char *vptr = (const char *) pair->buffer;
 
 	// skip first byte
-	return _hm_pair_checksum_real(& vptr[1], hm_pair_sizeof(pair) - 1);
+	return _hm_pair_checksum_real(vptr, hm_pair_sizeofbuffer(pair));
 }
 
 #endif

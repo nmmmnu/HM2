@@ -19,8 +19,12 @@ inline static hm_pair_t *hm_pair_createtombstone(const char*key){
 
 // sizeof
 
+inline static size_t hm_pair_sizeofbuffer(const hm_pair_t *pair){
+	return be16toh(pair->keylen) + 1 + be32toh(pair->vallen) + 1;
+}
+
 inline static size_t hm_pair_sizeof(const hm_pair_t *pair){
-	return sizeof(hm_pair_t) + be16toh(pair->keylen) + 1 + be32toh(pair->vallen) + 1;
+	return sizeof(hm_pair_t) + hm_pair_sizeofbuffer(pair);
 }
 
 // Get key and value

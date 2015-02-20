@@ -1,12 +1,14 @@
-CC	= gcc -Wall			\
+MYCC	= clang
+MYCC	= gcc
+
+CC	= $(MYCC) -Wall			\
 		-g -Os			\
-		-fpack-struct		\
 		-D_FILE_OFFSET_BITS=64	\
 		-c
-LINK	= gcc -o
+LINK	= $(MYCC) -o
 LIBS	=
 #-ljemalloc
-
+#-fpack-struct
 
 TARGETS =	\
 		test_hm_ve test_hm_ll test_hm_ha test_hm_sl				\

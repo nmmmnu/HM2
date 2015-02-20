@@ -65,6 +65,8 @@ static int find_in_file(const char *filename, const char *keytofind){
 #endif
 
 	if (pair){
+		printf("Pair is %s\n", hm_pair_valid(pair, NULL) ? "valid" : "invalid" );
+		printf("Pair checksum is %s\n", hm_pair_checksumvalid(pair) ? "valid" : "invalid" );
 		printf("---begin---\n");
 		hm_pair_printf(pair);
 		printf("----end----\n");
