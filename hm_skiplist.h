@@ -16,7 +16,7 @@ typedef struct _hm_skiplist_t{
 
 	void			**heads;	// system dependent, dynamic, at least 1
 	void			**loc;		// system dependent, dynamic, at least 1
-}hm_skiplist_t;
+} __attribute__((__packed__)) hm_skiplist_t;
 
 
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height);

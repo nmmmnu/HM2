@@ -11,7 +11,7 @@ typedef struct _hm_linklist_t{
 	hm_listsize_t	datacount;	// system dependent
 
 	void		*head;		// system dependent
-}hm_linklist_t;
+} __attribute__((__packed__)) hm_linklist_t;
 
 
 hm_linklist_t *hm_linklist_create(hm_linklist_t *l);

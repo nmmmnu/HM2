@@ -7,7 +7,7 @@
 
 static void print_usage(const char *name){
 	printf("Usage:\n");
-	printf("\t%s [directory] [key] - find in the database\n", name);
+	printf("\t%s [directory] [key] (twice) - find in the database\n", name);
 	printf("\t\tDo not forget about quotes around the directory\n");
 }
 
@@ -44,8 +44,10 @@ int main(int argc, char **argv){
 	hm_dir_t *dir = hm_dir_open(& dir_real, path);
 	dir_open_test(dir, keytofind);
 
-	hm_dir_reopen(dir);
-	dir_open_test(dir, keytofind);
+	if (argc > 3){
+		hm_dir_reopen(dir);
+		dir_open_test(dir, keytofind);
+	}
 
 	hm_dir_close(dir);
 

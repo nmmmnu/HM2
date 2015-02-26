@@ -22,7 +22,7 @@ typedef struct _hm_hash_t{
 	size_t			vector_realloc_chunk_size;	// system dependent
 
 	hm_collision_list_t	*buckets;			// pointer to dynamic array of hm_collision_list_t with collisions
-} hm_hash_t;
+} __attribute__((__packed__)) hm_hash_t;
 
 
 

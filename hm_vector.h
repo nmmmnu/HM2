@@ -13,7 +13,7 @@ typedef struct _hm_vector_t{
 	size_t		buffer_alloc_size;	// system dependent
 
 	void		**buffer;		// system dependent
-}hm_vector_t;
+} __attribute__((__packed__)) hm_vector_t;
 
 
 hm_vector_t *hm_vector_create(hm_vector_t *v, size_t realloc_chunk_size);

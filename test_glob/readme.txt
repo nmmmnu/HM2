@@ -1,6 +1,15 @@
 Prior the test you need to generate data files
 
-./test_hm_fwrite test_glob/data.001.txt test_glob/data.bin/bin.001
-./test_hm_fwrite test_glob/data.002.txt test_glob/data.bin/bin.002
-./test_hm_fwrite test_glob/data.003.txt test_glob/data.bin/bin.003
+Link list, Vector and Skip list will generate correct file.
+
+mkdir test_glob/data.bin
+
+./test_hm_fwrite_sl test_glob/data.001.txt test_glob/data.bin/bin.001
+./test_hm_fwrite_sl test_glob/data.002.txt test_glob/data.bin/bin.002
+./test_hm_fwrite_sl test_glob/data.003.txt test_glob/data.bin/bin.003
+
+Then you can do:
+
+./test_hm_dir './test_glob/data.bin/bin.*' Bonn
+./test_hm_dir './test_glob/data.bin/bin.*' Sofia
 
