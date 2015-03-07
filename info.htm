@@ -41,22 +41,34 @@ Reads should be fast if there are not too many disktables.</p>
 
 <h3>Memtable</h3>
 
-<p>Memtable is stored in memory in hashtable.
-Hashtable have configurable, but constant number of buckets.
-This is required because data need later to be stored on the disk.</p>
+<p>Memtable is stored in memory in skiplist.
+Skiplist is very fast O(Log N) structure, very similar to binary tree.</p>
 
-<p>There are no data stored in the "leaves" of the hashtable.
-All data is stored in the collision lists.
-Collisions lists are sorted dynamic arrays called vectors.</p>
+<p>It is much faster than a vector, but slower than hashtable O(1).</p>
 
-<p>Vectors are much faster than linked lists and do not waste as much memory.
-All vectors have configurable pre-allocated memory, usually 1024 bytes.</p>
+<p>Prior skiplist we tested with hashtable. General speed was much faster,
+but there were some problems, such:</p>
 
+<ul>
+	<li>Hashtable buckets must be fixed,
+	because data must later be stored on the disk with LSM tree.</li>
+	<li>Because of hashtable buckets,
+	disktables have more complicated structure and are initially larger -
+	all bucket must be stored.</li>
+	<li>Slow creation of disktables. Because buckets are fixed,
+	just as it is in Tokyo Cabinet, one may choose high number of buckets,
+	say 1M. This means even "empty" memtable is translated to
+	huge disktable with at least 1M "records" on the disk.</li>
+	<li>Merging of disktable with "buckets" is more difficult,
+	but also waste more unused space in the file.
+	This is not discussed yet, but merging two tables with sizes N1 and N2 elements,
+	will need allocation of N1 + N2 space on the "output" disktable.</li>
+</ul>
 
 <h3>Disktables</h3>
 
 <p>Periodicaly, the memtable is flushed on the disk in disktable.
-Disktable file have similar order - hashtable with same bucket count and sorted vector like structures.</p>
+Disktable file have similar order - vector/array like structure with sorted elements.</p>
 
 <p>Disktables are immutable.
 This means very good OS cache and easy backup.

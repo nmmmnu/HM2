@@ -4,7 +4,7 @@
 #include <stdio.h>	// printf
 #include <string.h>	// strdup
 
-#define _hm_file_get(a, b) hm_file_line_get(a, b)
+#define _hm_file_get(a, b) hm_file_lineget(a, b)
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	dir->path = path;

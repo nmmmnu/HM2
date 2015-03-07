@@ -9,8 +9,7 @@
 #include "hm_list_defs.h"
 
 
-inline static const void *_hm_file_line_get(const char *mem, const char *key);
-
+inline static const void *_hm_file_lineget(const char *mem, const char *key, uint64_t *ppos);
 
 hm_file_t *hm_file_open(hm_file_t *mmf, const char *filename){
 	FILE *F = fopen(filename, "r");
@@ -39,14 +38,14 @@ void hm_file_close(hm_file_t *mmf){
 	fclose(mmf->F);
 }
 
-const void *hm_file_line_get(const hm_file_t *mmf, const char *key){
+const void *hm_file_linegetp(const hm_file_t *mmf, const char *key, uint64_t *ppos){
 	if (key == NULL)
 		return NULL;
 
-	return _hm_file_line_get(mmf->mem, key);
+	return _hm_file_lineget(mmf->mem, key, ppos);
 }
 
-const void *hm_file_hash_get(const hm_file_t *mmf, const char *key, const unsigned long int hash){
+const void *hm_file_hashget(const hm_file_t *mmf, const char *key, const unsigned long int hash){
 	if (key == NULL)
 		return NULL;
 
@@ -58,12 +57,27 @@ const void *hm_file_hash_get(const hm_file_t *mmf, const char *key, const unsign
 
 	uint64_t collision_list_ptr = be64toh(head->collision_list[bucket]);
 
-	return _hm_file_line_get(& mmf->mem[collision_list_ptr], key);
+	return _hm_file_lineget(& mmf->mem[collision_list_ptr], key, NULL);
+}
+
+const void *hm_file_linegetat(const hm_file_t *mmf, uint64_t pos){
+	const char *mem = mmf->mem;
+
+	const hm_fileformat_line_t *head = (hm_fileformat_line_t *) mem;
+	uint64_t end = be64toh(head->size);
+
+	if (pos >= end)
+		return NULL;
+
+	const uint64_t ptr = be64toh( head->data[pos] );
+	const void *pair = & mem[ptr];
+
+	return pair;
 }
 
 // =============================================
 
-static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
+static const void *_hm_file_locate_bsearch(const char *mem, const char *key, uint64_t *ppos){
 	const hm_fileformat_line_t *head = (hm_fileformat_line_t *) mem;
 
 	uint64_t start = 0;
@@ -80,6 +94,9 @@ static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
 		const int cmp = strcmp(hm_listdata_getkey(pair), key);
 
 		if (cmp == 0){
+			if (ppos)
+				*ppos = mid;
+
 			return pair;
 		}
 
@@ -95,7 +112,7 @@ static const void *_hm_file_locate_bsearch(const char *mem, const char *key){
 	return NULL;
 }
 
-inline static const void *_hm_file_line_get(const char *mem, const char *key){
-	return _hm_file_locate_bsearch(mem, key);
+inline static const void *_hm_file_lineget(const char *mem, const char *key, uint64_t *ppos){
+	return _hm_file_locate_bsearch(mem, key, ppos);
 }
 
