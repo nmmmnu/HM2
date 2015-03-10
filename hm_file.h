@@ -15,9 +15,13 @@ hm_file_t *hm_file_open(hm_file_t *mmf, const char *filename);
 
 void hm_file_close(hm_file_t *mmf);
 
+inline static off_t hm_file_getsize(const hm_file_t *mmf){
+	return mmf->size;
+}
+
 const void *hm_file_linegetp(const hm_file_t *mmf, const char *key, uint64_t *ppos);
 
-inline static const void *hm_file_lineget( const hm_file_t *mmf, const char *key){
+inline static const void *hm_file_lineget(const hm_file_t *mmf, const char *key){
 	return hm_file_linegetp(mmf, key, NULL);
 }
 

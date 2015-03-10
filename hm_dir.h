@@ -21,6 +21,4 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key);
 
 void hm_dir_printf(const hm_dir_t *dir);
 
-
 #endif
-

@@ -1,7 +1,7 @@
 #include "hm_dir.h"
 #include "hm_glob.h"
 
-#include <stdio.h>	// printf
+#include <stdio.h>	// FILE, printf
 #include <string.h>	// strdup
 
 #define _hm_file_get(a, b) hm_file_lineget(a, b)
@@ -35,7 +35,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 		return NULL;
 
 	size_t i;
-	for(i = 0; i < dir->count; i++){
+	for(i = 0; i < dir->count; ++i){
 		const char *filename = files[i];
 		// open the file
 		hm_file_t *file = hm_file_open( & dir->files[i], filename);
@@ -68,7 +68,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 
 void hm_dir_close(hm_dir_t *dir){
 	size_t i;
-	for(i = 0; i < dir->count; i++){
+	for(i = 0; i < dir->count; ++i){
 		hm_file_t *file = & dir->files[i];
 
 		hm_file_close(file);
@@ -93,7 +93,7 @@ hm_dir_t *hm_dir_reopen(hm_dir_t *dir){
 
 const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	size_t i;
-	for(i = dir->count; i > 0; i--){
+	for(i = dir->count; i > 0; --i){
 		hm_file_t *file = & dir->files[i - 1];
 
 		const void *data = _hm_file_get(file, key);
@@ -101,7 +101,7 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 		if (data)
 			return data;
 
-		file++;
+		++file;
 	}
 
 	return NULL;
@@ -109,7 +109,7 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 
 void hm_dir_printf(const hm_dir_t *dir){
 	size_t i;
-	for(i = 0; i < dir->count; i++){
+	for(i = 0; i < dir->count; ++i){
 		hm_file_t *file = & dir->files[i];
 
 		printf("%5zu : %s\n", i, file->filename);
