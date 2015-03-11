@@ -1,5 +1,9 @@
+#include "hm_skiplist_list.h"
 #include "hm_pair.h"
-#include "test_hm_factory.h"
+
+
+#define SKIPLIST_HEIGHT		32
+
 
 #include <stdio.h>
 #include <string.h>	// strlen
@@ -18,9 +22,8 @@ int main(int argc, char **argv){
 	const char *findkey  = argv[2];
 
 
-
-	hm_list_t *v = _list_factory();
-
+	static hm_skiplist_t ls_real;
+	hm_list_t *v = hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
 
 
 	printf("Load file\n");

@@ -1,4 +1,10 @@
+#include "hm_skiplist_list.h"
 #include "hm_pair.h"
+
+
+#define SKIPLIST_HEIGHT		32
+
+
 #include "hm_file.h"
 
 #include <stdio.h>
@@ -9,18 +15,15 @@
 #define BUFFER_SIZE	1024
 #define PROCESS_STEP	1000 * 10
 
-#define HASHTABLE_BUCKETS	1024 * 1024
-
-
-#include "test_hm_factory.h"
-
 
 static char *trim(char *s);
 static void loadFile(hm_list_t *list, const char *filename);
 
 
 static int create_file(const char *filename_to_load, const char *filename_to_write){
-	hm_list_t *list = _list_factory();
+	static hm_skiplist_t ls_real;
+	hm_list_t *list = hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
+
 
 	printf("Load start..\n");
 

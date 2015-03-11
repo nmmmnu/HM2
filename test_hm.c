@@ -1,9 +1,13 @@
-#include "test_hm_factory.h"
+#include "hm_skiplist_list.h"
+#include "hm_pair.h"
+
+
+#define SKIPLIST_HEIGHT		32
+
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>	// sleep
-
 
 
 #define PRINTF_TEST(module, test, func) \
@@ -120,7 +124,8 @@ static void _hm_list_test_dump(hm_list_t *v){
 }
 
 void hm_list_test(){
-	hm_list_t *v = _list_factory();
+	static hm_skiplist_t ls_real;
+	hm_list_t *v = hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
 
 	_hm_list_test_dump(v);
 	_hm_list_test_overwrite(v);
