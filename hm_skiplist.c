@@ -23,7 +23,7 @@ static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
 
 inline static void hm_error(const char *err, const char *file, unsigned int line);
 
-hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l){
+size_t hm_skiplist_count(const hm_skiplist_t *l){
 	return l->datacount;
 }
 
@@ -185,8 +185,8 @@ int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
 }
 
 #if 0
-hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l){
-	hm_listsize_t count = 0;
+size_t hm_skiplist_count(const hm_skiplist_t *l){
+	size_t count = 0;
 
 	const hm_skiplist_node_t *node;
 	for(node = l->heads[0]; node; node = node->next[0]){
@@ -220,7 +220,7 @@ int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
 	const uint64_t start = ftello(F);
 
 	// write table header (currently size only)
-	hm_fileformat_line_t header;
+	hm_fileformat_t header;
 	header.size = htobe64( (uint64_t) l->datacount );
 	fwrite(& header, sizeof(header), 1, F);
 
@@ -230,7 +230,7 @@ int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
 	// this is made in order to expand the file size.
 	_hm_file_fwrite_junk(F, l->datacount);
 
-	hm_listsize_t i = 0;
+	size_t i = 0;
 	const hm_skiplist_node_t *node;
 	for(node = l->heads[0]; node; node = node->next[0]){
 		// write item

@@ -45,25 +45,10 @@ const void *hm_file_linegetp(const hm_file_t *mmf, const char *key, uint64_t *pp
 	return _hm_file_lineget(mmf->mem, key, ppos);
 }
 
-const void *hm_file_hashget(const hm_file_t *mmf, const char *key, const unsigned long int hash){
-	if (key == NULL)
-		return NULL;
-
-	const hm_fileformat_hash_t *head = (hm_fileformat_hash_t *) mmf->mem;
-
-	uint64_t capacity = be64toh(head->capacity);
-
-	uint64_t bucket = /* hm_hash_calc(key) */ hash % capacity;
-
-	uint64_t collision_list_ptr = be64toh(head->collision_list[bucket]);
-
-	return _hm_file_lineget(& mmf->mem[collision_list_ptr], key, NULL);
-}
-
 const void *hm_file_linegetat(const hm_file_t *mmf, uint64_t pos){
 	const char *mem = mmf->mem;
 
-	const hm_fileformat_line_t *head = (hm_fileformat_line_t *) mem;
+	const hm_fileformat_t *head = (hm_fileformat_t *) mem;
 	uint64_t end = be64toh(head->size);
 
 	if (pos >= end)
@@ -78,7 +63,7 @@ const void *hm_file_linegetat(const hm_file_t *mmf, uint64_t pos){
 // =============================================
 
 static const void *_hm_file_locate_bsearch(const char *mem, const char *key, uint64_t *ppos){
-	const hm_fileformat_line_t *head = (hm_fileformat_line_t *) mem;
+	const hm_fileformat_t *head = (hm_fileformat_t *) mem;
 
 	uint64_t start = 0;
 	uint64_t end = be64toh(head->size);

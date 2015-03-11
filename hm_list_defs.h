@@ -1,32 +1,25 @@
 #ifndef _hm_listdata_DEFS_H
 #define _hm_listdata_DEFS_H
 
-#include <stdlib.h>	// size_t
 #include <stdio.h>	// FILE
 #include <stdint.h>
+#include <stdlib.h>	// size_t
 
-typedef size_t hm_listsize_t;
+#include "hm_pair.h"
 
-void hm_listdata_free(void *item);
+int _hm_file_fwrite_junk(FILE *F, size_t count);
 
-const char *hm_listdata_getkey(const void *item);
-int hm_listdata_valid( const void *item1, const void *item2);
-int hm_listdata_printf(const void *item);
-size_t hm_listdata_sizeof(const void *item);
-int hm_listdata_fwrite(const void *item, FILE *F);
-
-
-int _hm_file_fwrite_junk(FILE *F, hm_listsize_t count);
-
-
-typedef struct _hm_fileformat_line_t{
+typedef struct _hm_fileformat_t{
 	uint64_t	size;
 	uint64_t	data[];
-} hm_fileformat_line_t;
+} hm_fileformat_t;
 
-typedef struct _hm_fileformat_hash_t{
-	uint64_t	capacity;
-	uint64_t	collision_list[];
-} hm_fileformat_hash_t;
+#define hm_listdata_free(a)		hm_pair_free(a)
+#define hm_listdata_getkey(a)		hm_pair_getkey(a)
+#define hm_listdata_valid(a, b)		hm_pair_valid(a,b)
+#define hm_listdata_sizeof(a)		hm_pair_sizeof(a)
+#define hm_listdata_fwrite(a, F)	hm_pair_fwrite(a, F)
+#define hm_listdata_printf(a)		hm_pair_printf(a)
+
 
 #endif

@@ -87,6 +87,7 @@ void hm_pair_free(hm_pair_t *pair){
 }
 
 #ifdef HM_PAIR_EXPIRATION
+
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 
 	if (! pair1->expires)
@@ -94,6 +95,13 @@ int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 
 	return be64toh(pair1->created) + _hm_calc_time(be32toh(pair1->expires), 0) > _hm_pair_now();
 }
+
+#else
+
+int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
+	return 1;
+}
+
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
@@ -106,14 +114,21 @@ int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return pair->checksum == _hm_pair_checksum(pair);
 }
 
+#else
+
+void hm_pair_checksummake(hm_pair_t *pair){
+	/* noop */
+}
+
+int hm_pair_checksumvalid(const hm_pair_t *pair){
+	return 1;
+}
+
 #endif
 
 
 int hm_pair_fwrite(const hm_pair_t *pair, FILE *F){
 	// new version, struct is packed and is in big endian
-
-	// this one is pretty short, but we want to be linked
-
 	// write data, return 0 in case of success
 	return fwrite(pair, hm_pair_sizeof(pair), 1, F);
 }

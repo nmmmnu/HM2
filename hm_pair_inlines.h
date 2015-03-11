@@ -47,26 +47,3 @@ inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2
 	return strcmp(hm_pair_getkey(pair1), hm_pair_getkey(pair2));
 }
 
-// Misc functions
-
-#ifdef HM_PAIR_EXPIRATION
-#else
-inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
-	return 1;
-}
-#endif
-
-#ifdef HM_PAIR_CHECKSUM
-#else
-inline static void hm_pair_checksummake(const hm_pair_t *pair){
-	/* noop */
-}
-
-inline static int hm_pair_checksumvalid(const hm_pair_t *pair){
-	return 1;
-}
-#endif
-
-
-
-

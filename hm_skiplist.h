@@ -5,12 +5,11 @@
 
 #include <stdio.h>	// FILE
 
-
 typedef unsigned char hm_skiplist_height_t;
 
 typedef struct _hm_skiplist_t{
 	size_t			datasize;	// system dependent
-	hm_listsize_t		datacount;	// system dependent
+	size_t			datacount;	// system dependent
 
 	hm_skiplist_height_t	height;		// 1
 
@@ -31,7 +30,7 @@ const void *hm_skiplist_get(const hm_skiplist_t *l, const char *key);
 
 int hm_skiplist_remove(hm_skiplist_t *l, const char *key);
 
-hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l);
+size_t hm_skiplist_count(const hm_skiplist_t *l);
 
 size_t hm_skiplist_sizeof(const hm_skiplist_t *l);
 

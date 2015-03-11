@@ -69,19 +69,9 @@ inline static int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2
 
 // Misc functions
 
-#ifdef HM_PAIR_EXPIRATION
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
-#else
-inline static int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2);
-#endif
-
-#ifdef HM_PAIR_CHECKSUM
 void hm_pair_checksummake(hm_pair_t *pair);
 int hm_pair_checksumvalid(const hm_pair_t *pair);
-#else
-inline static void hm_pair_checksummake(const hm_pair_t *pair);
-inline static int hm_pair_checksumvalid(const hm_pair_t *pair);
-#endif
 
 int hm_pair_fwrite(const hm_pair_t *pair, FILE *F);
 int hm_pair_printf(const hm_pair_t *pair);
