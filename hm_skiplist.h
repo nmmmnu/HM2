@@ -16,7 +16,7 @@ typedef struct _hm_skiplist_t{
 
 	void			**heads;	// system dependent, dynamic, at least 1
 	void			**loc;		// system dependent, dynamic, at least 1
-} __attribute__((__packed__)) hm_skiplist_t;
+} hm_skiplist_t;
 
 
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height);
@@ -31,13 +31,9 @@ const void *hm_skiplist_get(const hm_skiplist_t *l, const char *key);
 
 int hm_skiplist_remove(hm_skiplist_t *l, const char *key);
 
-inline static hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l){
-	return l->datacount;
-}
+hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l);
 
-inline static size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
-	return l->datasize;
-}
+size_t hm_skiplist_sizeof(const hm_skiplist_t *l);
 
 int hm_skiplist_printf(const hm_skiplist_t *l, int more);
 

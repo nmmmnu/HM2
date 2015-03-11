@@ -23,6 +23,14 @@ static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
 
 inline static void hm_error(const char *err, const char *file, unsigned int line);
 
+hm_listsize_t hm_skiplist_count(const hm_skiplist_t *l){
+	return l->datacount;
+}
+
+size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
+	return l->datasize;
+}
+
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height){
 	if (height == 0 || height > MAX_HEIGHT)
 		height = DEF_HEIGHT;

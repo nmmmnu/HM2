@@ -1,4 +1,4 @@
-#include "hm_skiplist_list.h"
+#include "hm_list.h"
 #include "hm_pair.h"
 
 
@@ -21,8 +21,8 @@ static void loadFile(hm_list_t *list, const char *filename);
 
 
 static int create_file(const char *filename_to_load, const char *filename_to_write){
-	static hm_skiplist_t ls_real;
-	hm_list_t *list = hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
+	static hm_list_t ls_real;
+	hm_list_t *list = hm_list_create(& ls_real);
 
 
 	printf("Load start..\n");

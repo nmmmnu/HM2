@@ -1,4 +1,4 @@
-#include "hm_skiplist_list.h"
+#include "hm_list.h"
 #include "hm_pair.h"
 
 
@@ -124,8 +124,8 @@ static void _hm_list_test_dump(hm_list_t *v){
 }
 
 void hm_list_test(){
-	static hm_skiplist_t ls_real;
-	hm_list_t *v = hm_skiplist_create(& ls_real, SKIPLIST_HEIGHT);
+	static hm_list_t ls_real;
+	hm_list_t *v = hm_list_create(& ls_real);
 
 	_hm_list_test_dump(v);
 	_hm_list_test_overwrite(v);
