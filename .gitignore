@@ -2,24 +2,11 @@
 
 _ot/
 
-test_hm_ve
-test_hm_ll
-test_hm_ha
-test_hm_sl
-
-test_hm_file_ve
-test_hm_file_ll
-test_hm_file_ha
-test_hm_file_sl
-
+test_hm
+test_hm_file
 test_hm_fwrite
-test_hm_fwrite_ve
-test_hm_fwrite_ll
-test_hm_fwrite_ha
-test_hm_fwrite_sl
 
 test_hm_dir
-
 test_hm_glob
 
 data*.bin
