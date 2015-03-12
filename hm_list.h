@@ -5,7 +5,7 @@
 
 #define hm_list_t		hm_skiplist_t
 
-#define hm_list_create(a)	hm_skiplist_create(a, 0)
+#define hm_list_create(a)	hm_skiplist_create(0)
 #define hm_list_destroy(a)	hm_skiplist_destroy(a)
 #define hm_list_removeall(a)	hm_skiplist_removeall(a)
 

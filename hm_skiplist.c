@@ -8,6 +8,17 @@
 #define DEF_HEIGHT 32
 
 
+typedef struct _hm_skiplist_t{
+	size_t			datasize;	// system dependent
+	size_t			datacount;	// system dependent
+
+	hm_skiplist_height_t	height;		// 1
+
+	void			**heads;	// system dependent, dynamic, at least 1
+	void			**loc;		// system dependent, dynamic, at least 1
+} hm_skiplist_t;
+
+
 typedef struct _hm_skiplist_node_t{
 	hm_pair_t		*data;		// system dependent
 	hm_skiplist_height_t	height;		// 1
@@ -24,17 +35,14 @@ static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
 
 inline static void hm_error(const char *err, const char *file, unsigned int line);
 
-size_t hm_skiplist_count(const hm_skiplist_t *l){
-	return l->datacount;
-}
-
-size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
-	return l->datasize;
-}
-
-hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height){
+hm_skiplist_t *hm_skiplist_create(hm_skiplist_height_t height){
 	if (height == 0 || height > MAX_HEIGHT)
 		height = DEF_HEIGHT;
+
+	hm_skiplist_t *l = malloc(sizeof(hm_skiplist_t));
+
+	if (l == NULL)
+		return NULL;
 
 	l->height = height;
 
@@ -52,6 +60,8 @@ void hm_skiplist_destroy(hm_skiplist_t *l){
 	hm_skiplist_removeall(l);
 
 	free(l->heads);
+
+	free(l);
 }
 
 void hm_skiplist_removeall(hm_skiplist_t *l){
@@ -119,7 +129,7 @@ int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *newdata){
 	// place new node where it belongs
 
 	hm_skiplist_height_t i;
-	for(i = 0; i < height; i++){
+	for(i = 0; i < height; ++i){
 		if (l->loc[i]){
 			// we are at the middle
 			hm_skiplist_node_t *node = l->loc[i];
@@ -162,7 +172,7 @@ int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
 	}
 
 	hm_skiplist_height_t i;
-	for(i = 0; i < l->height; i++){
+	for(i = 0; i < l->height; ++i){
 		hm_skiplist_node_t *prev = l->loc[i];
 
 		if (prev){
@@ -185,13 +195,21 @@ int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
 	return 1;
 }
 
+size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
+	return l->datasize;
+}
+
+size_t hm_skiplist_count(const hm_skiplist_t *l){
+	return l->datacount;
+}
+
 #if 0
 size_t hm_skiplist_count(const hm_skiplist_t *l){
 	size_t count = 0;
 
 	const hm_skiplist_node_t *node;
 	for(node = l->heads[0]; node; node = node->next[0]){
-		count++;
+		++count;
 	}
 
 	return count;
@@ -200,7 +218,7 @@ size_t hm_skiplist_count(const hm_skiplist_t *l){
 
 void hm_skiplist_printf_lanes(const hm_skiplist_t *l){
 	hm_skiplist_height_t i;
-	for(i = l->height; i > 0; i--){
+	for(i = l->height; i > 0; --i){
 		printf("Lane # %5u :\n", i - 1);
 		_hm_skiplist_printf_lane(l, i - 1);
 	}
@@ -245,7 +263,7 @@ int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
 		be = htobe64(abspos - start);
 		fwrite(& be, sizeof(uint64_t), 1, F);
 
-		i++;
+		++i;
 	}
 
 	// file written (hopefully)
@@ -300,7 +318,7 @@ static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, con
 
 		l->loc[height - 1] = (void *) prev;
 
-		height--;
+		--height;
 	}
 
 	return cmp ? NULL : node;
@@ -316,7 +334,7 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l){
 
 	hm_skiplist_height_t h = 1;
 	while(h < l->height && rand() > part)
-		h++;
+		++h;
 
 	return h;
 
@@ -326,7 +344,7 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l){
 
 static void _hm_print_heads(const hm_skiplist_t *l){
 	hm_skiplist_height_t i;
-	for(i = l->height; i > 0; i--)
+	for(i = l->height; i > 0; --i)
 		printf("\t\t%3u : %12p : %12p\n", i - 1, l->heads[i - 1], l->loc[i - 1]);
 }
 
@@ -345,7 +363,7 @@ static void _hm_skiplist_printf_more(const hm_skiplist_t *l){
 
 		printf("\t\tnext {\n");
 		hm_skiplist_height_t i;
-		for(i = 0; i < node->height; i++)
+		for(i = 0; i < node->height; ++i)
 			printf("\t\t\t[%3u] : %p\n", i, node->next[i]);
 		printf("\t\t}\n");
 
@@ -366,7 +384,7 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 		if (i > 16)
 			break;
 
-		i++;
+		++i;
 	}
 }
 

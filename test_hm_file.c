@@ -18,8 +18,7 @@ int main(int argc, char **argv){
 	const char *findkey  = argv[2];
 
 
-	static hm_list_t ls_real;
-	hm_list_t *v = hm_list_create(& ls_real);
+	hm_list_t *v = hm_list_create();
 
 
 	printf("Load file\n");

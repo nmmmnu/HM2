@@ -14,13 +14,31 @@
 
 
 #ifdef HM_PAIR_CHECKSUM
-static hm_checksum_t _hm_pair_checksum(const hm_pair_t *pair);
+typedef uint8_t hm_checksum_t;
 #endif
+#ifdef HM_PAIR_EXPIRATION
+typedef uint64_t hm_timestamp_t;
+typedef uint32_t hm_expires_t;		// 136 years, not that bad.
+#endif
+
+
+typedef struct _hm_pair_t{
+#ifdef HM_PAIR_EXPIRATION
+	hm_timestamp_t	created;	// 8
+	hm_expires_t	expires;	// 4
+#endif
+	hm_valsize_t	vallen;		// 4
+	hm_keysize_t	keylen;		// 2
+#ifdef HM_PAIR_CHECKSUM
+	hm_checksum_t	checksum;	// 1
+#endif
+	char		buffer[];	// dynamic
+} __attribute__((__packed__)) hm_pair_t;
+// yes, we *want* __attribute__ to give error on no-GCC
 
 
 #ifdef HM_PAIR_EXPIRATION
 #include <sys/time.h>
-
 static hm_timestamp_t _hm_pair_now();
 inline static hm_timestamp_t _hm_calc_time(uint32_t sec, uint32_t usec);
 #endif
@@ -86,25 +104,51 @@ void hm_pair_free(hm_pair_t *pair){
 	xfree(pair);
 }
 
+// sizeof
+
+size_t hm_pair_sizeofbuffer(const hm_pair_t *pair){
+	return be16toh(pair->keylen) + 1 + be32toh(pair->vallen) + 1;
+}
+
+size_t hm_pair_sizeof(const hm_pair_t *pair){
+	return sizeof(hm_pair_t) + hm_pair_sizeofbuffer(pair);
+}
+
+// Get key and value
+
+const char *hm_pair_getkey(const hm_pair_t *pair){
+	return & pair->buffer[0];
+}
+
+const char *hm_pair_getval(const hm_pair_t *pair){
+	return pair->vallen ? & pair->buffer[ be16toh(pair->keylen) + 1 ] : NULL;
+}
+
+// Cmp functions
+
+int hm_pair_cmpkey(const hm_pair_t *pair, const char *key){
+	return key == NULL ? -1 : strcmp(hm_pair_getkey(pair), key);
+}
+
+int hm_pair_cmppair(const hm_pair_t *pair1, const hm_pair_t *pair2){
+	return strcmp(hm_pair_getkey(pair1), hm_pair_getkey(pair2));
+}
+
 #ifdef HM_PAIR_EXPIRATION
-
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
-
 	if (! pair1->expires)
 		return 1;
 
 	return be64toh(pair1->created) + _hm_calc_time(be32toh(pair1->expires), 0) > _hm_pair_now();
 }
-
 #else
-
 int hm_pair_valid(const hm_pair_t *pair1, const hm_pair_t *pair2){
 	return 1;
 }
-
 #endif
 
 #ifdef HM_PAIR_CHECKSUM
+static hm_checksum_t _hm_pair_checksum(const hm_pair_t *pair);
 
 void hm_pair_checksummake(hm_pair_t *pair){
 	pair->checksum = _hm_pair_checksum(pair);
@@ -113,9 +157,7 @@ void hm_pair_checksummake(hm_pair_t *pair){
 int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return pair->checksum == _hm_pair_checksum(pair);
 }
-
 #else
-
 void hm_pair_checksummake(hm_pair_t *pair){
 	/* noop */
 }
@@ -123,7 +165,6 @@ void hm_pair_checksummake(hm_pair_t *pair){
 int hm_pair_checksumvalid(const hm_pair_t *pair){
 	return 1;
 }
-
 #endif
 
 

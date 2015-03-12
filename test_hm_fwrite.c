@@ -21,8 +21,7 @@ static void loadFile(hm_list_t *list, const char *filename);
 
 
 static int create_file(const char *filename_to_load, const char *filename_to_write){
-	static hm_list_t ls_real;
-	hm_list_t *list = hm_list_create(& ls_real);
+	hm_list_t *list = hm_list_create();
 
 
 	printf("Load start..\n");

@@ -39,12 +39,6 @@ void hm_pair_test(const int delay){
 	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p1, NULL)				);
 	PRINTF_TEST("hm_pair_t", "checksum",	hm_pair_checksumvalid(p1)			);
 
-#ifdef HM_PAIR_CHECKSUM
-	// corrupt p1
-	p1->keylen--;
-	PRINTF_TEST("hm_pair_t", "checksum",	! hm_pair_checksumvalid(p1)			);
-#endif
-
 #ifdef HM_PAIR_EXPIRATION
 	PRINTF_TEST("hm_pair_t", "valid",	hm_pair_valid(p2, NULL)				);
 	if (delay){
@@ -124,8 +118,7 @@ static void _hm_list_test_dump(hm_list_t *v){
 }
 
 void hm_list_test(){
-	static hm_list_t ls_real;
-	hm_list_t *v = hm_list_create(& ls_real);
+	hm_list_t *v = hm_list_create();
 
 	_hm_list_test_dump(v);
 	_hm_list_test_overwrite(v);
@@ -134,20 +127,10 @@ void hm_list_test(){
 	hm_list_destroy(v);
 }
 
-void print_sizes(){
-	const char *format = "sizeof(%-10s) = %5zu\n";
-
-	printf(format, "hm_pair_t", sizeof(hm_pair_t));
-	printf(format, "hm_list_t", sizeof(hm_list_t));
-}
-
-
 int main(int argc, char **argv){
 	hm_pair_test(argc > 1);
 
 	hm_list_test();
-
-	print_sizes();
 
 	return 0;
 }

@@ -61,9 +61,6 @@ test_hm_glob.o: test_hm_glob.c hm_glob.h
 
 
 
-hm_pair.h: hm_pair_inlines.h
-	touch hm_pair.h
-
 hm_pair.o: hm_pair.c hm_pair.h
 	$(CC) hm_pair.c
 
