@@ -24,7 +24,7 @@ void hm_skiplist_destroy(hm_skiplist_t *l);
 
 void hm_skiplist_removeall(hm_skiplist_t *l);
 
-int hm_skiplist_put(hm_skiplist_t *l, void *data);
+int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *data);
 
 const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key);
 

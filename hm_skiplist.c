@@ -69,7 +69,7 @@ void hm_skiplist_removeall(hm_skiplist_t *l){
 	_hm_skiplist_clear(l);
 }
 
-int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
+int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *newdata){
 	if (newdata == NULL)
 		return 0;
 
@@ -80,7 +80,7 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 	if (node){
 		// update in place. node MUST be not NULL...
 
-		void *olddata = node->data;
+		hm_pair_t *olddata = node->data;
 
 		// check if the data in database is valid
 		if (! hm_pair_valid(newdata, olddata)){
