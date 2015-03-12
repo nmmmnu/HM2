@@ -1,4 +1,5 @@
 #include "hm_skiplist.h"
+#include "hm_list_defs.h"
 
 #include <stdlib.h>
 #include <string.h>	// strcmp
@@ -8,7 +9,7 @@
 
 
 typedef struct _hm_skiplist_node_t{
-	void			*data;		// system dependent
+	hm_pair_t		*data;		// system dependent
 	hm_skiplist_height_t	height;		// 1
 	void			*next[];	// system dependent, dynamic, at least 1
 }hm_skiplist_node_t;
@@ -61,7 +62,7 @@ void hm_skiplist_removeall(hm_skiplist_t *l){
 
 		node = node->next[0];
 
-		hm_listdata_free(copy->data);
+		hm_pair_free(copy->data);
 		free(copy);
 	}
 
@@ -72,7 +73,7 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 	if (newdata == NULL)
 		return 0;
 
-	const char *key = hm_listdata_getkey(newdata);
+	const char *key = hm_pair_getkey(newdata);
 
 	hm_skiplist_node_t *node = (hm_skiplist_node_t *) _hm_skiplist_locate(l, key, 0);
 
@@ -82,9 +83,9 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 		void *olddata = node->data;
 
 		// check if the data in database is valid
-		if (! hm_listdata_valid(newdata, olddata)){
+		if (! hm_pair_valid(newdata, olddata)){
 			// prevent memory leak
-			hm_listdata_free(newdata);
+			hm_pair_free(newdata);
 			return 0;
 		}
 
@@ -92,11 +93,11 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 		node->data = newdata;
 
 		l->datasize = l->datasize
-			- hm_listdata_sizeof(olddata)
-			+ hm_listdata_sizeof(newdata);
+			- hm_pair_sizeof(olddata)
+			+ hm_pair_sizeof(newdata);
 
 		// release old data
-		hm_listdata_free(olddata);
+		hm_pair_free(olddata);
 
 		return 1;
 	}
@@ -108,7 +109,7 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 	hm_skiplist_node_t *newnode = malloc(sizeof(hm_skiplist_node_t) + height * sizeof(void *) );
 	if (newnode == NULL){
 		// prevent memory leak
-		hm_listdata_free(newdata);
+		hm_pair_free(newdata);
 		return 0;
 	}
 
@@ -131,13 +132,13 @@ int hm_skiplist_put(hm_skiplist_t *l, void *newdata){
 		}
 	}
 
-	l->datasize += hm_listdata_sizeof(newdata);
+	l->datasize += hm_pair_sizeof(newdata);
 	l->datacount++;
 
 	return 1;
 }
 
-const void *hm_skiplist_get(const hm_skiplist_t *l, const char *key){
+const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key){
 	if (key == NULL)
 		return NULL;
 
@@ -175,10 +176,10 @@ int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
 		}
 	}
 
-	l->datasize -= hm_listdata_sizeof(node->data);
+	l->datasize -= hm_pair_sizeof(node->data);
 	l->datacount--;
 
-	hm_listdata_free(node->data);
+	hm_pair_free(node->data);
 	free(node);
 
 	return 1;
@@ -237,7 +238,7 @@ int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
 		fseeko(F, 0, SEEK_END);
 		const uint64_t abspos = ftello(F);
 
-		hm_listdata_fwrite(node->data, F);
+		hm_pair_fwrite(node->data, F);
 
 		// write pos
 		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
@@ -284,7 +285,7 @@ static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, con
 		node = prev ? prev : l->heads[height - 1];
 
 		while(node){
-			cmp = strcmp(hm_listdata_getkey(node->data), key);
+			cmp = strcmp(hm_pair_getkey(node->data), key);
 
 			if (cmp >= 0)
 				break;
@@ -360,7 +361,7 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 	unsigned char i = 0;
 	const hm_skiplist_node_t *node;
 	for(node = l->heads[lane]; node; node = node->next[lane]){
-		hm_listdata_printf(node->data);
+		hm_pair_printf(node->data);
 
 		if (i > 16)
 			break;

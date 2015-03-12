@@ -5,9 +5,8 @@
 #include <string.h>	// strcmp
 #include <sys/mman.h>	// mmap
 
-
 #include "hm_list_defs.h"
-
+#include "hm_pair.h"
 
 inline static const void *_hm_file_lineget(const char *mem, const char *key, uint64_t *ppos);
 
@@ -76,7 +75,7 @@ static const void *_hm_file_locate_bsearch(const char *mem, const char *key, uin
 
 		//printf("| %lu %lu %lu | %lu | %lx | %s\n", start, mid, end, ptr, ptr, hm_pair_getkey(pair));
 
-		const int cmp = strcmp(hm_listdata_getkey(pair), key);
+		const int cmp = strcmp(hm_pair_getkey(pair), key);
 
 		if (cmp == 0){
 			if (ppos)

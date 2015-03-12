@@ -1,7 +1,7 @@
 #ifndef _HM_SKIPLIST_H
 #define _HM_SKIPLIST_H
 
-#include "hm_list_defs.h"
+#include "hm_pair.h"
 
 #include <stdio.h>	// FILE
 
@@ -26,7 +26,7 @@ void hm_skiplist_removeall(hm_skiplist_t *l);
 
 int hm_skiplist_put(hm_skiplist_t *l, void *data);
 
-const void *hm_skiplist_get(const hm_skiplist_t *l, const char *key);
+const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key);
 
 int hm_skiplist_remove(hm_skiplist_t *l, const char *key);
 
