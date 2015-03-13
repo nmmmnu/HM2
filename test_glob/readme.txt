@@ -4,9 +4,9 @@ Link list, Vector and Skip list will generate correct file.
 
 mkdir test_glob/data.bin
 
-./test_hm_fwrite_sl test_glob/data.001.txt test_glob/data.bin/bin.001
-./test_hm_fwrite_sl test_glob/data.002.txt test_glob/data.bin/bin.002
-./test_hm_fwrite_sl test_glob/data.003.txt test_glob/data.bin/bin.003
+./test_hm_fwrite test_glob/data.001.txt test_glob/data.bin/bin.001
+./test_hm_fwrite test_glob/data.002.txt test_glob/data.bin/bin.002
+./test_hm_fwrite test_glob/data.003.txt test_glob/data.bin/bin.003
 
 Then you can do:
 

@@ -1,39 +1,10 @@
-#include "hm_skiplist.h"
+#include "hm_skiplist_internal.h"
+
 #include "hm_list_defs.h"
 
-#include <stdlib.h>
+#include <stdlib.h>	// NULL
 #include <string.h>	// strcmp
 
-#define MAX_HEIGHT 64
-#define DEF_HEIGHT 32
-
-
-typedef struct _hm_skiplist_t{
-	size_t			datasize;	// system dependent
-	size_t			datacount;	// system dependent
-
-	hm_skiplist_height_t	height;		// 1
-
-	void			**heads;	// system dependent, dynamic, at least 1
-	void			**loc;		// system dependent, dynamic, at least 1
-} hm_skiplist_t;
-
-
-typedef struct _hm_skiplist_node_t{
-	hm_pair_t		*data;		// system dependent
-	hm_skiplist_height_t	height;		// 1
-	void			*next[];	// system dependent, dynamic, at least 1
-}hm_skiplist_node_t;
-
-
-static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l);
-static unsigned char _hm_skiplist_height(const hm_skiplist_t *l);
-static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation);
-
-static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane);
-static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
-
-inline static void hm_error(const char *err, const char *file, unsigned int line);
 
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_height_t height){
 	if (height == 0 || height > MAX_HEIGHT)
@@ -287,7 +258,7 @@ static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l){
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation){
 	// it is extremly dangerous to have key == NULL here.
 	if (key == NULL){
-		hm_error("FATAL ERROR", __FILE__, __LINE__);
+		_hm_error("FATAL ERROR", __FILE__, __LINE__);
 	}
 
 	// smart over-optimizations, such skip NULL lanes or
@@ -388,7 +359,3 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 	}
 }
 
-inline static void hm_error(const char *err, const char *file, unsigned int line){
-	fprintf(stderr, "%s: key is NULL on %s:%u\n", err, file, line);
-	exit(100);
-}

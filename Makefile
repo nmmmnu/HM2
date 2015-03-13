@@ -29,12 +29,11 @@ test_hm.o:			test_hm.c	hm_pair.h hm_list_defs.h	hm_skiplist.h	hm_list.h
 	$(CC) test_hm.c
 
 
-test_hm_file_sl:		test_hm_file.o	hm_pair.o hm_list_defs.o	hm_skiplist.o
-	$(LINK) test_hm_file_sl	test_hm_file.o	hm_pair.o hm_list_defs.o	hm_skiplist.o				$(LIBS)
+test_hm_file:			test_hm_file.o	hm_pair.o hm_list_defs.o	hm_skiplist.o
+	$(LINK) test_hm_file	test_hm_file.o	hm_pair.o hm_list_defs.o	hm_skiplist.o				$(LIBS)
 
-test_hm_file_sl.o:		test_hm_file.c		hm_pair.h hm_list_defs.h	hm_skiplist.h	hm_list.h
+test_hm_file.o:			test_hm_file.c	hm_pair.h hm_list_defs.h	hm_skiplist.h	hm_list.h
 	$(CC) test_hm_file.c	-D USE_SKIPLIST
-	mv test_hm_file.o test_hm_file_sl.o
 
 
 test_hm_fwrite:			test_hm_fwrite.o	hm_pair.o hm_list_defs.o	hm_skiplist.o hm_file.o
@@ -69,7 +68,7 @@ hm_pair.o: hm_pair.c hm_pair.h
 hm_list_defs.o: hm_list_defs.c hm_list_defs.h hm_pair.h
 	$(CC) hm_list_defs.c
 
-hm_skiplist.o: hm_skiplist.c hm_skiplist.h hm_list_defs.h
+hm_skiplist.o: hm_skiplist.c hm_skiplist.h hm_skiplist_internal.h hm_pair.h hm_list_defs.h
 	$(CC) hm_skiplist.c
 
 hm_file.o: hm_file.c hm_file.h hm_pair.h hm_list_defs.h
