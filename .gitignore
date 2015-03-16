@@ -3,8 +3,8 @@
 _ot/
 
 test_hm
-test_hm_file
-test_hm_fwrite
+test_hm_memtable
+test_hm_disktable
 
 test_hm_dir
 test_hm_glob

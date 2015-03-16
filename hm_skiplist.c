@@ -1,19 +1,15 @@
 #include "hm_skiplist_internal.h"
 
-#include "hm_list_defs.h"
+#include "hm_memtable.h"
 
 #include <stdlib.h>	// NULL
 #include <string.h>	// strcmp
 
 
-hm_skiplist_t *hm_skiplist_create(hm_skiplist_height_t height){
+hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height){
 	if (height == 0 || height > MAX_HEIGHT)
 		height = DEF_HEIGHT;
 
-	hm_skiplist_t *l = malloc(sizeof(hm_skiplist_t));
-
-	if (l == NULL)
-		return NULL;
 
 	l->height = height;
 
@@ -27,12 +23,24 @@ hm_skiplist_t *hm_skiplist_create(hm_skiplist_height_t height){
 	return _hm_skiplist_clear(l);
 }
 
+hm_skiplist_t *hm_skiplist_createa(hm_skiplist_height_t height){
+	hm_skiplist_t *l = malloc(sizeof(hm_skiplist_t));
+
+	if (l == NULL)
+		return NULL;
+
+	if (hm_skiplist_create(l, height))
+		return l;
+
+	free(l);
+
+	return NULL;
+}
+
 void hm_skiplist_destroy(hm_skiplist_t *l){
 	hm_skiplist_removeall(l);
 
 	free(l->heads);
-
-	free(l);
 }
 
 void hm_skiplist_removeall(hm_skiplist_t *l){
@@ -189,57 +197,28 @@ size_t hm_skiplist_count(const hm_skiplist_t *l){
 
 void hm_skiplist_printf_lanes(const hm_skiplist_t *l){
 	hm_skiplist_height_t i;
-	for(i = l->height; i > 0; --i){
+	for(i = l->height; i >= 0; --i){
 		printf("Lane # %5u :\n", i - 1);
 		_hm_skiplist_printf_lane(l, i - 1);
 	}
 }
 
-int hm_skiplist_printf(const hm_skiplist_t *l, int more){
-	if (more)
-		_hm_skiplist_printf_more(l);
+const hm_pair_t *hm_skiplist_it_first(const hm_skiplist_t *l, const void **it){
+	const hm_skiplist_node_t *node = l->heads[0];
+	*it = node;
 
-	_hm_skiplist_printf_lane(l, 0);
-
-	return 0;
+	return node ? node->data : NULL;
 }
 
-int hm_skiplist_fwrite(const hm_skiplist_t *l, FILE *F){
-	uint64_t be;
+const hm_pair_t *hm_skiplist_it_next(const hm_skiplist_t *l,  const void **it){
+	if (*it == NULL)
+		return NULL;
 
-	const uint64_t start = ftello(F);
+	const hm_skiplist_node_t *node = *it;
+	node = node->next[0];
+	*it = node;
 
-	// write table header (currently size only)
-	hm_fileformat_t header;
-	header.size = htobe64( (uint64_t) l->datacount );
-	fwrite(& header, sizeof(header), 1, F);
-
-	const uint64_t table_start = ftello(F);
-
-	// write junk zero table.
-	// this is made in order to expand the file size.
-	_hm_file_fwrite_junk(F, l->datacount);
-
-	size_t i = 0;
-	const hm_skiplist_node_t *node;
-	for(node = l->heads[0]; node; node = node->next[0]){
-		// write item
-		fseeko(F, 0, SEEK_END);
-		const uint64_t abspos = ftello(F);
-
-		hm_pair_fwrite(node->data, F);
-
-		// write pos
-		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(abspos - start);
-		fwrite(& be, sizeof(uint64_t), 1, F);
-
-		++i;
-	}
-
-	// file written (hopefully)
-
-	return 0;
+	return node ? node->data : NULL;
 }
 
 // ===============================================================
@@ -313,39 +292,6 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l){
 
 // ===============================================================
 
-static void _hm_print_heads(const hm_skiplist_t *l){
-	hm_skiplist_height_t i;
-	for(i = l->height; i > 0; --i)
-		printf("\t\t%3u : %12p : %12p\n", i - 1, l->heads[i - 1], l->loc[i - 1]);
-}
-
-static void _hm_skiplist_printf_more(const hm_skiplist_t *l){
-	printf("%s @ %p {\n", "hm_skiplist_t", l);
-
-	printf("\theads{\n");
-	_hm_print_heads(l);
-	printf("\t}\n");
-
-	printf("\t%-10s : %zu\n", "datasize", hm_skiplist_sizeof(l) );
-
-	const hm_skiplist_node_t *node;
-	for(node = l->heads[0]; node; node = node->next[0]){
-		printf("\t%s @ %p {\n", "hm_skiplist_node_t", node);
-
-		printf("\t\tnext {\n");
-		hm_skiplist_height_t i;
-		for(i = 0; i < node->height; ++i)
-			printf("\t\t\t[%3u] : %p\n", i, node->next[i]);
-		printf("\t\t}\n");
-
-		printf("\t\t%-10s : %u\n", "height",	node->height);
-		printf("\t\t%-10s : %p\n", "data",	node->data);
-		printf("\t}\n");
-	}
-
-	printf("}\n");
-}
-
 static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane){
 	unsigned char i = 0;
 	const hm_skiplist_node_t *node;
@@ -359,3 +305,48 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 	}
 }
 
+// ===============================================================
+
+hm_memtable_t *hm_memtable_createa(){
+	return hm_skiplist_createa(0);
+}
+
+hm_memtable_t *hm_memtable_create(hm_memtable_t *a){
+	return hm_skiplist_create(a, 0);
+}
+
+void hm_memtable_destroy(hm_memtable_t *a){
+	hm_skiplist_destroy(a);
+}
+
+void hm_memtable_removeall(hm_memtable_t *a){
+	hm_skiplist_removeall(a);
+}
+
+int hm_memtable_put(hm_memtable_t *a, hm_pair_t *pair){
+	return hm_skiplist_put(a, pair);
+}
+
+const hm_pair_t *hm_memtable_get(const hm_memtable_t *a, const char *key){
+	return hm_skiplist_get(a, key);
+}
+
+int hm_memtable_remove(hm_memtable_t *a, const char *key){
+	return hm_skiplist_remove(a, key);
+}
+
+size_t hm_memtable_count(const hm_memtable_t *a){
+	return hm_skiplist_count(a);
+}
+
+size_t hm_memtable_sizeof(const hm_memtable_t *a){
+	return hm_skiplist_sizeof(a);
+}
+
+const hm_pair_t *hm_memtable_it_first(const hm_memtable_t *a, const void **it){
+	return hm_skiplist_it_first(a, it);
+}
+
+const hm_pair_t *hm_memtable_it_next(const hm_memtable_t *a,  const void **it){
+	return hm_skiplist_it_next(a, it);
+}

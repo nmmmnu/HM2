@@ -1,10 +1,12 @@
-#include "hm_dir.h"
+#include "hm_dir_internal.h"
 #include "hm_glob.h"
+
+#include "hm_disktable_internal.h"
+
 
 #include <stdio.h>	// FILE, printf
 #include <string.h>	// strdup
 
-#define _hm_file_get(a, b) hm_file_lineget(a, b)
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	dir->path = path;
@@ -30,7 +32,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 
 	// dir->count is at least 1
 
-	dir->files = malloc(dir->count * sizeof(hm_file_t));
+	dir->files = malloc(dir->count * sizeof(hm_disktable_t));
 	if (dir->files == NULL)
 		return NULL;
 
@@ -38,7 +40,7 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	for(i = 0; i < dir->count; ++i){
 		const char *filename = files[i];
 		// open the file
-		hm_file_t *file = hm_file_open( & dir->files[i], filename);
+		hm_disktable_t *file = hm_disktable_open( & dir->files[i], filename);
 
 		if (file == NULL){
 			// this is really problematic...
@@ -66,12 +68,26 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	return dir;
 }
 
+hm_dir_t *hm_dir_opena(const char *path){
+	hm_dir_t *dir = malloc(sizeof(hm_dir_t));
+
+	if (dir == NULL)
+		return NULL;
+
+	if (hm_dir_open(dir, path))
+		return dir;
+
+	free(dir);
+
+	return NULL;
+}
+
 void hm_dir_close(hm_dir_t *dir){
 	size_t i;
 	for(i = 0; i < dir->count; ++i){
-		hm_file_t *file = & dir->files[i];
+		hm_disktable_t *file = & dir->files[i];
 
-		hm_file_close(file);
+		hm_disktable_close(file);
 
 		// cast because file->filename is declared const
 		free( (void *) file->filename );
@@ -94,9 +110,9 @@ hm_dir_t *hm_dir_reopen(hm_dir_t *dir){
 const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	size_t i;
 	for(i = dir->count; i > 0; --i){
-		hm_file_t *file = & dir->files[i - 1];
+		hm_disktable_t *file = & dir->files[i - 1];
 
-		const void *data = _hm_file_get(file, key);
+		const void *data = hm_disktable_get(file, key);
 
 		if (data)
 			return data;
@@ -110,7 +126,7 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 void hm_dir_printf(const hm_dir_t *dir){
 	size_t i;
 	for(i = 0; i < dir->count; ++i){
-		hm_file_t *file = & dir->files[i];
+		hm_disktable_t *file = & dir->files[i];
 
 		printf("%5zu : %s\n", i, file->filename);
 	}

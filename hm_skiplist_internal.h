@@ -33,7 +33,6 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l);
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation);
 
 static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane);
-static void _hm_skiplist_printf_more(const hm_skiplist_t *l);
 
 inline static void _hm_error(const char *err, const char *file, unsigned int line){
 	fprintf(stderr, "%s: key is NULL on %s:%u\n", err, file, line);

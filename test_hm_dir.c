@@ -39,9 +39,7 @@ int main(int argc, char **argv){
 	const char *path      = argv[1];
 	const char *keytofind = argv[2];
 
-	hm_dir_t dir_real;
-
-	hm_dir_t *dir = hm_dir_open(& dir_real, path);
+	hm_dir_t *dir = hm_dir_opena(path);
 	dir_open_test(dir, keytofind);
 
 	if (argc > 3){

@@ -1,4 +1,4 @@
-#include "hm_list.h"
+#include "hm_memtable.h"
 #include "hm_pair.h"
 
 
@@ -57,80 +57,84 @@ void hm_pair_test(const int delay){
 
 
 
-static size_t _hm_list_populate(hm_list_t *v){
-	hm_list_removeall(v);
+static size_t _hm_memtable_populate(hm_memtable_t *v){
+	hm_memtable_removeall(v);
 
-	void *p;
+	hm_pair_t *p;
 	size_t size = 0;
 
 	// go to empty list
-	p = hm_pair_create("3 city", "Sofia");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	p = hm_pair_create("3 city", "Sofia");	size += hm_pair_sizeof(p);	hm_memtable_put(v, p);
 	// go first
-	p = hm_pair_create("1 name", "Niki");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	p = hm_pair_create("1 name", "Niki");	size += hm_pair_sizeof(p);	hm_memtable_put(v, p);
 	// go middle
-	p = hm_pair_create("2 age", "22");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	p = hm_pair_create("2 age", "22");	size += hm_pair_sizeof(p);	hm_memtable_put(v, p);
 	// go last
-	p = hm_pair_create("4 os", "Linux");	size += hm_pair_sizeof(p);	hm_list_put(v, p);
+	p = hm_pair_create("4 os", "Linux");	size += hm_pair_sizeof(p);	hm_memtable_put(v, p);
 
 	return size;
 }
 
-static void _hm_list_test_overwrite(hm_list_t *v){
-	_hm_list_populate(v);
+static void _hm_memtable_test_overwrite(hm_memtable_t *v){
+	_hm_memtable_populate(v);
 
 	const char *overwr = "overwritten";
 
-	hm_list_put(v, hm_pair_create("2 val", "original")	);
-	hm_list_put(v, hm_pair_create("2 val", overwr)	);
+	hm_memtable_put(v, hm_pair_create("2 val", "original")	);
+	hm_memtable_put(v, hm_pair_create("2 val", overwr)	);
 
-	const hm_pair_t *p = hm_list_get(v,"2 val");
-	PRINTF_TEST("hm_list_t", "overwrite",	! strcmp(hm_pair_getval(p), overwr)	);
+	const hm_pair_t *p = hm_memtable_get(v,"2 val");
+	PRINTF_TEST("hm_memtable_t", "overwrite",	! strcmp(hm_pair_getval(p), overwr)	);
 }
 
-static void _hm_list_test_remove(hm_list_t *v){
-	_hm_list_populate(v);
+static void _hm_memtable_test_remove(hm_memtable_t *v){
+	_hm_memtable_populate(v);
 
 	// remove middle
-	hm_list_remove(v, "2 age");
+	hm_memtable_remove(v, "2 age");
 	// remove first
-	hm_list_remove(v, "1 name");
+	hm_memtable_remove(v, "1 name");
 	// remove middle
-	hm_list_remove(v, "4 os");
+	hm_memtable_remove(v, "4 os");
 
-	const hm_pair_t *p = hm_list_get(v,"3 city");
-	PRINTF_TEST("hm_list_t", "remove",	! strcmp(hm_pair_getval(p), "Sofia")	);
-	PRINTF_TEST("hm_list_t", "remove",	hm_list_count(v) == 1			);
+	const hm_pair_t *p = hm_memtable_get(v,"3 city");
+	PRINTF_TEST("hm_memtable_t", "remove",	! strcmp(hm_pair_getval(p), "Sofia")	);
+	PRINTF_TEST("hm_memtable_t", "remove",	hm_memtable_count(v) == 1			);
 
 	// remove last
-	hm_list_remove(v, "3 city");
+	hm_memtable_remove(v, "3 city");
 
-	PRINTF_TEST("hm_list_t", "remove",	hm_list_count(v) == 0			);
+	PRINTF_TEST("hm_memtable_t", "remove",	hm_memtable_count(v) == 0			);
 }
 
-static void _hm_list_test_dump(hm_list_t *v){
-	size_t size = _hm_list_populate(v);
+static void _hm_memtable_test_dump(hm_memtable_t *v){
+	size_t size = _hm_memtable_populate(v);
 
-	hm_list_printf(v, 0);
+	const void *it;
+	const hm_pair_t *pair;
+	for(pair = hm_memtable_it_first(v, &it); pair; pair = hm_memtable_it_next(v, &it))
+		hm_pair_printf(pair);
 
-	PRINTF_TEST("hm_list_t", "sizeof",	hm_list_sizeof(v) == size		);
-	PRINTF_TEST("hm_list_t", "put",		1					);
-	PRINTF_TEST("hm_list_t", "free",	1					);
+	PRINTF_TEST("hm_memtable_t", "sizeof",	hm_memtable_sizeof(v) == size		);
+	PRINTF_TEST("hm_memtable_t", "put",		1					);
+	PRINTF_TEST("hm_memtable_t", "free",	1					);
 }
 
-void hm_list_test(){
-	hm_list_t *v = hm_list_create();
+void hm_memtable_test(){
+	hm_memtable_t *v = hm_memtable_createa();
 
-	_hm_list_test_dump(v);
-	_hm_list_test_overwrite(v);
-	_hm_list_test_remove(v);
+	_hm_memtable_test_dump(v);
+	_hm_memtable_test_overwrite(v);
+	_hm_memtable_test_remove(v);
 
-	hm_list_destroy(v);
+	hm_memtable_destroy(v);
+	free(v);
 }
 
 int main(int argc, char **argv){
 	hm_pair_test(argc > 1);
 
-	hm_list_test();
+	hm_memtable_test();
 
 	return 0;
 }
