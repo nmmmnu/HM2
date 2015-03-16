@@ -58,7 +58,7 @@ void hm_disktable_close(hm_disktable_t *mmf){
 	fclose(mmf->F);
 }
 
-off_t hm_disktable_getsize(const hm_disktable_t *mmf){
+off_t hm_disktable_count(const hm_disktable_t *mmf){
 	return mmf->size;
 }
 
