@@ -4,8 +4,12 @@
 #include "hm_pair.h"
 
 
-#define hm_memtable_t void
+typedef void    hm_memtable_t;
 
+// duplication, but remove dependency.
+typedef struct _hm_memtable_it_t{
+	const void	*p;
+} hm_memtable_it_t;
 
 hm_memtable_t *hm_memtable_createa();
 hm_memtable_t *hm_memtable_create(hm_memtable_t *a);
@@ -20,7 +24,7 @@ int hm_memtable_remove(hm_memtable_t *a, const char *key);
 size_t hm_memtable_count(const hm_memtable_t *a);
 size_t hm_memtable_sizeof(const hm_memtable_t *a);
 
-const hm_pair_t *hm_memtable_it_first(const hm_memtable_t *l, const void **it);
-const hm_pair_t *hm_memtable_it_next(const hm_memtable_t *l,  const void **it);
+const hm_pair_t *hm_memtable_it_first(const hm_memtable_t *l, hm_memtable_it_t *it);
+const hm_pair_t *hm_memtable_it_next(const hm_memtable_t *l,  hm_memtable_it_t *it);
 
 #endif

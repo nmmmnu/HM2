@@ -66,9 +66,10 @@ static int dump_file(const char *filename, const char *keytofind){
 		exit(1);
 	}
 
+	const hm_pair_t *pair;
 	uint64_t i;
 	for(i = 0; i < 10; ++i){
-		const hm_pair_t *pair = hm_disktable_getat(mmf, i);
+		pair = hm_disktable_getat(mmf, i);
 		_print_pair(pair);
 	}
 

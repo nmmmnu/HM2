@@ -110,7 +110,7 @@ static void _hm_memtable_test_remove(hm_memtable_t *v){
 static void _hm_memtable_test_dump(hm_memtable_t *v){
 	size_t size = _hm_memtable_populate(v);
 
-	const void *it;
+	hm_memtable_it_t it;
 	const hm_pair_t *pair;
 	for(pair = hm_memtable_it_first(v, &it); pair; pair = hm_memtable_it_next(v, &it))
 		hm_pair_printf(pair);

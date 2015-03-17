@@ -66,10 +66,6 @@ const void *hm_disktable_get(const hm_disktable_t *mmf, const char *key){
 	return _hm_disktable_get(mmf->mem, key, NULL);
 }
 
-const void *hm_disktable_getp(const hm_disktable_t *mmf, const char *key, uint64_t *ppos){
-	return _hm_disktable_get(mmf->mem, key, ppos);
-}
-
 const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos){
 	const char *mem = mmf->mem;
 
@@ -83,6 +79,15 @@ const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos){
 	const void *pair = & mem[ptr];
 
 	return pair;
+}
+
+const hm_pair_t *hm_disktable_it_first(const hm_disktable_t *mmf, hm_disktable_it_t *it){
+	it->p = 0;
+	return hm_disktable_it_next(mmf, it);
+}
+
+const hm_pair_t *hm_disktable_it_next(const hm_disktable_t *mmf, hm_disktable_it_t *it){
+	return hm_disktable_getat(mmf, it->p++);
 }
 
 int hm_disktable_createfrommemtable(const hm_memtable_t *memtable, const char *filename_to_write){
@@ -117,7 +122,7 @@ int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
 	_hm_disktable_fwrite_junk(F, datacount);
 
 	size_t i = 0;
-	const void *it;
+	hm_memtable_it_t it;
 	const hm_pair_t *pair;
 	for(pair = hm_memtable_it_first(memtable, &it); pair; pair = hm_memtable_it_next(memtable, &it)){
 		// write item

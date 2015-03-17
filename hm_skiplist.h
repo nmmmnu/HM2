@@ -6,6 +6,9 @@
 typedef unsigned char hm_skiplist_height_t;
 typedef struct _hm_skiplist_t hm_skiplist_t;
 
+typedef struct _hm_skiplist_it_t{
+	const void	*p;
+} hm_skiplist_it_t;
 
 hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height);
 hm_skiplist_t *hm_skiplist_createa(hm_skiplist_height_t height);
@@ -22,8 +25,8 @@ size_t hm_skiplist_sizeof(const hm_skiplist_t *l);
 
 void hm_skiplist_printf_lanes(const hm_skiplist_t *l);
 
-const hm_pair_t *hm_skiplist_it_first(const hm_skiplist_t *l, const void **it);
-const hm_pair_t *hm_skiplist_it_next(const hm_skiplist_t *l,  const void **it);
+const hm_pair_t *hm_skiplist_it_first(const hm_skiplist_t *l, hm_skiplist_it_t *it);
+const hm_pair_t *hm_skiplist_it_next(const hm_skiplist_t *l,  hm_skiplist_it_t *it);
 
 #endif
 
