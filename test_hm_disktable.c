@@ -106,7 +106,7 @@ int main(int argc, char **argv){
 
 static char *trim(char *s){
 	char *end = s + strlen(s) - 1;
-	while(end > s && isspace(*end))
+	while(end > s && isspace((unsigned char) *end))
 		--end;
 
 	*(end + 1) = 0;

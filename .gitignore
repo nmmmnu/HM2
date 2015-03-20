@@ -9,6 +9,8 @@ test_hm_disktable
 test_hm_dir
 test_hm_glob
 
+*.exe
+
 data*.bin
 
 data
