@@ -7,6 +7,7 @@ typedef struct _hm_disktable_t{
 	const char *filename;	// system depended
 	off_t size;		// system depended, 8
 	FILE *F;		// system depended
+	uint64_t count;		// 8
 	char *mem;		// system depended
 } hm_disktable_t;
 

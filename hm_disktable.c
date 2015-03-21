@@ -8,8 +8,8 @@
 #include "hm_pair.h"
 
 
-inline static const void *_hm_disktable_get(const char *mem, const char *key, uint64_t *ppos);
-
+inline static const void *_hm_disktable_get(const hm_disktable_t *mmf, const char *key, uint64_t *ppos);
+inline static uint64_t _hm_disktable_getcount(const char *mem);
 
 hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename){
 	FILE *F = fopen(filename, "r");
@@ -34,6 +34,9 @@ hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename){
 	mmf->filename = filename;
 	mmf->size = size;
 	mmf->mem = mem;
+
+	// memoize count instead to read it from the disk each time
+	mmf->count = _hm_disktable_getcount(mem);
 
 	return mmf;
 }
@@ -62,17 +65,16 @@ off_t hm_disktable_count(const hm_disktable_t *mmf){
 }
 
 const void *hm_disktable_get(const hm_disktable_t *mmf, const char *key){
-	return _hm_disktable_get(mmf->mem, key, NULL);
+	return _hm_disktable_get(mmf, key, NULL);
 }
 
 const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos){
+	if (pos >= mmf->count)
+		return NULL;
+
 	const char *mem = mmf->mem;
 
 	const hm_disktable_fileformat_t *head = (hm_disktable_fileformat_t *) mem;
-	uint64_t end = be64toh(head->size);
-
-	if (pos >= end)
-		return NULL;
 
 	const uint64_t ptr = be64toh( head->data[pos] );
 	const void *pair = & mem[ptr];
@@ -145,20 +147,21 @@ int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
 
 // =============================================
 
-static const void *_hm_disktable_locate_bsearch(const char *mem, const char *key, uint64_t *ppos){
+static const void *_hm_disktable_locate_bsearch(const hm_disktable_t *mmf, const char *key, uint64_t *ppos){
 	if (key == NULL)
 		return NULL;
 
-	const hm_disktable_fileformat_t *head = (hm_disktable_fileformat_t *) mem;
-
 	uint64_t start = 0;
-	uint64_t end = be64toh(head->size);
+	uint64_t end = mmf->count;
 
 	while (start < end){
 		uint64_t mid = start + ((end - start) >> 1);
 
-		const uint64_t ptr = be64toh( head->data[mid] );
-		const void *pair = & mem[ptr];
+		const void *pair = hm_disktable_getat(mmf, mid);
+
+		// This is highly unlikely, but better check it.
+		if (pair == NULL)
+			return NULL;
 
 		//printf("| %lu %lu %lu | %lu | %lx | %s\n", start, mid, end, ptr, ptr, hm_pair_getkey(pair));
 
@@ -183,7 +186,12 @@ static const void *_hm_disktable_locate_bsearch(const char *mem, const char *key
 	return NULL;
 }
 
-inline static const void *_hm_disktable_get(const char *mem, const char *key, uint64_t *ppos){
-	return _hm_disktable_locate_bsearch(mem, key, ppos);
+inline static const void *_hm_disktable_get(const hm_disktable_t *mmf, const char *key, uint64_t *ppos){
+	return _hm_disktable_locate_bsearch(mmf, key, ppos);
+}
+
+inline static uint64_t _hm_disktable_getcount(const char *mem){
+	const hm_disktable_fileformat_t *head = (hm_disktable_fileformat_t *) mem;
+	return be64toh(head->size);
 }
 
