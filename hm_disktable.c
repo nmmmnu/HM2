@@ -9,7 +9,6 @@
 
 
 inline static const void *_hm_disktable_get(const char *mem, const char *key, uint64_t *ppos);
-static int _hm_disktable_fwrite_junk(FILE *F, size_t count);
 
 
 hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename){
@@ -107,36 +106,38 @@ int hm_disktable_createfrommemtable(const hm_memtable_t *memtable, const char *f
 int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
 	uint64_t be;
 
-	const uint64_t start = ftello(F);
 	const uint64_t datacount = hm_memtable_count(memtable);
+	const size_t header_size = sizeof(hm_disktable_fileformat_t);
+	const size_t table_size  = sizeof(uint64_t) * datacount;
+
+	/* preallocating the file do not really speed up the fwrite process.
+
+	const size_t total_size  = header_size + table_size + hm_memtable_sizeof(memtable);
+	posix_fallocate(fileno(F), 0, total_size);
+	*/
+
+	size_t current_place = header_size + table_size;
+
 
 	// write table header (currently size only)
 	hm_disktable_fileformat_t header;
 	header.size = htobe64(datacount);
 	fwrite(& header, sizeof(header), 1, F);
 
-	const uint64_t table_start = ftello(F);
-
-	// write junk zero table.
-	// this is made in order to expand the file size.
-	_hm_disktable_fwrite_junk(F, datacount);
-
-	size_t i = 0;
 	hm_memtable_it_t it;
 	const hm_pair_t *pair;
+
+	// traverse and write the table.
 	for(pair = hm_memtable_it_first(memtable, &it); pair; pair = hm_memtable_it_next(memtable, &it)){
-		// write item
-		fseeko(F, 0, SEEK_END);
-		const uint64_t abspos = ftello(F);
-
-		hm_pair_fwrite(pair, F);
-
-		// write pos
-		fseeko(F, table_start + sizeof(uint64_t) * i, SEEK_SET);
-		be = htobe64(abspos - start);
+		be = htobe64(current_place);
 		fwrite(& be, sizeof(uint64_t), 1, F);
 
-		++i;
+		current_place += hm_pair_sizeof(pair);
+	}
+
+	// traverse and write the data.
+	for(pair = hm_memtable_it_first(memtable, &it); pair; pair = hm_memtable_it_next(memtable, &it)){
+		hm_pair_fwrite(pair, F);
 	}
 
 	return 0;
@@ -184,15 +185,5 @@ static const void *_hm_disktable_locate_bsearch(const char *mem, const char *key
 
 inline static const void *_hm_disktable_get(const char *mem, const char *key, uint64_t *ppos){
 	return _hm_disktable_locate_bsearch(mem, key, ppos);
-}
-
-static int _hm_disktable_fwrite_junk(FILE *F, size_t count){
-	uint64_t be = 0xdeedbeef;
-
-	size_t i;
-	for(i = 0; i < count; i++)
-		fwrite(& be, sizeof(uint64_t), 1, F);
-
-	return 0;
 }
 
