@@ -66,11 +66,21 @@ static int dump_file(const char *filename, const char *keytofind){
 		exit(1);
 	}
 
+	hm_disktable_it_t *it = hm_disktable_it_open(mmf);
+	if (it == NULL){
+		printf("No memory\n");
+		exit(1);
+	}
+
 	const hm_pair_t *pair;
-	uint64_t i;
-	for(i = 0; i < 10; ++i){
-		pair = hm_disktable_getat(mmf, i);
+	uint64_t i = 0;
+	for(pair = hm_disktable_it_first(it); pair; pair = hm_disktable_it_next(it)){
 		_print_pair(pair);
+
+		++i;
+
+		if (i >= 10)
+			break;
 	}
 
 	hm_disktable_close(mmf);

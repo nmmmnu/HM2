@@ -28,6 +28,11 @@ typedef struct _hm_skiplist_node_t{
 } hm_skiplist_node_t;
 
 
+typedef struct _hm_skiplist_it_t{
+	const hm_skiplist_t		*l;	// system dependent
+	const hm_skiplist_node_t	*node;	// system dependent
+} hm_skiplist_it_t;
+
 static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l);
 static unsigned char _hm_skiplist_height(const hm_skiplist_t *l);
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation);

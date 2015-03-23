@@ -11,7 +11,9 @@
 inline static const void *_hm_disktable_get(const hm_disktable_t *mmf, const char *key, uint64_t *ppos);
 inline static uint64_t _hm_disktable_getcount(const char *mem);
 
-hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename){
+
+hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename)
+{
 	FILE *F = fopen(filename, "r");
 
 	if (F == NULL)
@@ -41,7 +43,8 @@ hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename){
 	return mmf;
 }
 
-hm_disktable_t *hm_disktable_opena(const char *filename){
+hm_disktable_t *hm_disktable_opena(const char *filename)
+{
 	hm_disktable_t *mmf = malloc(sizeof(hm_disktable_t));
 
 	if (mmf == NULL)
@@ -55,20 +58,24 @@ hm_disktable_t *hm_disktable_opena(const char *filename){
 	return NULL;
 }
 
-void hm_disktable_close(hm_disktable_t *mmf){
+void hm_disktable_close(hm_disktable_t *mmf)
+{
 	munmap(mmf->mem, mmf->size);
 	fclose(mmf->F);
 }
 
-off_t hm_disktable_count(const hm_disktable_t *mmf){
+off_t hm_disktable_count(const hm_disktable_t *mmf)
+{
 	return mmf->size;
 }
 
-const void *hm_disktable_get(const hm_disktable_t *mmf, const char *key){
+const void *hm_disktable_get(const hm_disktable_t *mmf, const char *key)
+{
 	return _hm_disktable_get(mmf, key, NULL);
 }
 
-const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos){
+const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos)
+{
 	if (pos >= mmf->count)
 		return NULL;
 
@@ -82,16 +89,37 @@ const void *hm_disktable_getat(const hm_disktable_t *mmf, uint64_t pos){
 	return pair;
 }
 
-const hm_pair_t *hm_disktable_it_first(const hm_disktable_t *mmf, hm_disktable_it_t *it){
-	it->p = 0;
-	return hm_disktable_it_next(mmf, it);
+hm_disktable_it_t *hm_disktable_it_open(const hm_disktable_t *mmf)
+{
+	hm_disktable_it_t *it = malloc(sizeof(hm_disktable_it_t));
+
+	if (it == NULL)
+		return NULL;
+
+	it->mmf = mmf;
+	it->pos = 0;
+
+	return it;
 }
 
-const hm_pair_t *hm_disktable_it_next(const hm_disktable_t *mmf, hm_disktable_it_t *it){
-	return hm_disktable_getat(mmf, it->p++);
+void hm_disktable_it_close(hm_disktable_it_t *it)
+{
+	free(it);
 }
 
-int hm_disktable_createfrommemtable(const hm_memtable_t *memtable, const char *filename_to_write){
+const hm_pair_t *hm_disktable_it_first(hm_disktable_it_t *it)
+{
+	it->pos = 0;
+	return hm_disktable_it_next(it);
+}
+
+const hm_pair_t *hm_disktable_it_next(hm_disktable_it_t *it)
+{
+	return hm_disktable_getat(it->mmf, it->pos++);
+}
+
+int hm_disktable_createfrommemtable(const hm_memtable_t *memtable, const char *filename_to_write)
+{
 	FILE *F = fopen(filename_to_write, "w");
 	if (F == NULL){
 		printf("Can not create a file %s...\n", filename_to_write);
@@ -105,7 +133,8 @@ int hm_disktable_createfrommemtable(const hm_memtable_t *memtable, const char *f
 	return result;
 }
 
-int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
+int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F)
+{
 	uint64_t be;
 
 	const uint64_t datacount = hm_memtable_count(memtable);
@@ -126,11 +155,15 @@ int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
 	header.size = htobe64(datacount);
 	fwrite(& header, sizeof(header), 1, F);
 
-	hm_memtable_it_t it;
+	hm_memtable_it_t *it = hm_memtable_it_open(memtable);
+
+	if (it == NULL)
+		return 1;
+
 	const hm_pair_t *pair;
 
 	// traverse and write the table.
-	for(pair = hm_memtable_it_first(memtable, &it); pair; pair = hm_memtable_it_next(memtable, &it)){
+	for(pair = hm_memtable_it_first(it); pair; pair = hm_memtable_it_next(it)){
 		be = htobe64(current_place);
 		fwrite(& be, sizeof(uint64_t), 1, F);
 
@@ -138,16 +171,19 @@ int hm_disktable_createfrommemtablef(const hm_memtable_t *memtable, FILE *F){
 	}
 
 	// traverse and write the data.
-	for(pair = hm_memtable_it_first(memtable, &it); pair; pair = hm_memtable_it_next(memtable, &it)){
+	for(pair = hm_memtable_it_first(it); pair; pair = hm_memtable_it_next(it)){
 		hm_pair_fwrite(pair, F);
 	}
+
+	hm_memtable_it_close(it);
 
 	return 0;
 }
 
 // =============================================
 
-static const void *_hm_disktable_locate_bsearch(const hm_disktable_t *mmf, const char *key, uint64_t *ppos){
+static const void *_hm_disktable_locate_bsearch(const hm_disktable_t *mmf, const char *key, uint64_t *ppos)
+{
 	if (key == NULL)
 		return NULL;
 
@@ -186,11 +222,13 @@ static const void *_hm_disktable_locate_bsearch(const hm_disktable_t *mmf, const
 	return NULL;
 }
 
-inline static const void *_hm_disktable_get(const hm_disktable_t *mmf, const char *key, uint64_t *ppos){
+inline static const void *_hm_disktable_get(const hm_disktable_t *mmf, const char *key, uint64_t *ppos)
+{
 	return _hm_disktable_locate_bsearch(mmf, key, ppos);
 }
 
-inline static uint64_t _hm_disktable_getcount(const char *mem){
+inline static uint64_t _hm_disktable_getcount(const char *mem)
+{
 	const hm_disktable_fileformat_t *head = (hm_disktable_fileformat_t *) mem;
 	return be64toh(head->size);
 }

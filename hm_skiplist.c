@@ -6,7 +6,8 @@
 #include <string.h>	// strcmp
 
 
-hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height){
+hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height)
+{
 	if (height == 0 || height > MAX_HEIGHT)
 		height = DEF_HEIGHT;
 
@@ -23,7 +24,8 @@ hm_skiplist_t *hm_skiplist_create(hm_skiplist_t *l, hm_skiplist_height_t height)
 	return _hm_skiplist_clear(l);
 }
 
-hm_skiplist_t *hm_skiplist_createa(hm_skiplist_height_t height){
+hm_skiplist_t *hm_skiplist_createa(hm_skiplist_height_t height)
+{
 	hm_skiplist_t *l = malloc(sizeof(hm_skiplist_t));
 
 	if (l == NULL)
@@ -37,13 +39,15 @@ hm_skiplist_t *hm_skiplist_createa(hm_skiplist_height_t height){
 	return NULL;
 }
 
-void hm_skiplist_destroy(hm_skiplist_t *l){
+void hm_skiplist_destroy(hm_skiplist_t *l)
+{
 	hm_skiplist_removeall(l);
 
 	free(l->heads);
 }
 
-void hm_skiplist_removeall(hm_skiplist_t *l){
+void hm_skiplist_removeall(hm_skiplist_t *l)
+{
 	hm_skiplist_node_t *copy;
 	hm_skiplist_node_t *node;
 	for(node = l->heads[0]; node; ){
@@ -58,7 +62,8 @@ void hm_skiplist_removeall(hm_skiplist_t *l){
 	_hm_skiplist_clear(l);
 }
 
-int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *newdata){
+int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *newdata)
+{
 	if (newdata == NULL)
 		return 0;
 
@@ -127,7 +132,8 @@ int hm_skiplist_put(hm_skiplist_t *l, hm_pair_t *newdata){
 	return 1;
 }
 
-const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key){
+const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key)
+{
 	if (key == NULL)
 		return NULL;
 
@@ -139,7 +145,8 @@ const hm_pair_t *hm_skiplist_get(const hm_skiplist_t *l, const char *key){
 	return NULL;
 }
 
-int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
+int hm_skiplist_remove(hm_skiplist_t *l, const char *key)
+{
 	if (key == NULL)
 		return 0;
 
@@ -174,16 +181,19 @@ int hm_skiplist_remove(hm_skiplist_t *l, const char *key){
 	return 1;
 }
 
-size_t hm_skiplist_sizeof(const hm_skiplist_t *l){
+size_t hm_skiplist_sizeof(const hm_skiplist_t *l)
+{
 	return l->datasize;
 }
 
-size_t hm_skiplist_count(const hm_skiplist_t *l){
+size_t hm_skiplist_count(const hm_skiplist_t *l)
+{
 	return l->datacount;
 }
 
 #if 0
-size_t hm_skiplist_count(const hm_skiplist_t *l){
+size_t hm_skiplist_count(const hm_skiplist_t *l)
+{
 	size_t count = 0;
 
 	const hm_skiplist_node_t *node;
@@ -195,7 +205,8 @@ size_t hm_skiplist_count(const hm_skiplist_t *l){
 }
 #endif
 
-void hm_skiplist_printf_lanes(const hm_skiplist_t *l){
+void hm_skiplist_printf_lanes(const hm_skiplist_t *l)
+{
 	hm_skiplist_height_t i;
 	for(i = l->height; i >= 0; --i){
 		printf("Lane # %5u :\n", i - 1);
@@ -203,27 +214,47 @@ void hm_skiplist_printf_lanes(const hm_skiplist_t *l){
 	}
 }
 
-const hm_pair_t *hm_skiplist_it_first(const hm_skiplist_t *l, hm_skiplist_it_t *it){
-	const hm_skiplist_node_t *node = l->heads[0];
-	it->p = node;
+const hm_skiplist_it_t *hm_skiplist_it_open(const hm_skiplist_t *l)
+{
+	hm_skiplist_it_t *it = malloc(sizeof(hm_skiplist_it_t));
+	if (it == NULL)
+		return NULL;
+
+	it->l = l;
+	it->node = NULL;
+
+	return it;
+}
+
+void hm_skiplist_it_close(hm_skiplist_it_t *it)
+{
+	free(it);
+}
+
+const hm_pair_t *hm_skiplist_it_first(hm_skiplist_it_t *it)
+{
+	const hm_skiplist_node_t *node = it->l->heads[0];
+	it->node = node;
 
 	return node ? node->data : NULL;
 }
 
-const hm_pair_t *hm_skiplist_it_next(const hm_skiplist_t *l,  hm_skiplist_it_t *it){
-	if (it->p == NULL)
+const hm_pair_t *hm_skiplist_it_next(hm_skiplist_it_t *it)
+{
+	if (it->node == NULL)
 		return NULL;
 
-	const hm_skiplist_node_t *node = it->p;
+	const hm_skiplist_node_t *node = it->node;
 	node = node->next[0];
-	it->p = node;
+	it->node = node;
 
 	return node ? node->data : NULL;
 }
 
 // ===============================================================
 
-static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l){
+static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l)
+{
 	l->datasize = 0;
 	l->datacount = 0;
 
@@ -234,7 +265,8 @@ static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l){
 	return l;
 }
 
-static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation){
+static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation)
+{
 	// it is extremly dangerous to have key == NULL here.
 	if (key == NULL){
 		_hm_error("FATAL ERROR", __FILE__, __LINE__);
@@ -274,7 +306,8 @@ static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, con
 	return cmp ? NULL : node;
 }
 
-static unsigned char _hm_skiplist_height(const hm_skiplist_t *l){
+static unsigned char _hm_skiplist_height(const hm_skiplist_t *l)
+{
 	// This gives slightly better performance,
 	// than divide by 3 or multply by 0.33
 	int part = RAND_MAX >> 1;
@@ -292,7 +325,8 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l){
 
 // ===============================================================
 
-static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane){
+static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane)
+{
 	unsigned char i = 0;
 	const hm_skiplist_node_t *node;
 	for(node = l->heads[lane]; node; node = node->next[lane]){
@@ -307,46 +341,67 @@ static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_
 
 // ===============================================================
 
-hm_memtable_t *hm_memtable_createa(){
+hm_memtable_t *hm_memtable_createa()
+{
 	return hm_skiplist_createa(0);
 }
 
-hm_memtable_t *hm_memtable_create(hm_memtable_t *a){
+hm_memtable_t *hm_memtable_create(hm_memtable_t *a)
+{
 	return hm_skiplist_create(a, 0);
 }
 
-void hm_memtable_destroy(hm_memtable_t *a){
+void hm_memtable_destroy(hm_memtable_t *a)
+{
 	hm_skiplist_destroy(a);
 }
 
-void hm_memtable_removeall(hm_memtable_t *a){
+void hm_memtable_removeall(hm_memtable_t *a)
+{
 	hm_skiplist_removeall(a);
 }
 
-int hm_memtable_put(hm_memtable_t *a, hm_pair_t *pair){
+int hm_memtable_put(hm_memtable_t *a, hm_pair_t *pair)
+{
 	return hm_skiplist_put(a, pair);
 }
 
-const hm_pair_t *hm_memtable_get(const hm_memtable_t *a, const char *key){
+const hm_pair_t *hm_memtable_get(const hm_memtable_t *a, const char *key)
+{
 	return hm_skiplist_get(a, key);
 }
 
-int hm_memtable_remove(hm_memtable_t *a, const char *key){
+int hm_memtable_remove(hm_memtable_t *a, const char *key)
+{
 	return hm_skiplist_remove(a, key);
 }
 
-size_t hm_memtable_count(const hm_memtable_t *a){
+size_t hm_memtable_count(const hm_memtable_t *a)
+{
 	return hm_skiplist_count(a);
 }
 
-size_t hm_memtable_sizeof(const hm_memtable_t *a){
+size_t hm_memtable_sizeof(const hm_memtable_t *a)
+{
 	return hm_skiplist_sizeof(a);
 }
 
-const hm_pair_t *hm_memtable_it_first(const hm_memtable_t *a, hm_memtable_it_t *it){
-	return hm_skiplist_it_first(a, (hm_skiplist_it_t *) it);
+hm_memtable_it_t *hm_memtable_it_open(const hm_memtable_t *l)
+{
+	return (hm_memtable_it_t *) hm_skiplist_it_open(l);
 }
 
-const hm_pair_t *hm_memtable_it_next(const hm_memtable_t *a,  hm_memtable_it_t *it){
-	return hm_skiplist_it_next(a, (hm_skiplist_it_t *) it);
+void hm_memtable_it_close(hm_memtable_it_t *it)
+{
+	hm_skiplist_it_close( (hm_skiplist_it_t *) it);
+}
+
+const hm_pair_t *hm_memtable_it_first(hm_memtable_it_t *it)
+{
+	return hm_skiplist_it_first( (hm_skiplist_it_t *) it);
+}
+
+const hm_pair_t *hm_memtable_it_next(hm_memtable_it_t *it)
+{
+	return hm_skiplist_it_next( (hm_skiplist_it_t *) it);
 }
