@@ -8,10 +8,7 @@
 
 typedef struct _hm_disktable_t hm_disktable_t;
 
-typedef struct _hm_disktable_it_t{
-	const hm_disktable_t	*mmf;
-	uint64_t		pos;
-} hm_disktable_it_t;
+typedef struct _hm_disktable_it_t hm_disktable_it_t;
 
 hm_disktable_t *hm_disktable_open(hm_disktable_t *mmf, const char *filename);
 hm_disktable_t *hm_disktable_opena(const char *filename);

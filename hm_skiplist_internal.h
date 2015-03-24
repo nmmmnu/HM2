@@ -4,6 +4,7 @@
 #include "hm_skiplist.h"
 
 #include <stdlib.h>	// exit
+#include <stdio.h>	// printf
 
 
 #define MAX_HEIGHT 64
@@ -33,13 +34,15 @@ typedef struct _hm_skiplist_it_t{
 	const hm_skiplist_node_t	*node;	// system dependent
 } hm_skiplist_it_t;
 
+
 static hm_skiplist_t *_hm_skiplist_clear(hm_skiplist_t *l);
 static unsigned char _hm_skiplist_height(const hm_skiplist_t *l);
 static const hm_skiplist_node_t *_hm_skiplist_locate(const hm_skiplist_t *l, const char *key, int complete_evaluation);
 
 static void _hm_skiplist_printf_lane(const hm_skiplist_t *l, hm_skiplist_height_t lane);
 
-inline static void _hm_error(const char *err, const char *file, unsigned int line){
+inline static void _hm_error(const char *err, const char *file, unsigned int line)
+{
 	fprintf(stderr, "%s: key is NULL on %s:%u\n", err, file, line);
 	exit(100);
 }

@@ -320,7 +320,6 @@ static unsigned char _hm_skiplist_height(const hm_skiplist_t *l)
 		++h;
 
 	return h;
-
 }
 
 // ===============================================================

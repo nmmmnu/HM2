@@ -18,4 +18,11 @@ typedef struct _hm_disktable_fileformat_t{
 } __attribute__((__packed__)) hm_disktable_fileformat_t;
 // yes, we *want* __attribute__ to give error on no-GCC
 
+
+typedef struct _hm_disktable_it_t{
+	const hm_disktable_t	*mmf;
+	uint64_t		pos;
+} hm_disktable_it_t;
+
+
 #endif

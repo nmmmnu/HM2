@@ -8,7 +8,8 @@ static int _hm_glob_check_file(const char *filename);
 static const char **_hm_glob_emptyresult();
 
 
-const char **hm_glob_open(glob_t *globresults, const char *path){
+const char **hm_glob_open(glob_t *globresults, const char *path)
+{
 	int result = glob(path, 0, NULL, globresults);
 
 	if (result == GLOB_NOMATCH)
@@ -27,7 +28,7 @@ const char **hm_glob_open(glob_t *globresults, const char *path){
 	// check if there is something else than file / symlink in the directory
 	size_t j = 0;
 	size_t i;
-	for (i = 0; i < globresults->gl_pathc; i++){
+	for (i = 0; i < globresults->gl_pathc; ++i){
 		const char *filename = globresults->gl_pathv[i];
 
 		if (_hm_glob_check_file( filename ))
@@ -39,11 +40,12 @@ const char **hm_glob_open(glob_t *globresults, const char *path){
 	return files;
 }
 
-size_t hm_glob_size(const char **files){
+size_t hm_glob_size(const char **files)
+{
 	size_t count = 0;
 	while(*files){
-		files++;
-		count++;
+		++files;
+		++count;
 	}
 
 	return count;
@@ -53,7 +55,8 @@ size_t hm_glob_size(const char **files){
 // ======================================================
 
 
-static int _hm_glob_check_file(const char *filename){
+static int _hm_glob_check_file(const char *filename)
+{
 	struct stat s;
 	stat(filename, & s);
 
@@ -66,7 +69,8 @@ static int _hm_glob_check_file(const char *filename){
 	return 0;
 }
 
-static const char **_hm_glob_emptyresult(){
+static const char **_hm_glob_emptyresult()
+{
 	const char **m = malloc(sizeof(char *));
 
 	if (m){

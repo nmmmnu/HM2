@@ -48,6 +48,7 @@ int main(int argc, char **argv){
 	}
 
 	hm_dir_close(dir);
+	free(dir);
 
 	return 0;
 }

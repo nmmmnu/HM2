@@ -8,7 +8,8 @@
 #include <string.h>	// strdup
 
 
-hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
+hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path)
+{
 	dir->path = path;
 
 	glob_t globresults;
@@ -18,9 +19,9 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	if (files == NULL)
 		return NULL;
 
-	dir->count = hm_glob_size(files);
+	size_t count = hm_glob_size(files);
 
-	if (dir->count == 0){
+	if (count == 0){
 		hm_glob_close(& globresults, files);
 
 		dir->count = 0;
@@ -32,12 +33,17 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 
 	// dir->count is at least 1
 
-	dir->files = malloc(dir->count * sizeof(hm_disktable_t));
-	if (dir->files == NULL)
+	dir->files = malloc(count * sizeof(hm_disktable_t));
+	if (dir->files == NULL){
+		hm_glob_close(& globresults, files);
+
 		return NULL;
+	}
+
+	dir->count = 0;
 
 	size_t i;
-	for(i = 0; i < dir->count; ++i){
+	for(i = 0; i < count; ++i){
 		const char *filename = files[i];
 		// open the file
 		hm_disktable_t *file = hm_disktable_open( & dir->files[i], filename);
@@ -61,6 +67,8 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 		// but it seems to be best way.
 		// if fail, will produce NULL, so no checks need
 		file->filename = strdup(filename);
+
+		++(dir->count);
 	}
 
 	hm_glob_close(& globresults, files);
@@ -68,7 +76,8 @@ hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path){
 	return dir;
 }
 
-hm_dir_t *hm_dir_opena(const char *path){
+hm_dir_t *hm_dir_opena(const char *path)
+{
 	hm_dir_t *dir = malloc(sizeof(hm_dir_t));
 
 	if (dir == NULL)
@@ -82,7 +91,8 @@ hm_dir_t *hm_dir_opena(const char *path){
 	return NULL;
 }
 
-void hm_dir_close(hm_dir_t *dir){
+void hm_dir_close(hm_dir_t *dir)
+{
 	size_t i;
 	for(i = 0; i < dir->count; ++i){
 		hm_disktable_t *file = & dir->files[i];
@@ -96,7 +106,8 @@ void hm_dir_close(hm_dir_t *dir){
 	free(dir->files);
 }
 
-hm_dir_t *hm_dir_reopen(hm_dir_t *dir){
+hm_dir_t *hm_dir_reopen(hm_dir_t *dir)
+{
 	const char *path = dir->path;
 
 	// lame - close, then open
@@ -107,7 +118,8 @@ hm_dir_t *hm_dir_reopen(hm_dir_t *dir){
 	return hm_dir_open(dir, path);
 }
 
-const void *hm_dir_get(const hm_dir_t *dir, const char *key){
+const void *hm_dir_get(const hm_dir_t *dir, const char *key)
+{
 	size_t i;
 	for(i = dir->count; i > 0; --i){
 		hm_disktable_t *file = & dir->files[i - 1];
@@ -123,7 +135,8 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key){
 	return NULL;
 }
 
-void hm_dir_printf(const hm_dir_t *dir){
+void hm_dir_printf(const hm_dir_t *dir)
+{
 	size_t i;
 	for(i = 0; i < dir->count; ++i){
 		hm_disktable_t *file = & dir->files[i];

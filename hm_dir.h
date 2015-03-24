@@ -3,6 +3,7 @@
 
 
 typedef struct _hm_dir_t hm_dir_t;
+typedef struct _hm_dir_it_t hm_dir_it_t;
 
 
 hm_dir_t *hm_dir_open(hm_dir_t *dir, const char *path);
