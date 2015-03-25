@@ -83,6 +83,8 @@ static int dump_file(const char *filename, const char *keytofind){
 			break;
 	}
 
+	hm_disktable_it_close(it);
+
 	hm_disktable_close(mmf);
 	free(mmf);
 
@@ -134,7 +136,7 @@ static void _load_file(hm_memtable_t *list, const char *filename){
 	while( (key = fgets(buffer, BUFFER_SIZE, f)) ){
 		trim(key);
 
-		hm_memtable_put(list, hm_pair_create(key, NULL));
+		hm_memtable_put(list, hm_pair_create(key, filename));
 
 		++i;
 

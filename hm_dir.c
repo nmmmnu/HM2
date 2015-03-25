@@ -135,6 +135,80 @@ const void *hm_dir_get(const hm_dir_t *dir, const char *key)
 	return NULL;
 }
 
+hm_dir_it_t *hm_dir_it_open(const hm_dir_t *dir)
+{
+	hm_dir_it_t *it = malloc(sizeof(hm_dir_it_t) + dir->count * sizeof(hm_dir_it_pair_t) );
+
+	if (it == NULL)
+		return NULL;
+
+	it->dir = dir;
+	//memset(it->p, 0, psize);
+
+	return it;
+}
+
+void hm_dir_it_close(hm_dir_it_t *it)
+{
+	free(it);
+}
+
+const hm_pair_t *hm_dir_it_first(hm_dir_it_t *it)
+{
+	size_t i;
+	for(i = 0; i < it->dir->count; ++i){
+		const hm_disktable_t *file = & it->dir->files[i];
+
+		it->p[i].pos  = 0;
+		it->p[i].pair = hm_disktable_getat(file, 0);
+	}
+
+	return hm_dir_it_next(it);
+}
+
+const hm_pair_t *hm_dir_it_next(hm_dir_it_t *it)
+{
+	const hm_pair_t *pair = NULL;
+
+	size_t i;
+
+	// step 1: find minimal in reverse order to find most recent.
+	for(i = it->dir->count; i > 0; --i){
+		const hm_pair_t *pair2 = it->p[i - 1].pair;
+
+		// skip pair
+		if (pair2 == NULL)
+			continue;
+
+		// initialize pair
+		if (pair == NULL){
+			pair = pair2;
+			continue;
+		}
+
+		// compare and swap pair
+		if (hm_pair_cmppair(pair, pair2) > 0)
+			pair = pair2;
+	}
+
+	if (pair == NULL)
+		return NULL;
+
+	// step 2: increase all duplicates
+	for(i = 0; i < it->dir->count; ++i){
+		const hm_pair_t *pair2 = it->p[i].pair;
+
+		if (pair2 && hm_pair_cmppair(pair, pair2) == 0){
+			const hm_disktable_t *file = & it->dir->files[i];
+
+			it->p[i].pair = hm_disktable_getat(file, ++it->p[i].pos);
+		}
+	}
+
+	return pair;
+}
+
+
 void hm_dir_printf(const hm_dir_t *dir)
 {
 	size_t i;
@@ -144,7 +218,6 @@ void hm_dir_printf(const hm_dir_t *dir)
 		printf("%5zu : %s\n", i, file->filename);
 	}
 }
-
 
 // ======================================================
 
